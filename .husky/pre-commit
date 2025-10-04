@@ -1,0 +1,6 @@
+echo "🔍 Running pre-commit checks..."
+
+npx lint-staged || exit 1
+npm run type-check || exit 1
+
+echo "✅ All checks passed! Proceeding with commit."
