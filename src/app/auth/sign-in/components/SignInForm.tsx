@@ -14,14 +14,14 @@ import {
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Input } from '@/components/ui/input'
 import { toast } from 'react-toastify'
 import { useRouter } from 'next/navigation'
 import { routes } from '@/configs/routes'
-import LoadingButton from '@/components/ui/loading-button'
-import { PasswordInput } from '@/components/ui/password-input'
+import LoadingButton from '@/components/custom/loading-button'
 import Link from 'next/link'
 import { useSignIn } from '@/hooks'
+import CustomPasswordInput from '@/components/custom/custom-password-input'
+import CustomInput from '@/components/custom/custom-input'
 
 const formSchema = z.object({
 	email: z.string().email({ message: 'Email không hợp lệ' }),
@@ -68,11 +68,10 @@ function SignInForm() {
 								<FormItem>
 									<FormLabel>Email</FormLabel>
 									<FormControl>
-										<Input
+										<CustomInput
 											placeholder='Nhập email'
 											autoFocus
 											{...field}
-											className='focus-visible:ring-0'
 										/>
 									</FormControl>
 									<FormDescription />
@@ -87,10 +86,9 @@ function SignInForm() {
 								<FormItem>
 									<FormLabel>Mật khẩu</FormLabel>
 									<FormControl>
-										<PasswordInput
+										<CustomPasswordInput
 											placeholder='Nhập mật khẩu'
 											{...field}
-											className='focus-visible:ring-0'
 										/>
 									</FormControl>
 									<FormDescription />

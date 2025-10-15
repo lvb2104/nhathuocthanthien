@@ -10,7 +10,7 @@ export function useSignOut() {
 			authStore.setIsLoggedIn(false)
 			authStore.setEmailPendingVerification(undefined)
 			localStorage.removeItem('access-token')
-			return true // TODO: need to call sign out API if exists
+			return
 		},
 		onSuccess: () => {},
 		onError: (error: any) => handleAxiosError(error),

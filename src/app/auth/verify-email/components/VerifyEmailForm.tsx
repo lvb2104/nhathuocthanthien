@@ -16,15 +16,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'react-toastify'
 import { useRouter } from 'next/navigation'
 import { routes } from '@/configs/routes'
-import LoadingButton from '@/components/ui/loading-button'
-import {
-	InputOTP,
-	InputOTPGroup,
-	InputOTPSlot,
-} from '@/components/ui/input-otp'
+import LoadingButton from '@/components/custom/loading-button'
+import { InputOTP, InputOTPGroup } from '@/components/ui/input-otp'
 import { REGEXP_ONLY_DIGITS } from 'input-otp'
 import { useAuthStore } from '@/store'
 import { useVerifyEmail } from '@/hooks'
+import CustomInputOTPSlot from '@/components/custom/custom-input-otp-slot'
 
 const formSchema = z.object({
 	email: z.string().email({ message: 'Email không hợp lệ' }),
@@ -78,12 +75,12 @@ function VerifyEmailForm() {
 											{...field}
 										>
 											<InputOTPGroup>
-												<InputOTPSlot index={0} />
-												<InputOTPSlot index={1} />
-												<InputOTPSlot index={2} />
-												<InputOTPSlot index={3} />
-												<InputOTPSlot index={4} />
-												<InputOTPSlot index={5} />
+												<CustomInputOTPSlot index={0} />
+												<CustomInputOTPSlot index={1} />
+												<CustomInputOTPSlot index={2} />
+												<CustomInputOTPSlot index={3} />
+												<CustomInputOTPSlot index={4} />
+												<CustomInputOTPSlot index={5} />
 											</InputOTPGroup>
 										</InputOTP>
 									</FormControl>

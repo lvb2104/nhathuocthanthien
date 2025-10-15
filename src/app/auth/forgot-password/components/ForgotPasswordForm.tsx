@@ -14,12 +14,12 @@ import {
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Input } from '@/components/ui/input'
 import { toast } from 'react-toastify'
 import { useRouter } from 'next/navigation'
 import { routes } from '@/configs/routes'
-import LoadingButton from '@/components/ui/loading-button'
+import LoadingButton from '@/components/custom/loading-button'
 import { useForgotPassword } from '@/hooks'
+import CustomInput from '@/components/custom/custom-input'
 
 const formSchema = z.object({
 	email: z.string().email({ message: 'Email không hợp lệ' }),
@@ -66,11 +66,10 @@ function ForgotPasswordForm() {
 								<FormItem>
 									<FormLabel>Email</FormLabel>
 									<FormControl>
-										<Input
+										<CustomInput
 											placeholder='Nhập email để đặt lại mật khẩu'
 											autoFocus
 											{...field}
-											className='focus-visible:ring-0'
 										/>
 									</FormControl>
 									<FormDescription />

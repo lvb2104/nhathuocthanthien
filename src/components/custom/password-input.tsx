@@ -1,6 +1,7 @@
 import { Eye, EyeOff } from 'lucide-react'
-import { Input } from './input'
 import { useState } from 'react'
+import CustomInput from './custom-input'
+import { Input } from '../ui/input'
 
 export function PasswordInput({
 	className,
@@ -10,7 +11,7 @@ export function PasswordInput({
 
 	return (
 		<div className='relative'>
-			<Input
+			<CustomInput
 				type={show ? 'text' : 'password'}
 				{...props}
 				className={`pr-10 ${className}`}
