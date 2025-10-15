@@ -6,10 +6,14 @@ import NextTopLoader from 'nextjs-toploader'
 import { fonts } from '@/configs/fonts'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
+import MoveButton from '@/components/common/MoveButton'
+import Features from '@/components/common/Features'
+import StoreLocationBar from '@/components/common/StoreLocationBar'
 
 export const metadata: Metadata = {
-	title: 'Pharmacy Retail System',
-	description: 'A comprehensive system for managing pharmacy operations',
+	title: 'Nhà thuốc thân thiên',
+	description:
+		'Nền tảng đặt mua thuốc và sản phẩm chăm sóc sức khỏe trực tuyến hàng đầu Việt Nam',
 	icons: {
 		icon: '/images/logo.png',
 	},
@@ -34,7 +38,10 @@ export default function RootLayout({
 				/>
 				<Header />
 				<AppProviders>{children}</AppProviders>
+				<Features />
+				<StoreLocationBar />
 				<Footer />
+				<MoveButton />
 				<ToastContainer
 					position='bottom-right'
 					autoClose={5000}
