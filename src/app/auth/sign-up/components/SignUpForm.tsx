@@ -14,15 +14,15 @@ import {
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Input } from '@/components/ui/input'
 import { toast } from 'react-toastify'
 import { useRouter } from 'next/navigation'
 import { routes } from '@/configs/routes'
-import LoadingButton from '@/components/ui/loading-button'
-import { PasswordInput } from '@/components/ui/password-input'
+import LoadingButton from '@/components/custom/loading-button'
 import { omit } from 'lodash'
 import Link from 'next/link'
 import { useSignUp } from '@/hooks'
+import CustomInput from '@/components/custom/custom-input'
+import CustomPasswordInput from '@/components/custom/custom-password-input'
 
 const formSchema = z
 	.object({
@@ -84,11 +84,10 @@ function SignUpForm() {
 								<FormItem>
 									<FormLabel>Email</FormLabel>
 									<FormControl>
-										<Input
+										<CustomInput
 											placeholder='Nhập email'
 											autoFocus
 											{...field}
-											className='focus-visible:ring-0'
 										/>
 									</FormControl>
 									<FormDescription />
@@ -103,10 +102,9 @@ function SignUpForm() {
 								<FormItem>
 									<FormLabel>Mật khẩu</FormLabel>
 									<FormControl>
-										<PasswordInput
+										<CustomPasswordInput
 											placeholder='Nhập mật khẩu'
 											{...field}
-											className='focus-visible:ring-0'
 										/>
 									</FormControl>
 									<FormDescription />
@@ -121,10 +119,9 @@ function SignUpForm() {
 								<FormItem>
 									<FormLabel>Xác nhận mật khẩu</FormLabel>
 									<FormControl>
-										<PasswordInput
+										<CustomPasswordInput
 											placeholder='Nhập lại mật khẩu'
 											{...field}
-											className='focus-visible:ring-0'
 										/>
 									</FormControl>
 									<FormDescription />
@@ -139,11 +136,7 @@ function SignUpForm() {
 								<FormItem>
 									<FormLabel>Họ và tên</FormLabel>
 									<FormControl>
-										<Input
-											placeholder='Nhập họ và tên'
-											{...field}
-											className='focus-visible:ring-0'
-										/>
+										<CustomInput placeholder='Nhập họ và tên' {...field} />
 									</FormControl>
 									<FormDescription />
 									<FormMessage />

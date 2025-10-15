@@ -17,12 +17,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'react-toastify'
 import { useRouter } from 'next/navigation'
 import { routes } from '@/configs/routes'
-import LoadingButton from '@/components/ui/loading-button'
-import { PasswordInput } from '@/components/ui/password-input'
+import LoadingButton from '@/components/custom/loading-button'
 import { omit } from 'lodash'
 import Link from 'next/link'
 import { useResetPassword } from '@/hooks'
 import { useAuthStore } from '@/store'
+import CustomPasswordInput from '@/components/custom/custom-password-input'
 
 const formSchema = z
 	.object({
@@ -81,10 +81,9 @@ function ResetPasswordForm() {
 								<FormItem>
 									<FormLabel>Mật khẩu</FormLabel>
 									<FormControl>
-										<PasswordInput
+										<CustomPasswordInput
 											placeholder='Nhập mật khẩu mới'
 											{...field}
-											className='focus-visible:ring-0'
 										/>
 									</FormControl>
 									<FormDescription />
@@ -99,10 +98,9 @@ function ResetPasswordForm() {
 								<FormItem>
 									<FormLabel>Xác nhận mật khẩu</FormLabel>
 									<FormControl>
-										<PasswordInput
+										<CustomPasswordInput
 											placeholder='Nhập lại mật khẩu'
 											{...field}
-											className='focus-visible:ring-0'
 										/>
 									</FormControl>
 									<FormDescription />

@@ -38,7 +38,9 @@ function Header() {
 						<Image src={user} alt='User' width={15} height={15} />
 					</Link>
 					{isLoggedIn ? (
-						<button onClick={handleSignOut}>Đăng xuất</button>
+						<button className='cursor-pointer' onClick={handleSignOut}>
+							Đăng xuất
+						</button>
 					) : (
 						<>
 							<Link href={routes.signIn}>Đăng nhập</Link> |
