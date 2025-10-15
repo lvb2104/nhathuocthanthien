@@ -3,19 +3,19 @@ import { Search } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
+import user from '@/assets/icons/user.svg'
+import list from '@/assets/icons/list.png'
+import cart from '@/assets/icons/cart.svg'
+import downArrow from '@/assets/icons/down-arrow.svg'
 
 function Header() {
 	return (
-		<header className='px-[10%] py-2 bg-[#54AA00]'>
+		<header className='px-[10%] py-2 bg-[#54AA00] text-white'>
 			{/* Top Bar */}
-			<div className='flex justify-end gap-2 text-white text-sm'>
-				<Image
-					src='/images/user.svg'
-					alt='User'
-					width={15}
-					height={15}
-					className=''
-				/>
+			<div className='flex justify-end align-center gap-2 text-sm'>
+				<Link href={routes.profile} className='flex items-center'>
+					<Image src={user} alt='User' width={15} height={15} />
+				</Link>
 				<Link href={routes.signIn}>Sign In</Link>
 				<Link href={routes.signUp}>Sign Up</Link>
 			</div>
@@ -26,7 +26,7 @@ function Header() {
 					<div>
 						<Image src='/images/logo.png' alt='Logo' width={100} height={100} />
 					</div>
-					<div className='text-white'>
+					<div>
 						<div className='text-xs uppercase'>Nhà thuốc</div>
 						<div className='text-2xl font-bold'>thân thiên</div>
 						<div className='text-xs'>Pharmacy</div>
@@ -46,15 +46,10 @@ function Header() {
 					</div>
 				</div>
 				{/* Cart and Order Tracking */}
-				<div className='flex items-center gap-6 text-white'>
+				<div className='flex items-center gap-6'>
 					<div className='flex items-center gap-2 cursor-pointer'>
 						<div className='bg-opacity-20 p-2 rounded'>
-							<Image
-								src='/images/list.png'
-								alt='Order Tracking'
-								width={30}
-								height={30}
-							/>
+							<Image src={list} alt='Order Tracking' width={30} height={30} />
 						</div>
 						<div>
 							<div className='text-xs'>Tra cứu</div>
@@ -63,7 +58,7 @@ function Header() {
 					</div>
 					<div className='flex items-center gap-2 cursor-pointer'>
 						<div className='bg-opacity-20 p-2 rounded'>
-							<Image src='/images/cart.svg' alt='Cart' width={30} height={30} />
+							<Image src={cart} alt='Cart' width={30} height={30} />
 						</div>
 						<div>
 							<div className='text-xs'>Giỏ hàng</div>
@@ -78,12 +73,12 @@ function Header() {
 				</div>
 			</div>
 			{/* Navigation */}
-			<nav className='bg-[#6FA225]'>
-				<div className='container mx-auto px-6 flex items-center justify-between text-white text-sm'>
+			<nav>
+				<div className='container mx-auto px-6 flex items-center justify-between text-sm'>
 					<button className='px-4 py-2 rounded'>
 						Thực phẩm chức năng
 						<Image
-							src='/images/down-arrow.svg'
+							src={downArrow}
 							alt='Down Arrow'
 							width={10}
 							height={10}
@@ -93,7 +88,7 @@ function Header() {
 					<button className='px-4 py-2 rounded'>
 						Mỹ phẩm
 						<Image
-							src='/images/down-arrow.svg'
+							src={downArrow}
 							alt='Down Arrow'
 							width={10}
 							height={10}
@@ -103,7 +98,7 @@ function Header() {
 					<button className='px-4 py-2 rounded'>
 						Mẹ & bé
 						<Image
-							src='/images/down-arrow.svg'
+							src={downArrow}
 							alt='Down Arrow'
 							width={10}
 							height={10}
@@ -113,7 +108,7 @@ function Header() {
 					<button className='px-4 py-2 rounded'>
 						Dược phẩm
 						<Image
-							src='/images/down-arrow.svg'
+							src={downArrow}
 							alt='Down Arrow'
 							width={10}
 							height={10}
@@ -123,7 +118,7 @@ function Header() {
 					<button className='px-4 py-2 rounded'>
 						Bao cao su
 						<Image
-							src='/images/down-arrow.svg'
+							src={downArrow}
 							alt='Down Arrow'
 							width={10}
 							height={10}
@@ -133,7 +128,7 @@ function Header() {
 					<button className='px-4 py-2 rounded'>
 						Bệnh học
 						<Image
-							src='/images/down-arrow.svg'
+							src={downArrow}
 							alt='Down Arrow'
 							width={10}
 							height={10}
@@ -143,7 +138,7 @@ function Header() {
 					<button className='px-4 py-2 rounded'>
 						Giới thiệu
 						<Image
-							src='/images/down-arrow.svg'
+							src={downArrow}
 							alt='Down Arrow'
 							width={10}
 							height={10}
@@ -153,7 +148,7 @@ function Header() {
 					<button className='px-4 py-2 rounded'>
 						Dược thư
 						<Image
-							src='/images/down-arrow.svg'
+							src={downArrow}
 							alt='Down Arrow'
 							width={10}
 							height={10}
@@ -163,7 +158,7 @@ function Header() {
 					<button className='px-4 py-2 rounded'>
 						Có may mắn
 						<Image
-							src='/images/down-arrow.svg'
+							src={downArrow}
 							alt='Down Arrow'
 							width={10}
 							height={10}
