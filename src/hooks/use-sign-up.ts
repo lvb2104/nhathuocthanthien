@@ -1,11 +1,11 @@
 import { SignUpDto, SignUpResponse } from '@/lib/types'
 import { handleAxiosError } from '@/lib/utils'
 import { signUp } from '@/services'
-import { useAppStore } from '@/store'
+import { useAuthStore } from '@/store'
 import { useMutation } from '@tanstack/react-query'
 
 export function useSignUp() {
-	const { setEmailPendingVerification } = useAppStore()
+	const { setEmailPendingVerification } = useAuthStore()
 
 	return useMutation({
 		mutationFn: signUp,

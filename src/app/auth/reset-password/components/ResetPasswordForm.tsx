@@ -14,7 +14,6 @@ import {
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Input } from '@/components/ui/input'
 import { toast } from 'react-toastify'
 import { useRouter } from 'next/navigation'
 import { routes } from '@/configs/routes'
@@ -22,45 +21,43 @@ import LoadingButton from '@/components/ui/loading-button'
 import { PasswordInput } from '@/components/ui/password-input'
 import { omit } from 'lodash'
 import Link from 'next/link'
-import { useSignUp } from '@/hooks'
+import { useResetPassword } from '@/hooks'
+import { useAuthStore } from '@/store'
 
 const formSchema = z
 	.object({
 		email: z.string().email({ message: 'Email không hợp lệ' }),
-		password: z
+		newPassword: z
 			.string()
 			.min(6, { message: 'Mật khẩu phải có ít nhất 6 ký tự' }),
 		confirmedPassword: z
 			.string()
 			.min(6, { message: 'Mật khẩu xác nhận phải có ít nhất 6 ký tự' }),
-		fullName: z
-			.string()
-			.min(2, { message: 'Họ và tên phải có ít nhất 2 ký tự' }),
 	})
-	.refine(data => data.password === data.confirmedPassword, {
+	.refine(data => data.newPassword === data.confirmedPassword, {
 		message: 'Mật khẩu xác nhận không khớp',
 		path: ['confirmedPassword'],
 	})
 
-function SignUpForm() {
-	const { mutate, isPending } = useSignUp()
+function ResetPasswordForm() {
+	const { mutate, isPending } = useResetPassword()
+	const { emailPendingVerification } = useAuthStore()
 	const router = useRouter()
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			email: '',
-			password: '',
+			email: emailPendingVerification,
+			newPassword: '',
 			confirmedPassword: '',
-			fullName: '',
 		},
 	})
 
 	function onSubmit(values: z.infer<typeof formSchema>) {
 		mutate(omit(values, ['confirmedPassword']), {
 			onSuccess: () => {
-				toast.success('Đăng ký thành công! Vui lòng xác nhận email.')
-				router.push(routes.verifyEmail) // Redirect to email verification page
+				toast.success('Đặt lại mật khẩu thành công! Vui lòng đăng nhập lại.')
+				router.push(routes.signIn) // Redirect to sign in page
 			},
 		})
 	}
@@ -71,7 +68,7 @@ function SignUpForm() {
 					<div className='rounded-full flex items-center justify-center'>
 						<Image src={mail} alt='Mail' width={35} height={35} />
 					</div>
-					Đăng ký bằng Email
+					Đặt lại mật khẩu
 				</div>
 			</div>
 			<Form {...form}>
@@ -79,32 +76,13 @@ function SignUpForm() {
 					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
 						<FormField
 							control={form.control}
-							name='email'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Email</FormLabel>
-									<FormControl>
-										<Input
-											placeholder='Nhập email'
-											autoFocus
-											{...field}
-											className='focus-visible:ring-0'
-										/>
-									</FormControl>
-									<FormDescription />
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name='password'
+							name='newPassword'
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Mật khẩu</FormLabel>
 									<FormControl>
 										<PasswordInput
-											placeholder='Nhập mật khẩu'
+											placeholder='Nhập mật khẩu mới'
 											{...field}
 											className='focus-visible:ring-0'
 										/>
@@ -132,24 +110,6 @@ function SignUpForm() {
 								</FormItem>
 							)}
 						/>
-						<FormField
-							control={form.control}
-							name='fullName'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Họ và tên</FormLabel>
-									<FormControl>
-										<Input
-											placeholder='Nhập họ và tên'
-											{...field}
-											className='focus-visible:ring-0'
-										/>
-									</FormControl>
-									<FormDescription />
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
 						<div className='text-sm flex justify-between'>
 							<div>
 								Đã có tài khoản?{' '}
@@ -161,7 +121,7 @@ function SignUpForm() {
 						<LoadingButton
 							isLoading={isPending}
 							loadingText='Đang xử lý...'
-							text='Đăng ký'
+							text='Đặt lại mật khẩu'
 						/>
 					</form>
 				</div>
@@ -170,4 +130,4 @@ function SignUpForm() {
 	)
 }
 
-export default SignUpForm
+export default ResetPasswordForm

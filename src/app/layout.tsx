@@ -9,6 +9,7 @@ import Footer from '@/components/common/Footer'
 import MoveButton from '@/components/common/MoveButton'
 import Features from '@/components/common/Features'
 import StoreLocationBar from '@/components/common/StoreLocationBar'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 export const metadata: Metadata = {
 	title: 'Nhà thuốc thân thiên',
@@ -36,11 +37,13 @@ export default function RootLayout({
 					showSpinner={false}
 					shadow={false}
 				/>
-				<Header />
-				<AppProviders>{children}</AppProviders>
-				<Features />
-				<StoreLocationBar />
-				<Footer />
+				<AppProviders>
+					<Header />
+					{children}
+					<Features />
+					<StoreLocationBar />
+					<Footer />
+				</AppProviders>
 				<MoveButton />
 				<ToastContainer
 					position='bottom-right'
@@ -55,6 +58,7 @@ export default function RootLayout({
 					theme='light'
 					transition={Bounce}
 				/>
+				<SpeedInsights />
 			</body>
 		</html>
 	)

@@ -3,25 +3,23 @@ import { persist } from 'zustand/middleware'
 
 interface AuthState {
 	isLoggedIn: boolean
-	setIsLoggedIn: (isLoggedIn: boolean, token?: string) => void
+	setIsLoggedIn: (isLoggedIn: boolean) => void
 	hasHydrated: boolean
 	setHasHydrated: (hasHydrated: boolean) => void
+	emailPendingVerification: string | undefined
+	setEmailPendingVerification: (value: string | undefined) => void
 }
 
 export const useAuthStore = create<AuthState>()(
 	persist(
 		set => ({
 			isLoggedIn: false,
-			setIsLoggedIn: (isLoggedIn, token) => {
-				if (isLoggedIn && token) {
-					localStorage.setItem('accessToken', token)
-				} else if (!isLoggedIn) {
-					localStorage.removeItem('accessToken')
-				}
-				set({ isLoggedIn })
-			},
+			setIsLoggedIn: (isLoggedIn: boolean) => set({ isLoggedIn }),
 			hasHydrated: false,
 			setHasHydrated: hasHydrated => set({ hasHydrated }), // hydrate meaning the process of restoring the state from storage
+			emailPendingVerification: undefined,
+			setEmailPendingVerification: value =>
+				set({ emailPendingVerification: value }),
 		}),
 		{
 			name: 'auth-storage',

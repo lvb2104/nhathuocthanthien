@@ -1,12 +1,12 @@
 import { apiEndpoints } from '@/configs/apis'
 import { axiosInstance } from '@/lib/axios'
 import {
-	forgotPasswordDto,
-	resetPasswordDto,
+	ForgotPasswordDto,
+	ResetPasswordDto,
 	SignInDto,
 	SignUpDto,
-	verifyEmailDto,
-	verifyResetPasswordOtpDto,
+	VerifyEmailDto,
+	VerifyResetPasswordOtpDto,
 } from '@/lib/types'
 
 export const signIn = async (signInDto: SignInDto) => {
@@ -24,7 +24,7 @@ export const signUp = async (signUp: SignUpDto) => {
 	return res.data
 }
 
-export const verifyEmail = async (verifyEmailDto: verifyEmailDto) => {
+export const verifyEmail = async (verifyEmailDto: VerifyEmailDto) => {
 	const res = await axiosInstance.post(
 		apiEndpoints.auth.verifyEmail,
 		verifyEmailDto,
@@ -32,7 +32,7 @@ export const verifyEmail = async (verifyEmailDto: verifyEmailDto) => {
 	return res.data
 }
 
-export const forgotPassword = async (forgotPasswordDto: forgotPasswordDto) => {
+export const forgotPassword = async (forgotPasswordDto: ForgotPasswordDto) => {
 	const res = await axiosInstance.post(
 		apiEndpoints.auth.forgotPassword,
 		forgotPasswordDto,
@@ -41,7 +41,7 @@ export const forgotPassword = async (forgotPasswordDto: forgotPasswordDto) => {
 }
 
 export const verifyResetPasswordOtp = async (
-	verifyResetPasswordOtpDto: verifyResetPasswordOtpDto,
+	verifyResetPasswordOtpDto: VerifyResetPasswordOtpDto,
 ) => {
 	const res = await axiosInstance.post(
 		apiEndpoints.auth.verifyResetPasswordOtp,
@@ -50,7 +50,7 @@ export const verifyResetPasswordOtp = async (
 	return res.data
 }
 
-export const resetPassword = async (resetPasswordDto: resetPasswordDto) => {
+export const resetPassword = async (resetPasswordDto: ResetPasswordDto) => {
 	const res = await axiosInstance.post(
 		apiEndpoints.auth.resetPassword,
 		resetPasswordDto,

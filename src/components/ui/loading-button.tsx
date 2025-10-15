@@ -3,9 +3,11 @@ import { Button } from './button'
 
 function LoadingButton({
 	isLoading,
+	loadingText = 'Đang xử lý...',
 	text,
 }: {
 	isLoading: boolean
+	loadingText?: string
 	text: string
 }) {
 	return (
@@ -14,7 +16,7 @@ function LoadingButton({
 				disabled={isLoading}
 				className='w-[40%] bg-[#189dfe] hover:bg-[#54aa00] px-6 py-3 text-white rounded-lg font-semibold transition'
 			>
-				{isLoading ? 'Đang xử lý...' : text}
+				{isLoading ? loadingText : text}
 			</Button>
 		</div>
 	)

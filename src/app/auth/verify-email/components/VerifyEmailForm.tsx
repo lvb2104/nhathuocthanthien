@@ -8,43 +8,47 @@ import {
 	FormDescription,
 	FormField,
 	FormItem,
-	FormLabel,
 	FormMessage,
 } from '@/components/ui/form'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Input } from '@/components/ui/input'
 import { toast } from 'react-toastify'
 import { useRouter } from 'next/navigation'
 import { routes } from '@/configs/routes'
 import LoadingButton from '@/components/ui/loading-button'
-import { PasswordInput } from '@/components/ui/password-input'
-import Link from 'next/link'
-import { useSignIn } from '@/hooks'
+import {
+	InputOTP,
+	InputOTPGroup,
+	InputOTPSlot,
+} from '@/components/ui/input-otp'
+import { REGEXP_ONLY_DIGITS } from 'input-otp'
+import { useAuthStore } from '@/store'
+import { useVerifyEmail } from '@/hooks'
 
 const formSchema = z.object({
 	email: z.string().email({ message: 'Email không hợp lệ' }),
-	password: z.string().min(6, { message: 'Mật khẩu phải có ít nhất 6 ký tự' }),
+	otp: z.string().min(6, { message: 'Mã OTP phải có 6 chữ số' }),
 })
 
-function SignInForm() {
-	const { mutate, isPending } = useSignIn()
+function VerifyEmailForm() {
+	const { emailPendingVerification } = useAuthStore()
+	const { mutate, isPending } = useVerifyEmail()
 	const router = useRouter()
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			email: '',
-			password: '',
+			email: emailPendingVerification,
+			otp: '',
 		},
 	})
 
 	function onSubmit(values: z.infer<typeof formSchema>) {
 		mutate(values, {
 			onSuccess: () => {
-				toast.success('Đăng nhập thành công!')
-				router.push(routes.home)
+				toast.success('Xác minh email thành công! Vui lòng đăng nhập lại.')
+				router.push(routes.signIn)
 			},
 		})
 	}
@@ -55,7 +59,7 @@ function SignInForm() {
 					<div className='rounded-full flex items-center justify-center'>
 						<Image src={mail} alt='Mail' width={35} height={35} />
 					</div>
-					Đăng nhập bằng Email
+					Xác minh mã OTP
 				</div>
 			</div>
 			<Form {...form}>
@@ -63,59 +67,35 @@ function SignInForm() {
 					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
 						<FormField
 							control={form.control}
-							name='email'
+							name='otp'
 							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Email</FormLabel>
+								<FormItem className='flex justify-center'>
 									<FormControl>
-										<Input
-											placeholder='Nhập email'
+										<InputOTP
+											maxLength={6}
+											pattern={REGEXP_ONLY_DIGITS}
 											autoFocus
 											{...field}
-											className='focus-visible:ring-0'
-										/>
+										>
+											<InputOTPGroup>
+												<InputOTPSlot index={0} />
+												<InputOTPSlot index={1} />
+												<InputOTPSlot index={2} />
+												<InputOTPSlot index={3} />
+												<InputOTPSlot index={4} />
+												<InputOTPSlot index={5} />
+											</InputOTPGroup>
+										</InputOTP>
 									</FormControl>
 									<FormDescription />
 									<FormMessage />
 								</FormItem>
 							)}
 						/>
-						<FormField
-							control={form.control}
-							name='password'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Mật khẩu</FormLabel>
-									<FormControl>
-										<PasswordInput
-											placeholder='Nhập mật khẩu'
-											{...field}
-											className='focus-visible:ring-0'
-										/>
-									</FormControl>
-									<FormDescription />
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<div className='text-sm flex justify-between'>
-							<div>
-								Chưa có tài khoản?{' '}
-								<Link href={routes.signUp} className='text-[#189DFE]'>
-									Đăng ký
-								</Link>{' '}
-							</div>
-							<div>
-								Quên mật khẩu?{' '}
-								<Link href={routes.forgotPassword} className='text-[#189DFE]'>
-									Lấy lại
-								</Link>
-							</div>
-						</div>
 						<LoadingButton
 							isLoading={isPending}
 							loadingText='Đang xử lý...'
-							text='Đăng nhập'
+							text='Gửi'
 						/>
 					</form>
 				</div>
@@ -124,4 +104,4 @@ function SignInForm() {
 	)
 }
 
-export default SignInForm
+export default VerifyEmailForm

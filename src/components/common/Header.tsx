@@ -1,3 +1,4 @@
+'use client'
 import { routes } from '@/configs/routes'
 import { Search } from 'lucide-react'
 import Image from 'next/image'
@@ -8,18 +9,42 @@ import list from '@/assets/icons/list.png'
 import cart from '@/assets/icons/cart.svg'
 import downArrow from '@/assets/icons/down-arrow.svg'
 import ContentWrapper from './ContentWrapper'
+import { useSignOut } from '@/hooks'
+import { toast } from 'react-toastify'
+import router from 'next/router'
+import { useAuthStore } from '@/store'
 
 function Header() {
+	const { mutate } = useSignOut()
+	const { isLoggedIn } = useAuthStore()
+
+	function handleSignOut() {
+		mutate(undefined, {
+			onSuccess: () => {
+				toast.success('Đăng xuất thành công!')
+				router.push(routes.home)
+			},
+		})
+	}
 	return (
 		<header className='bg-[#54AA00] text-white'>
 			<ContentWrapper>
 				{/* Top Bar */}
-				<div className='flex justify-end align-center gap-2 text-sm pt-2'>
+				<div
+					className='flex justify-end align-center gap-2 text-sm pt-2'
+					title='Tài khoản của bạn'
+				>
 					<Link href={routes.profile} className='flex items-center'>
 						<Image src={user} alt='User' width={15} height={15} />
 					</Link>
-					<Link href={routes.signIn}>Đăng nhập</Link> |
-					<Link href={routes.signUp}>Đăng ký</Link>
+					{isLoggedIn ? (
+						<button onClick={handleSignOut}>Đăng xuất</button>
+					) : (
+						<>
+							<Link href={routes.signIn}>Đăng nhập</Link> |
+							<Link href={routes.signUp}>Đăng ký</Link>
+						</>
+					)}
 				</div>
 				{/* Main Header */}
 				<div className='flex items-center justify-between pb-2'>
@@ -82,7 +107,7 @@ function Header() {
 				{/* Navigation */}
 				<nav>
 					<div className='container mx-auto px-6 flex items-center justify-between text-sm py-2'>
-						<button>
+						<button className='flex justify-center'>
 							Thực phẩm chức năng
 							<Image
 								src={downArrow}
@@ -92,7 +117,7 @@ function Header() {
 								className='inline ml-1	'
 							/>
 						</button>
-						<button>
+						<button className='flex justify-center'>
 							Mỹ phẩm
 							<Image
 								src={downArrow}
@@ -102,7 +127,7 @@ function Header() {
 								className='inline ml-1'
 							/>
 						</button>
-						<button>
+						<button className='flex justify-center'>
 							Mẹ & bé
 							<Image
 								src={downArrow}
@@ -112,7 +137,7 @@ function Header() {
 								className='inline ml-1'
 							/>
 						</button>
-						<button>
+						<button className='flex justify-center'>
 							Dược phẩm
 							<Image
 								src={downArrow}
@@ -122,7 +147,7 @@ function Header() {
 								className='inline ml-1'
 							/>
 						</button>
-						<button>
+						<button className='flex justify-center'>
 							Bao cao su
 							<Image
 								src={downArrow}
@@ -132,7 +157,7 @@ function Header() {
 								className='inline ml-1'
 							/>
 						</button>
-						<button>
+						<button className='flex justify-center'>
 							Bệnh học
 							<Image
 								src={downArrow}
@@ -142,7 +167,7 @@ function Header() {
 								className='inline ml-1'
 							/>
 						</button>
-						<button>
+						<button className='flex justify-center'>
 							Giới thiệu
 							<Image
 								src={downArrow}
@@ -152,7 +177,7 @@ function Header() {
 								className='inline ml-1'
 							/>
 						</button>
-						<button>
+						<button className='flex justify-center'>
 							Dược thư
 							<Image
 								src={downArrow}
@@ -162,7 +187,7 @@ function Header() {
 								className='inline ml-1'
 							/>
 						</button>
-						<button>
+						<button className='flex justify-center'>
 							Có may mắn
 							<Image
 								src={downArrow}
