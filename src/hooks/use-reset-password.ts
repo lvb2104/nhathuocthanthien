@@ -1,15 +1,14 @@
 import { handleAxiosError } from '@/lib/utils'
-import { verifyEmail } from '@/services'
+import { resetPassword } from '@/services'
 import { useAuthStore } from '@/store'
 import { useMutation } from '@tanstack/react-query'
 
-export function useVerifyEmail() {
+export function useResetPassword() {
 	const { setEmailPendingVerification } = useAuthStore()
-
 	return useMutation({
-		mutationFn: verifyEmail,
+		mutationFn: resetPassword,
 		onSuccess: () => {
-			setEmailPendingVerification(undefined) // Clear email pending verification on success
+			setEmailPendingVerification(undefined)
 		},
 		onError: (error: any) => handleAxiosError(error),
 	})

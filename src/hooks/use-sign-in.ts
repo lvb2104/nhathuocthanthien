@@ -10,7 +10,8 @@ export function useSignIn() {
 	return useMutation({
 		mutationFn: signIn,
 		onSuccess: (signInResponse: SignInResponse) => {
-			setIsLoggedIn(true, signInResponse.accessToken) // Update auth state on successful sign-in
+			localStorage.setItem('access-token', signInResponse.accessToken)
+			setIsLoggedIn(true) // Update auth state on successful sign-in
 		},
 		onError: (error: any) => handleAxiosError(error),
 	})

@@ -8,47 +8,41 @@ import {
 	FormDescription,
 	FormField,
 	FormItem,
+	FormLabel,
 	FormMessage,
 } from '@/components/ui/form'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Input } from '@/components/ui/input'
 import { toast } from 'react-toastify'
 import { useRouter } from 'next/navigation'
 import { routes } from '@/configs/routes'
 import LoadingButton from '@/components/ui/loading-button'
-import {
-	InputOTP,
-	InputOTPGroup,
-	InputOTPSlot,
-} from '@/components/ui/input-otp'
-import { REGEXP_ONLY_DIGITS } from 'input-otp'
-import { useVerifyEmail } from '@/hooks/use-verify-email'
-import { useAppStore } from '@/store'
+import { useForgotPassword } from '@/hooks'
 
 const formSchema = z.object({
 	email: z.string().email({ message: 'Email không hợp lệ' }),
-	otp: z.string().min(6, { message: 'Mã OTP phải có 6 chữ số' }),
 })
 
-function SignUpForm() {
-	const { emailPendingVerification } = useAppStore()
-	const { mutate, isPending } = useVerifyEmail()
+function ForgotPasswordForm() {
+	const { mutate, isPending } = useForgotPassword()
 	const router = useRouter()
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			email: emailPendingVerification,
-			otp: '',
+			email: '',
 		},
 	})
 
 	function onSubmit(values: z.infer<typeof formSchema>) {
 		mutate(values, {
 			onSuccess: () => {
-				toast.success('Xác minh email thành công! Vui lòng đăng nhập lại.')
-				router.push(routes.signIn)
+				toast.success(
+					'Đã gửi email đặt lại mật khẩu! Vui lòng kiểm tra hộp thư đến.',
+				)
+				router.push(routes.verifyResetPasswordOtp)
 			},
 		})
 	}
@@ -59,7 +53,7 @@ function SignUpForm() {
 					<div className='rounded-full flex items-center justify-center'>
 						<Image src={mail} alt='Mail' width={35} height={35} />
 					</div>
-					Xác nhận email
+					Đặt lại mật khẩu bằng email
 				</div>
 			</div>
 			<Form {...form}>
@@ -67,32 +61,28 @@ function SignUpForm() {
 					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
 						<FormField
 							control={form.control}
-							name='otp'
+							name='email'
 							render={({ field }) => (
-								<FormItem className='flex justify-center'>
+								<FormItem>
+									<FormLabel>Email</FormLabel>
 									<FormControl>
-										<InputOTP
-											maxLength={6}
-											pattern={REGEXP_ONLY_DIGITS}
+										<Input
+											placeholder='Nhập email để đặt lại mật khẩu'
 											autoFocus
 											{...field}
-										>
-											<InputOTPGroup>
-												<InputOTPSlot index={0} />
-												<InputOTPSlot index={1} />
-												<InputOTPSlot index={2} />
-												<InputOTPSlot index={3} />
-												<InputOTPSlot index={4} />
-												<InputOTPSlot index={5} />
-											</InputOTPGroup>
-										</InputOTP>
+											className='focus-visible:ring-0'
+										/>
 									</FormControl>
 									<FormDescription />
 									<FormMessage />
 								</FormItem>
 							)}
 						/>
-						<LoadingButton isLoading={isPending} text='Gửi' />
+						<LoadingButton
+							isLoading={isPending}
+							loadingText='Đang xử lý...'
+							text='Gửi'
+						/>
 					</form>
 				</div>
 			</Form>
@@ -100,4 +90,4 @@ function SignUpForm() {
 	)
 }
 
-export default SignUpForm
+export default ForgotPasswordForm

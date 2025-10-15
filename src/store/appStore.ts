@@ -1,16 +1,11 @@
 import { create } from 'zustand'
 
 interface AppState {
-	isLoggedIn: boolean
-	setLoggedIn: (value: boolean) => void
-	emailPendingVerification: string | undefined
-	setEmailPendingVerification: (value: string | undefined) => void
+	isDarkMode: boolean
+	setIsDarkMode: (isDarkMode: boolean) => void
 }
 
 export const useAppStore = create<AppState>(set => ({
-	isLoggedIn: false,
-	setLoggedIn: value => set({ isLoggedIn: value }),
-	emailPendingVerification: undefined,
-	setEmailPendingVerification: value =>
-		set({ emailPendingVerification: value }),
+	isDarkMode: false,
+	setIsDarkMode: isDarkMode => set({ isDarkMode }),
 }))

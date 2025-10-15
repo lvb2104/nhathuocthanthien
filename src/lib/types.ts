@@ -10,21 +10,21 @@ export type SignUpDto = {
 	fullName: string
 }
 
-export type verifyEmailDto = {
+export type VerifyEmailDto = {
 	email: string
 	otp: string
 }
 
-export type forgotPasswordDto = {
+export type ForgotPasswordDto = {
 	email: string
 }
 
-export type verifyResetPasswordOtpDto = {
+export type VerifyResetPasswordOtpDto = {
 	email: string
 	otp: string
 }
 
-export type resetPasswordDto = {
+export type ResetPasswordDto = {
 	email: string
 	newPassword: string
 }
@@ -40,12 +40,12 @@ export type SignUpResponse = {
 	message: string
 }
 
-export type verifyEmailResponse = SignUpResponse
+export type VerifyEmailResponse = SignUpResponse
 
-export type forgotPasswordResponse = SignUpResponse
+export type ForgotPasswordResponse = SignUpResponse
 
-export type verifyResetPasswordOtpResponse = SignUpResponse
+export type VerifyResetPasswordOtpResponse = SignUpResponse
 
-export type resetPasswordResponse = SignUpResponse
+export type ResetPasswordResponse = SignUpResponse
 
 // Models
