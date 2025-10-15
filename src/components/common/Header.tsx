@@ -3,175 +3,178 @@ import { Search } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
+import user from '@/assets/icons/user.svg'
+import list from '@/assets/icons/list.png'
+import cart from '@/assets/icons/cart.svg'
+import downArrow from '@/assets/icons/down-arrow.svg'
+import ContentWrapper from './ContentWrapper'
 
 function Header() {
 	return (
-		<header className='px-[10%] py-2 bg-[#54AA00]'>
-			{/* Top Bar */}
-			<div className='flex justify-end gap-2 text-white text-sm'>
-				<Image
-					src='/images/user.svg'
-					alt='User'
-					width={15}
-					height={15}
-					className=''
-				/>
-				<Link href={routes.signIn}>Sign In</Link>
-				<Link href={routes.signUp}>Sign Up</Link>
-			</div>
-			{/* Main Header */}
-			<div className='container mx-auto flex items-center justify-between'>
-				{/* Logo */}
-				<div className='flex items-center'>
-					<div>
-						<Image src='/images/logo.png' alt='Logo' width={100} height={100} />
-					</div>
-					<div className='text-white'>
-						<div className='text-xs uppercase'>Nhà thuốc</div>
-						<div className='text-2xl font-bold'>thân thiên</div>
-						<div className='text-xs'>Pharmacy</div>
-					</div>
+		<header className='bg-[#54AA00] text-white'>
+			<ContentWrapper>
+				{/* Top Bar */}
+				<div className='flex justify-end align-center gap-2 text-sm pt-2'>
+					<Link href={routes.profile} className='flex items-center'>
+						<Image src={user} alt='User' width={15} height={15} />
+					</Link>
+					<Link href={routes.signIn}>Đăng nhập</Link> |
+					<Link href={routes.signUp}>Đăng ký</Link>
 				</div>
-				{/* Search Bar */}
-				<div className='flex-1 max-w-2xl mx-8'>
-					<div className='relative'>
-						<input
-							type='text'
-							placeholder='Tìm sản phẩm...'
-							className='w-full px-4 py-3 rounded-full pr-12 text-gray-700 bg-white border-none outline-none'
-						/>
-						<button className='absolute right-2 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full'>
-							<Search className='w-5 h-5 text-gray-600' />
-						</button>
-					</div>
-				</div>
-				{/* Cart and Order Tracking */}
-				<div className='flex items-center gap-6 text-white'>
-					<div className='flex items-center gap-2 cursor-pointer'>
-						<div className='bg-opacity-20 p-2 rounded'>
+				{/* Main Header */}
+				<div className='flex items-center justify-between pb-2'>
+					{/* Logo */}
+					<Link className='flex items-center' href={routes.home}>
+						<div>
 							<Image
-								src='/images/list.png'
-								alt='Order Tracking'
-								width={30}
-								height={30}
+								src='/images/logo.png'
+								alt='Logo'
+								width={100}
+								height={100}
 							/>
 						</div>
 						<div>
-							<div className='text-xs'>Tra cứu</div>
-							<div className='font-semibold'>Đơn hàng</div>
+							<div className='text-xs uppercase'>Nhà thuốc</div>
+							<div className='text-2xl font-bold'>thân thiên</div>
+							<div className='text-xs'>Pharmacy</div>
+						</div>
+					</Link>
+					{/* Search Bar */}
+					<div className='flex-1 max-w-xl mx-8'>
+						<div className='relative'>
+							<input
+								type='text'
+								placeholder='Tìm sản phẩm...'
+								className='w-full h-10 px-4 py-3 rounded-full pr-12 text-gray-700 bg-white border-none outline-none'
+							/>
+							<button className='absolute right-2 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full'>
+								<Search className='w-5 h-5 text-gray-600' />
+							</button>
 						</div>
 					</div>
-					<div className='flex items-center gap-2 cursor-pointer'>
-						<div className='bg-opacity-20 p-2 rounded'>
-							<Image src='/images/cart.svg' alt='Cart' width={30} height={30} />
+					{/* Cart and Order Tracking */}
+					<div className='flex items-center gap-4'>
+						<div className='flex items-center cursor-pointer'>
+							<div className='p-2 rounded'>
+								<Image src={list} alt='Order Tracking' width={30} height={30} />
+							</div>
+							<div>
+								<div className='text-xs'>Tra cứu</div>
+								<div className='font-semibold'>Đơn hàng</div>
+							</div>
 						</div>
-						<div>
-							<div className='text-xs'>Giỏ hàng</div>
-							<div className='font-semibold'>
-								<span className='rounded-[2px] px-[3px] bg-white text-[#ff5722] font-[500] text-sm text-center'>
-									0
-								</span>{' '}
-								sản phẩm
+						<div className='flex items-center cursor-pointer'>
+							<div className='p-2 rounded'>
+								<Image src={cart} alt='Cart' width={30} height={30} />
+							</div>
+							<div>
+								<div className='text-xs'>Giỏ hàng</div>
+								<div className='font-semibold'>
+									<span className='rounded-[2px] px-[3px] bg-white text-[#ff5722] font-[500] text-sm text-center'>
+										0
+									</span>{' '}
+									sản phẩm
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-			{/* Navigation */}
-			<nav className='bg-[#6FA225]'>
-				<div className='container mx-auto px-6 flex items-center justify-between text-white text-sm'>
-					<button className='px-4 py-2 rounded'>
-						Thực phẩm chức năng
-						<Image
-							src='/images/down-arrow.svg'
-							alt='Down Arrow'
-							width={10}
-							height={10}
-							className='inline ml-1'
-						/>
-					</button>
-					<button className='px-4 py-2 rounded'>
-						Mỹ phẩm
-						<Image
-							src='/images/down-arrow.svg'
-							alt='Down Arrow'
-							width={10}
-							height={10}
-							className='inline ml-1'
-						/>
-					</button>
-					<button className='px-4 py-2 rounded'>
-						Mẹ & bé
-						<Image
-							src='/images/down-arrow.svg'
-							alt='Down Arrow'
-							width={10}
-							height={10}
-							className='inline ml-1'
-						/>
-					</button>
-					<button className='px-4 py-2 rounded'>
-						Dược phẩm
-						<Image
-							src='/images/down-arrow.svg'
-							alt='Down Arrow'
-							width={10}
-							height={10}
-							className='inline ml-1'
-						/>
-					</button>
-					<button className='px-4 py-2 rounded'>
-						Bao cao su
-						<Image
-							src='/images/down-arrow.svg'
-							alt='Down Arrow'
-							width={10}
-							height={10}
-							className='inline ml-1'
-						/>
-					</button>
-					<button className='px-4 py-2 rounded'>
-						Bệnh học
-						<Image
-							src='/images/down-arrow.svg'
-							alt='Down Arrow'
-							width={10}
-							height={10}
-							className='inline ml-1'
-						/>
-					</button>
-					<button className='px-4 py-2 rounded'>
-						Giới thiệu
-						<Image
-							src='/images/down-arrow.svg'
-							alt='Down Arrow'
-							width={10}
-							height={10}
-							className='inline ml-1'
-						/>
-					</button>
-					<button className='px-4 py-2 rounded'>
-						Dược thư
-						<Image
-							src='/images/down-arrow.svg'
-							alt='Down Arrow'
-							width={10}
-							height={10}
-							className='inline ml-1'
-						/>
-					</button>
-					<button className='px-4 py-2 rounded'>
-						Có may mắn
-						<Image
-							src='/images/down-arrow.svg'
-							alt='Down Arrow'
-							width={10}
-							height={10}
-							className='inline ml-1'
-						/>
-					</button>
-				</div>
-			</nav>
+				{/* Navigation */}
+				<nav>
+					<div className='container mx-auto px-6 flex items-center justify-between text-sm py-2'>
+						<button>
+							Thực phẩm chức năng
+							<Image
+								src={downArrow}
+								alt='Down Arrow'
+								width={10}
+								height={10}
+								className='inline ml-1	'
+							/>
+						</button>
+						<button>
+							Mỹ phẩm
+							<Image
+								src={downArrow}
+								alt='Down Arrow'
+								width={10}
+								height={10}
+								className='inline ml-1'
+							/>
+						</button>
+						<button>
+							Mẹ & bé
+							<Image
+								src={downArrow}
+								alt='Down Arrow'
+								width={10}
+								height={10}
+								className='inline ml-1'
+							/>
+						</button>
+						<button>
+							Dược phẩm
+							<Image
+								src={downArrow}
+								alt='Down Arrow'
+								width={10}
+								height={10}
+								className='inline ml-1'
+							/>
+						</button>
+						<button>
+							Bao cao su
+							<Image
+								src={downArrow}
+								alt='Down Arrow'
+								width={10}
+								height={10}
+								className='inline ml-1'
+							/>
+						</button>
+						<button>
+							Bệnh học
+							<Image
+								src={downArrow}
+								alt='Down Arrow'
+								width={10}
+								height={10}
+								className='inline ml-1'
+							/>
+						</button>
+						<button>
+							Giới thiệu
+							<Image
+								src={downArrow}
+								alt='Down Arrow'
+								width={10}
+								height={10}
+								className='inline ml-1'
+							/>
+						</button>
+						<button>
+							Dược thư
+							<Image
+								src={downArrow}
+								alt='Down Arrow'
+								width={10}
+								height={10}
+								className='inline ml-1'
+							/>
+						</button>
+						<button>
+							Có may mắn
+							<Image
+								src={downArrow}
+								alt='Down Arrow'
+								width={10}
+								height={10}
+								className='inline ml-1'
+							/>
+						</button>
+					</div>
+				</nav>
+			</ContentWrapper>
 		</header>
 	)
 }
