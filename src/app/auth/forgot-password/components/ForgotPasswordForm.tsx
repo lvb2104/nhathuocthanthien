@@ -1,7 +1,7 @@
-'use client'
-import Image from 'next/image'
-import React from 'react'
-import mail from '@/assets/icons/mail.png'
+'use client';
+import Image from 'next/image';
+import React from 'react';
+import mail from '@/assets/icons/mail.png';
 import {
 	Form,
 	FormControl,
@@ -10,41 +10,41 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from '@/components/ui/form'
-import * as z from 'zod'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { toast } from 'react-toastify'
-import { useRouter } from 'next/navigation'
-import { routes } from '@/configs/routes'
-import LoadingButton from '@/components/custom/loading-button'
-import { useForgotPassword } from '@/hooks'
-import CustomInput from '@/components/custom/custom-input'
+} from '@/components/ui/form';
+import * as z from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
+import { routes } from '@/configs/routes';
+import LoadingButton from '@/components/custom/loading-button';
+import { useForgotPassword } from '@/hooks';
+import CustomInput from '@/components/custom/custom-input';
 
 const formSchema = z.object({
 	email: z.string().email({ message: 'Email không hợp lệ' }),
-})
+});
 
 function ForgotPasswordForm() {
-	const { mutate, isPending } = useForgotPassword()
-	const router = useRouter()
+	const { mutate, isPending } = useForgotPassword();
+	const router = useRouter();
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			email: '',
 		},
-	})
+	});
 
 	function onSubmit(values: z.infer<typeof formSchema>) {
 		mutate(values, {
 			onSuccess: () => {
 				toast.success(
 					'Đã gửi email đặt lại mật khẩu! Vui lòng kiểm tra hộp thư đến.',
-				)
-				router.push(routes.verifyResetPasswordOtp)
+				);
+				router.push(routes.auth.verifyResetPasswordOtp);
 			},
-		})
+		});
 	}
 	return (
 		<div className='max-w-md mx-auto'>
@@ -86,7 +86,7 @@ function ForgotPasswordForm() {
 				</div>
 			</Form>
 		</div>
-	)
+	);
 }
 
-export default ForgotPasswordForm
+export default ForgotPasswordForm;

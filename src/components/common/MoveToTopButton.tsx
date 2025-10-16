@@ -1,28 +1,27 @@
-'use client'
-import Image from 'next/image'
-import React, { useEffect } from 'react'
-import moveButton from '@/assets/icons/move-button.svg'
+'use client';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import moveButton from '@/assets/icons/move-button.svg';
 
-function MoveButton() {
+function MoveToTopButton() {
 	const scrollToTop = () => {
-		window.scrollTo({ top: 0, behavior: 'smooth' })
-	}
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	};
 
-	const [isVisible, setIsVisible] = React.useState(false)
+	const [isVisible, setIsVisible] = useState(false);
 
 	useEffect(() => {
 		const toggleVisibility = () => {
 			if (window.scrollY > 300) {
-				setIsVisible(true)
+				setIsVisible(true);
 			} else {
-				setIsVisible(false)
+				setIsVisible(false);
 			}
-		}
+		};
+		window.addEventListener('scroll', toggleVisibility);
 
-		window.addEventListener('scroll', toggleVisibility)
-
-		return () => window.removeEventListener('scroll', toggleVisibility)
-	}, [])
+		return () => window.removeEventListener('scroll', toggleVisibility);
+	}, []);
 	return (
 		<button
 			onClick={scrollToTop}
@@ -36,7 +35,7 @@ function MoveButton() {
 				className='h-[15px] w-[15px]'
 			/>
 		</button>
-	)
+	);
 }
 
-export default MoveButton
+export default MoveToTopButton;

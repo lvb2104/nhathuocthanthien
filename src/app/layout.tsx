@@ -1,15 +1,16 @@
-import type { Metadata } from 'next'
-import './globals.css'
-import AppProviders from '../components/providers/AppProviders'
-import { Bounce, ToastContainer } from 'react-toastify'
-import NextTopLoader from 'nextjs-toploader'
-import { fonts } from '@/configs/fonts'
-import Header from '@/components/common/Header'
-import Footer from '@/components/common/Footer'
-import MoveButton from '@/components/common/MoveButton'
-import Features from '@/components/common/Features'
-import StoreLocationBar from '@/components/common/StoreLocationBar'
-import { SpeedInsights } from '@vercel/speed-insights/next'
+import type { Metadata } from 'next';
+import './globals.css';
+import AppProviders from '../components/providers/AppProviders';
+import { Bounce, ToastContainer } from 'react-toastify';
+import NextTopLoader from 'nextjs-toploader';
+import { fonts } from '@/configs/fonts';
+import Header from '@/components/common/Header';
+import Footer from '@/components/common/Footer';
+import MoveToTopButton from '@/components/common/MoveToTopButton';
+import Features from '@/components/common/Features';
+import StoreLocationBar from '@/components/common/StoreLocationBar';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
 	title: 'Nhà thuốc thân thiên',
@@ -18,12 +19,12 @@ export const metadata: Metadata = {
 	icons: {
 		icon: '/images/logo.png',
 	},
-}
+};
 
 export default function RootLayout({
 	children,
 }: Readonly<{
-	children: React.ReactNode
+	children: React.ReactNode;
 }>) {
 	return (
 		<html lang='en'>
@@ -44,22 +45,22 @@ export default function RootLayout({
 					<StoreLocationBar />
 					<Footer />
 				</AppProviders>
-				<MoveButton />
+				<MoveToTopButton />
 				<ToastContainer
 					position='bottom-right'
-					autoClose={5000}
+					autoClose={4000}
 					hideProgressBar={false}
 					newestOnTop={false}
-					closeOnClick={false}
+					closeOnClick={true}
 					rtl={false}
-					pauseOnFocusLoss
 					draggable
 					pauseOnHover
 					theme='light'
 					transition={Bounce}
 				/>
 				<SpeedInsights />
+				<Analytics />
 			</body>
 		</html>
-	)
+	);
 }

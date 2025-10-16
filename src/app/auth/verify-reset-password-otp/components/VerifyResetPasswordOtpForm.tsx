@@ -1,7 +1,7 @@
-'use client'
-import Image from 'next/image'
-import React from 'react'
-import mail from '@/assets/icons/mail.png'
+'use client';
+import Image from 'next/image';
+import React from 'react';
+import mail from '@/assets/icons/mail.png';
 import {
 	Form,
 	FormControl,
@@ -9,33 +9,33 @@ import {
 	FormField,
 	FormItem,
 	FormMessage,
-} from '@/components/ui/form'
-import * as z from 'zod'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { toast } from 'react-toastify'
-import { useRouter } from 'next/navigation'
-import { routes } from '@/configs/routes'
-import LoadingButton from '@/components/custom/loading-button'
+} from '@/components/ui/form';
+import * as z from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
+import { routes } from '@/configs/routes';
+import LoadingButton from '@/components/custom/loading-button';
 import {
 	InputOTP,
 	InputOTPGroup,
 	InputOTPSlot,
-} from '@/components/ui/input-otp'
-import { REGEXP_ONLY_DIGITS } from 'input-otp'
-import { useAuthStore } from '@/store'
-import { useVerifyResetPasswordOtp } from '@/hooks'
-import CustomInputOTPSlot from '@/components/custom/custom-input-otp-slot'
+} from '@/components/ui/input-otp';
+import { REGEXP_ONLY_DIGITS } from 'input-otp';
+import { useAuthStore } from '@/store';
+import { useVerifyResetPasswordOtp } from '@/hooks';
+import CustomInputOTPSlot from '@/components/custom/custom-input-otp-slot';
 
 const formSchema = z.object({
 	email: z.string().email({ message: 'Email không hợp lệ' }),
 	otp: z.string().min(6, { message: 'Mã OTP phải có 6 chữ số' }),
-})
+});
 
 function VerifyResetPasswordOtpForm() {
-	const { emailPendingVerification } = useAuthStore()
-	const { mutate, isPending } = useVerifyResetPasswordOtp()
-	const router = useRouter()
+	const { emailPendingVerification } = useAuthStore();
+	const { mutate, isPending } = useVerifyResetPasswordOtp();
+	const router = useRouter();
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -43,15 +43,15 @@ function VerifyResetPasswordOtpForm() {
 			email: emailPendingVerification,
 			otp: '',
 		},
-	})
+	});
 
 	function onSubmit(values: z.infer<typeof formSchema>) {
 		mutate(values, {
 			onSuccess: () => {
-				toast.success('Xác minh email thành công! Vui lòng nhập mật khẩu mới.')
-				router.push(routes.resetPassword)
+				toast.success('Xác minh email thành công! Vui lòng nhập mật khẩu mới.');
+				router.push(routes.auth.resetPassword);
 			},
-		})
+		});
 	}
 	return (
 		<div className='max-w-md mx-auto'>
@@ -102,7 +102,7 @@ function VerifyResetPasswordOtpForm() {
 				</div>
 			</Form>
 		</div>
-	)
+	);
 }
 
-export default VerifyResetPasswordOtpForm
+export default VerifyResetPasswordOtpForm;
