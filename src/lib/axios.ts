@@ -33,8 +33,9 @@ axiosInstance.interceptors.response.use(
 			const originalRequest = error.config;
 			if (originalRequest && !originalRequest._retry) {
 				originalRequest._retry = true;
-				const accessToken = localStorage.getItem('access-token');
 				try {
+					const accessToken = localStorage.getItem('access-token');
+
 					if (!accessToken) {
 						toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
 						localStorage.clear();
@@ -47,11 +48,11 @@ axiosInstance.interceptors.response.use(
 						localStorage.setItem('access-token', data.accessToken);
 						originalRequest.headers['Authorization'] =
 							'Bearer ' + data.accessToken;
-						return axiosInstance(originalRequest);
 					}
 
-					return Promise.reject(error);
+					return axiosInstance(originalRequest);
 				} catch (error) {
+					toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
 					localStorage.clear();
 					window.location.href = routes.auth.signIn;
 					return Promise.reject(error);
