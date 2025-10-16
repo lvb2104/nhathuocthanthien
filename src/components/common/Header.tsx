@@ -62,7 +62,7 @@ function Header() {
 						</div>
 						<div>
 							<div className='text-xs uppercase'>Nhà thuốc</div>
-							<div className='text-2xl font-bold'>thân thiên</div>
+							<div className='text-2xl font-bold'>thân thiện</div>
 							<div className='text-xs'>Pharmacy</div>
 						</div>
 					</Link>

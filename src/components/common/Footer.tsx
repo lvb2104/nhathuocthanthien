@@ -1,6 +1,6 @@
-import React from 'react'
-import Image from 'next/image'
-import ContentWrapper from './ContentWrapper'
+import React from 'react';
+import Image from 'next/image';
+import ContentWrapper from './ContentWrapper';
 
 function Footer() {
 	return (
@@ -164,7 +164,7 @@ function Footer() {
 						Minh. Địa chỉ: Số 82 Thủ Đức, TP. Hồ Chí Minh & Số 10 ngõ 68/39 Cầu
 						Giấy, P. Quan Hoa, Q. Cầu Giấy, Hà Nội. Số điện thoại:{' '}
 						<span className='font-bold'>0987654321</span> - Email:{' '}
-						<span className='font-bold'>pharmacyretailsystem@gmail.com</span> -
+						<span className='font-bold'>nhathuocthanthien@gmail.com</span> -
 						Người quản lý nội dung: Lê Văn Bảo & Nguyễn Bá Tuấn Anh
 					</p>
 					<div className='flex items-center justify-center gap-4 text-[#54AA00]'>
@@ -192,7 +192,7 @@ function Footer() {
 				</div>
 			</ContentWrapper>
 		</footer>
-	)
+	);
 }
 
-export default Footer
+export default Footer;

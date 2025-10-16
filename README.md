@@ -1,4 +1,4 @@
-# Pharmacy Retail System
+# Nhà thuốc thân thiện
 
 ## Note
 
