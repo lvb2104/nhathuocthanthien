@@ -1,7 +1,7 @@
-'use client'
-import Image from 'next/image'
-import React from 'react'
-import mail from '@/assets/icons/mail.png'
+'use client';
+import Image from 'next/image';
+import React from 'react';
+import mail from '@/assets/icons/mail.png';
 import {
 	Form,
 	FormControl,
@@ -10,19 +10,19 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from '@/components/ui/form'
-import * as z from 'zod'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { toast } from 'react-toastify'
-import { useRouter } from 'next/navigation'
-import { routes } from '@/configs/routes'
-import LoadingButton from '@/components/custom/loading-button'
-import { omit } from 'lodash'
-import Link from 'next/link'
-import { useResetPassword } from '@/hooks'
-import { useAuthStore } from '@/store'
-import CustomPasswordInput from '@/components/custom/custom-password-input'
+} from '@/components/ui/form';
+import * as z from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
+import { routes } from '@/configs/routes';
+import LoadingButton from '@/components/custom/loading-button';
+import { omit } from 'lodash';
+import Link from 'next/link';
+import { useResetPassword } from '@/hooks';
+import { useAuthStore } from '@/store';
+import CustomPasswordInput from '@/components/custom/custom-password-input';
 
 const formSchema = z
 	.object({
@@ -37,12 +37,12 @@ const formSchema = z
 	.refine(data => data.newPassword === data.confirmedPassword, {
 		message: 'Mật khẩu xác nhận không khớp',
 		path: ['confirmedPassword'],
-	})
+	});
 
 function ResetPasswordForm() {
-	const { mutate, isPending } = useResetPassword()
-	const { emailPendingVerification } = useAuthStore()
-	const router = useRouter()
+	const { mutate, isPending } = useResetPassword();
+	const { emailPendingVerification } = useAuthStore();
+	const router = useRouter();
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -51,15 +51,15 @@ function ResetPasswordForm() {
 			newPassword: '',
 			confirmedPassword: '',
 		},
-	})
+	});
 
 	function onSubmit(values: z.infer<typeof formSchema>) {
 		mutate(omit(values, ['confirmedPassword']), {
 			onSuccess: () => {
-				toast.success('Đặt lại mật khẩu thành công! Vui lòng đăng nhập lại.')
-				router.push(routes.signIn) // Redirect to sign in page
+				toast.success('Đặt lại mật khẩu thành công! Vui lòng đăng nhập lại.');
+				router.push(routes.auth.signIn); // Redirect to sign in page
 			},
-		})
+		});
 	}
 	return (
 		<div className='max-w-md mx-auto'>
@@ -111,7 +111,7 @@ function ResetPasswordForm() {
 						<div className='text-sm flex justify-between'>
 							<div>
 								Đã có tài khoản?{' '}
-								<Link href={routes.signIn} className='text-[#189DFE]'>
+								<Link href={routes.auth.signIn} className='text-[#189DFE]'>
 									Đăng nhập
 								</Link>{' '}
 							</div>
@@ -125,7 +125,7 @@ function ResetPasswordForm() {
 				</div>
 			</Form>
 		</div>
-	)
+	);
 }
 
-export default ResetPasswordForm
+export default ResetPasswordForm;

@@ -1,30 +1,30 @@
-'use client'
-import { routes } from '@/configs/routes'
-import { Search } from 'lucide-react'
-import Image from 'next/image'
-import Link from 'next/link'
-import React from 'react'
-import user from '@/assets/icons/user.svg'
-import list from '@/assets/icons/list.png'
-import cart from '@/assets/icons/cart.svg'
-import downArrow from '@/assets/icons/down-arrow.svg'
-import ContentWrapper from './ContentWrapper'
-import { useSignOut } from '@/hooks'
-import { toast } from 'react-toastify'
-import router from 'next/router'
-import { useAuthStore } from '@/store'
+'use client';
+import { routes } from '@/configs/routes';
+import { Search } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import React from 'react';
+import user from '@/assets/icons/user.svg';
+import list from '@/assets/icons/list.png';
+import cart from '@/assets/icons/cart.svg';
+import downArrow from '@/assets/icons/down-arrow.svg';
+import ContentWrapper from './ContentWrapper';
+import { useSignOut } from '@/hooks';
+import { toast } from 'react-toastify';
+import router from 'next/router';
+import { useAuthStore } from '@/store';
 
 function Header() {
-	const { mutate } = useSignOut()
-	const { isLoggedIn } = useAuthStore()
+	const { mutate } = useSignOut();
+	const { isLoggedIn } = useAuthStore();
 
 	function handleSignOut() {
 		mutate(undefined, {
 			onSuccess: () => {
-				toast.success('Đăng xuất thành công!')
-				router.push(routes.home)
+				toast.success('Đăng xuất thành công!');
+				router.push(routes.home);
 			},
-		})
+		});
 	}
 	return (
 		<header className='bg-[#54AA00] text-white'>
@@ -43,8 +43,8 @@ function Header() {
 						</button>
 					) : (
 						<>
-							<Link href={routes.signIn}>Đăng nhập</Link> |
-							<Link href={routes.signUp}>Đăng ký</Link>
+							<Link href={routes.auth.signIn}>Đăng nhập</Link> |
+							<Link href={routes.auth.signUp}>Đăng ký</Link>
 						</>
 					)}
 				</div>
@@ -203,7 +203,7 @@ function Header() {
 				</nav>
 			</ContentWrapper>
 		</header>
-	)
+	);
 }
 
-export default Header
+export default Header;

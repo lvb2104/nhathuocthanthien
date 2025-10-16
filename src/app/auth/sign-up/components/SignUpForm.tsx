@@ -1,7 +1,7 @@
-'use client'
-import Image from 'next/image'
-import React from 'react'
-import mail from '@/assets/icons/mail.png'
+'use client';
+import Image from 'next/image';
+import React from 'react';
+import mail from '@/assets/icons/mail.png';
 import {
 	Form,
 	FormControl,
@@ -10,19 +10,19 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from '@/components/ui/form'
-import * as z from 'zod'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { toast } from 'react-toastify'
-import { useRouter } from 'next/navigation'
-import { routes } from '@/configs/routes'
-import LoadingButton from '@/components/custom/loading-button'
-import { omit } from 'lodash'
-import Link from 'next/link'
-import { useSignUp } from '@/hooks'
-import CustomInput from '@/components/custom/custom-input'
-import CustomPasswordInput from '@/components/custom/custom-password-input'
+} from '@/components/ui/form';
+import * as z from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
+import { routes } from '@/configs/routes';
+import LoadingButton from '@/components/custom/loading-button';
+import { omit } from 'lodash';
+import Link from 'next/link';
+import { useSignUp } from '@/hooks';
+import CustomInput from '@/components/custom/custom-input';
+import CustomPasswordInput from '@/components/custom/custom-password-input';
 
 const formSchema = z
 	.object({
@@ -40,11 +40,11 @@ const formSchema = z
 	.refine(data => data.password === data.confirmedPassword, {
 		message: 'Mật khẩu xác nhận không khớp',
 		path: ['confirmedPassword'],
-	})
+	});
 
 function SignUpForm() {
-	const { mutate, isPending } = useSignUp()
-	const router = useRouter()
+	const { mutate, isPending } = useSignUp();
+	const router = useRouter();
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -54,15 +54,15 @@ function SignUpForm() {
 			confirmedPassword: '',
 			fullName: '',
 		},
-	})
+	});
 
 	function onSubmit(values: z.infer<typeof formSchema>) {
 		mutate(omit(values, ['confirmedPassword']), {
 			onSuccess: () => {
-				toast.success('Đăng ký thành công! Vui lòng xác nhận email.')
-				router.push(routes.verifyEmail) // Redirect to email verification page
+				toast.success('Đăng ký thành công! Vui lòng xác nhận email.');
+				router.push(routes.auth.verifyEmail); // Redirect to email verification page
 			},
-		})
+		});
 	}
 	return (
 		<div className='max-w-md mx-auto'>
@@ -146,7 +146,7 @@ function SignUpForm() {
 						<div className='text-sm flex justify-between'>
 							<div>
 								Đã có tài khoản?{' '}
-								<Link href={routes.signIn} className='text-[#189DFE]'>
+								<Link href={routes.auth.signIn} className='text-[#189DFE]'>
 									Đăng nhập
 								</Link>{' '}
 							</div>
@@ -160,7 +160,7 @@ function SignUpForm() {
 				</div>
 			</Form>
 		</div>
-	)
+	);
 }
 
-export default SignUpForm
+export default SignUpForm;

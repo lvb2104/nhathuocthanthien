@@ -1,6 +1,6 @@
-import { Clock, RefreshCw, Truck } from 'lucide-react'
-import React from 'react'
-import ContentWrapper from './ContentWrapper'
+import { Clock, RefreshCw, Truck } from 'lucide-react';
+import React from 'react';
+import ContentWrapper from './ContentWrapper';
 
 function Features() {
 	return (
@@ -47,7 +47,7 @@ function Features() {
 							<div>
 								<div className='font-bold text-[#7AB02C]'>Giao nhanh 2 giờ</div>
 								<div className='text-sm text-gray-600'>
-									chỉ áp dụng ở Hà Nội
+									chỉ áp dụng ở Hồ Chí Minh
 								</div>
 							</div>
 						</div>
@@ -65,7 +65,7 @@ function Features() {
 				</div>
 			</ContentWrapper>
 		</section>
-	)
+	);
 }
 
-export default Features
+export default Features;
