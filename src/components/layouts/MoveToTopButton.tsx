@@ -25,7 +25,7 @@ function MoveToTopButton() {
 	return (
 		<button
 			onClick={scrollToTop}
-			className={`fixed right-[4px] bottom-[120px] z-99 text-center bg-[#54aa00] text-[30px] cursor-pointer rounded-full p-2 hover:bg-[#469900] transition-all duration-500 ease-in-out ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10 pointer-events-none'}`}
+			className={`fixed right-[4px] bottom-[120px] z-99 text-center bg-(--primary-color) text-[30px] cursor-pointer rounded-full p-2 hover:bg-[#469900] transition-all duration-500 ease-in-out ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10 pointer-events-none'}`}
 		>
 			<Image
 				src={moveButton}

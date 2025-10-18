@@ -36,7 +36,7 @@ function ForgotPasswordForm() {
 		},
 	});
 
-	function onSubmit(values: z.infer<typeof formSchema>) {
+	function handleSubmit(values: z.infer<typeof formSchema>) {
 		mutate(values, {
 			onSuccess: () => {
 				toast.success(
@@ -58,7 +58,10 @@ function ForgotPasswordForm() {
 			</div>
 			<Form {...form}>
 				<div className='bg-white rounded-2xl shadow-lg p-8'>
-					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+					<form
+						onSubmit={form.handleSubmit(handleSubmit)}
+						className='space-y-4'
+					>
 						<FormField
 							control={form.control}
 							name='email'

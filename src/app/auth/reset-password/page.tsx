@@ -1,12 +1,12 @@
-import React from 'react'
-import ResetPasswordForm from './components/ResetPasswordForm'
+import React from 'react';
+import ResetPasswordForm from './components/ResetPasswordForm';
 
-function SignInPage() {
+function ResetPasswordPage() {
 	return (
 		<main className='container mx-auto px-6 py-16'>
 			<ResetPasswordForm />
 		</main>
-	)
+	);
 }
 
-export default SignInPage
+export default ResetPasswordPage;

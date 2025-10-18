@@ -22,6 +22,7 @@ import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { useAuthStore } from '@/store';
 import { useVerifyEmail } from '@/hooks';
 import CustomInputOTPSlot from '@/components/custom/custom-input-otp-slot';
+import ResendOtpButton from '@/components/custom/resend-otp-button';
 
 const formSchema = z.object({
 	email: z.string().email({ message: 'Email không hợp lệ' }),
@@ -41,7 +42,8 @@ function VerifyEmailForm() {
 		},
 	});
 
-	function onSubmit(values: z.infer<typeof formSchema>) {
+	function handleSubmit(values: z.infer<typeof formSchema>) {
+		if (!values.email) return;
 		mutate(values, {
 			onSuccess: () => {
 				toast.success('Xác minh email thành công! Vui lòng đăng nhập lại.');
@@ -61,7 +63,10 @@ function VerifyEmailForm() {
 			</div>
 			<Form {...form}>
 				<div className='bg-white rounded-2xl shadow-lg p-8'>
-					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+					<form
+						onSubmit={form.handleSubmit(handleSubmit)}
+						className='space-y-4'
+					>
 						<FormField
 							control={form.control}
 							name='otp'

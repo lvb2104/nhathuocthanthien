@@ -4,11 +4,11 @@ import AppProviders from '../components/providers/AppProviders';
 import { Bounce, ToastContainer } from 'react-toastify';
 import NextTopLoader from 'nextjs-toploader';
 import { fonts } from '@/configs/fonts';
-import Header from '@/components/common/Header';
-import Footer from '@/components/common/Footer';
-import MoveToTopButton from '@/components/common/MoveToTopButton';
-import Features from '@/components/common/Features';
-import StoreLocationBar from '@/components/common/StoreLocationBar';
+import Header from '@/components/layouts/Header';
+import Footer from '@/components/layouts/Footer';
+import MoveToTopButton from '@/components/layouts/MoveToTopButton';
+import Features from '@/components/layouts/Features';
+import StoreLocationBar from '@/components/layouts/StoreLocationBar';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/next';
 

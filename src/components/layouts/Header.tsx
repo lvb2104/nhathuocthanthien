@@ -27,7 +27,7 @@ function Header() {
 		});
 	}
 	return (
-		<header className='bg-[#54AA00] text-white'>
+		<header className='bg-(--primary-color) text-white'>
 			<ContentWrapper>
 				{/* Top Bar */}
 				<div

@@ -17,15 +17,12 @@ import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { routes } from '@/configs/routes';
 import LoadingButton from '@/components/custom/loading-button';
-import {
-	InputOTP,
-	InputOTPGroup,
-	InputOTPSlot,
-} from '@/components/ui/input-otp';
+import { InputOTP, InputOTPGroup } from '@/components/ui/input-otp';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { useAuthStore } from '@/store';
-import { useVerifyResetPasswordOtp } from '@/hooks';
+import { useForgotPassword, useVerifyResetPasswordOtp } from '@/hooks';
 import CustomInputOTPSlot from '@/components/custom/custom-input-otp-slot';
+import ResendOtpButton from '@/components/custom/resend-otp-button';
 
 const formSchema = z.object({
 	email: z.string().email({ message: 'Email không hợp lệ' }),
@@ -35,6 +32,7 @@ const formSchema = z.object({
 function VerifyResetPasswordOtpForm() {
 	const { emailPendingVerification } = useAuthStore();
 	const { mutate, isPending } = useVerifyResetPasswordOtp();
+	const { mutate: mutateForgotPassword } = useForgotPassword();
 	const router = useRouter();
 
 	const form = useForm<z.infer<typeof formSchema>>({
@@ -45,7 +43,8 @@ function VerifyResetPasswordOtpForm() {
 		},
 	});
 
-	function onSubmit(values: z.infer<typeof formSchema>) {
+	function handleSubmit(values: z.infer<typeof formSchema>) {
+		if (!values.email) return;
 		mutate(values, {
 			onSuccess: () => {
 				toast.success('Xác minh email thành công! Vui lòng nhập mật khẩu mới.');
@@ -53,6 +52,22 @@ function VerifyResetPasswordOtpForm() {
 			},
 		});
 	}
+
+	function handleResendOtp() {
+		if (!emailPendingVerification) return;
+		form.setValue('otp', '');
+		mutateForgotPassword(
+			{
+				email: emailPendingVerification,
+			},
+			{
+				onSuccess: () => {
+					toast.success('Gửi lại mã OTP thành công! Vui lòng kiểm tra email.');
+				},
+			},
+		);
+	}
+
 	return (
 		<div className='max-w-md mx-auto'>
 			<div className='flex justify-center mb-6'>
@@ -65,12 +80,15 @@ function VerifyResetPasswordOtpForm() {
 			</div>
 			<Form {...form}>
 				<div className='bg-white rounded-2xl shadow-lg p-8'>
-					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+					<form
+						onSubmit={form.handleSubmit(handleSubmit)}
+						className='space-y-4'
+					>
 						<FormField
 							control={form.control}
 							name='otp'
 							render={({ field }) => (
-								<FormItem className='flex justify-center'>
+								<FormItem className='flex flex-col items-center'>
 									<FormControl>
 										<InputOTP
 											maxLength={6}
@@ -79,7 +97,7 @@ function VerifyResetPasswordOtpForm() {
 											{...field}
 										>
 											<InputOTPGroup>
-												<CustomInputOTPSlot index={0} />
+												<CustomInputOTPSlot index={0} autoFocus />
 												<CustomInputOTPSlot index={1} />
 												<CustomInputOTPSlot index={2} />
 												<CustomInputOTPSlot index={3} />
@@ -93,6 +111,7 @@ function VerifyResetPasswordOtpForm() {
 								</FormItem>
 							)}
 						/>
+						<ResendOtpButton onResendOtp={() => handleResendOtp()} />
 						<LoadingButton
 							isLoading={isPending}
 							loadingText='Đang xử lý...'
