@@ -1,5 +1,5 @@
-import React from 'react'
-import ContentWrapper from './ContentWrapper'
+import React from 'react';
+import ContentWrapper from './ContentWrapper';
 
 function StoreLocationBar() {
 	return (
@@ -18,7 +18,7 @@ function StoreLocationBar() {
 				</div>
 			</ContentWrapper>
 		</section>
-	)
+	);
 }
 
-export default StoreLocationBar
+export default StoreLocationBar;

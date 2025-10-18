@@ -53,7 +53,7 @@ function ResetPasswordForm() {
 		},
 	});
 
-	function onSubmit(values: z.infer<typeof formSchema>) {
+	function handleSubmit(values: z.infer<typeof formSchema>) {
 		mutate(omit(values, ['confirmedPassword']), {
 			onSuccess: () => {
 				toast.success('Đặt lại mật khẩu thành công! Vui lòng đăng nhập lại.');
@@ -73,7 +73,10 @@ function ResetPasswordForm() {
 			</div>
 			<Form {...form}>
 				<div className='bg-white rounded-2xl shadow-lg p-8'>
-					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+					<form
+						onSubmit={form.handleSubmit(handleSubmit)}
+						className='space-y-4'
+					>
 						<FormField
 							control={form.control}
 							name='newPassword'

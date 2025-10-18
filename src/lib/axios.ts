@@ -16,7 +16,7 @@ export const axiosInstance = axios.create({
 // Add a request interceptor to include the access token in headers of each request
 axiosInstance.interceptors.request.use(
 	config => {
-		const token = localStorage.getItem('access-token');
+		const token = localStorage.getItem(app.localStorageKey.ACCESS_TOKEN);
 		if (token) {
 			config.headers.Authorization = `Bearer ${token}`;
 		}
@@ -34,7 +34,9 @@ axiosInstance.interceptors.response.use(
 			if (originalRequest && !originalRequest._retry) {
 				originalRequest._retry = true;
 				try {
-					const accessToken = localStorage.getItem('access-token');
+					const accessToken = localStorage.getItem(
+						app.localStorageKey.ACCESS_TOKEN,
+					);
 
 					if (!accessToken) {
 						toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
@@ -45,7 +47,10 @@ axiosInstance.interceptors.response.use(
 
 					const data = await refreshToken();
 					if (data.accessToken) {
-						localStorage.setItem('access-token', data.accessToken);
+						localStorage.setItem(
+							app.localStorageKey.ACCESS_TOKEN,
+							data.accessToken,
+						);
 						originalRequest.headers['Authorization'] =
 							'Bearer ' + data.accessToken;
 					}

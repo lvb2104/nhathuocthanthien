@@ -37,7 +37,10 @@ function Footer() {
 								</a>
 							</li>
 							<li>
-								<a href='#' className='font-semibold text-[#54AA00]'>
+								<a
+									href='#'
+									className='font-semibold text-(--primary-color) hover:text-[#7AB02C]'
+								>
 									Cách tra cứu thuốc đã cấp phép
 								</a>
 							</li>
@@ -114,7 +117,7 @@ function Footer() {
 							dụng khi chưa có tư vấn chuyên môn. Vui lòng liên hệ Dược sĩ để
 							được tư vấn,
 							<br />
-							<a href='#' className='text-[#54AA00]'>
+							<a href='#' className='text-(--primary-color)'>
 								Click xem chi tiết
 							</a>
 						</p>
@@ -167,7 +170,7 @@ function Footer() {
 						<span className='font-bold'>nhathuocthanthien@gmail.com</span> -
 						Người quản lý nội dung: Lê Văn Bảo & Nguyễn Bá Tuấn Anh
 					</p>
-					<div className='flex items-center justify-center gap-4 text-[#54AA00]'>
+					<div className='flex items-center justify-center gap-4 text-(--primary-color)'>
 						<a href='#' className='hover:text-[#7AB02C]'>
 							<svg className='w-6 h-6' fill='currentColor' viewBox='0 0 24 24'>
 								<path d='M18.77 7.46H14.5v-1.9c0-.9.6-1.1 1-1.1h3V.5h-4.33C10.24.5 9.5 3.44 9.5 5.32v2.15h-3v4h3v12h5v-12h3.85l.42-4z' />
