@@ -4,16 +4,17 @@ import AppProvider from '../components/providers/app-provider';
 import { Bounce, ToastContainer } from 'react-toastify';
 import NextTopLoader from 'nextjs-toploader';
 import { fonts } from '@/configs/fonts';
-import Header from '@/components/layouts/header';
-import Footer from '@/components/layouts/footer';
 import ScrollToTop from '@/components/layouts/scroll-to-top';
-import Features from '@/components/layouts/features';
 import StoreLocation from '@/components/layouts/store-location';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/next';
+import Header from '@/components/layouts/header';
+import Features from '@/components/layouts/features';
+import Footer from '@/components/layouts/footer';
+import RefreshTokenClientWrapper from '@/components/refresh-token-client-wrapper';
 
 export const metadata: Metadata = {
-	title: 'Nhà thuốc thân thiên',
+	title: 'Nhà thuốc thân thiện',
 	description:
 		'Nền tảng đặt mua thuốc và sản phẩm chăm sóc sức khỏe trực tuyến hàng đầu Việt Nam',
 	icons: {
@@ -44,6 +45,7 @@ export default function RootLayout({
 					<Features />
 					<StoreLocation />
 					<Footer />
+					<RefreshTokenClientWrapper />
 				</AppProvider>
 				<ScrollToTop />
 				<ToastContainer

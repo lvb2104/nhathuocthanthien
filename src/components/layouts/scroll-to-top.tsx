@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import moveButton from '@/assets/icons/move-button.svg';
 
 function ScrollToTop() {
-	const scrollToTop = () => {
+	function scrollToTop() {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
-	};
+	}
 
 	const [isVisible, setIsVisible] = useState(false);
 
