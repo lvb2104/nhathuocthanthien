@@ -21,7 +21,7 @@ function RefreshTokenClient() {
 	const scheduleTokenRefresh = useCallback(
 		(token: string) => {
 			const exp = getExpFromJwtToken(token);
-			const delay = exp * 1000 - Date.now() - 60_000; // Refresh 1 minute before expiration
+			const delay = exp * 1000 - Date.now() - app.REFRESH_THRESHOLD_MS; // Refresh 1 minute before expiration
 			// const delay = 10_000; // For testing, refresh every 10 seconds
 
 			if (delay <= 0) {
