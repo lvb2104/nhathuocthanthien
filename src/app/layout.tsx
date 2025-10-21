@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import AppProviders from '../components/providers/AppProviders';
+import AppProvider from '../components/providers/app-provider';
 import { Bounce, ToastContainer } from 'react-toastify';
 import NextTopLoader from 'nextjs-toploader';
 import { fonts } from '@/configs/fonts';
-import Header from '@/components/layouts/Header';
-import Footer from '@/components/layouts/Footer';
-import MoveToTopButton from '@/components/layouts/MoveToTopButton';
-import Features from '@/components/layouts/Features';
-import StoreLocationBar from '@/components/layouts/StoreLocationBar';
+import Header from '@/components/layouts/header';
+import Footer from '@/components/layouts/footer';
+import ScrollToTop from '@/components/layouts/scroll-to-top';
+import Features from '@/components/layouts/features';
+import StoreLocation from '@/components/layouts/store-location';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/next';
 
@@ -38,14 +38,14 @@ export default function RootLayout({
 					showSpinner={false}
 					shadow={false}
 				/>
-				<AppProviders>
+				<AppProvider>
 					<Header />
 					{children}
 					<Features />
-					<StoreLocationBar />
+					<StoreLocation />
 					<Footer />
-				</AppProviders>
-				<MoveToTopButton />
+				</AppProvider>
+				<ScrollToTop />
 				<ToastContainer
 					position='bottom-right'
 					autoClose={4000}

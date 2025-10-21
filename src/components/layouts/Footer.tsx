@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import ContentWrapper from './ContentWrapper';
+import ContentWrapper from './content-wrapper';
 
 function Footer() {
 	return (

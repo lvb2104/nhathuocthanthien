@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import moveButton from '@/assets/icons/move-button.svg';
 
-function MoveToTopButton() {
+function ScrollToTop() {
 	const scrollToTop = () => {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	};
@@ -38,4 +38,4 @@ function MoveToTopButton() {
 	);
 }
 
-export default MoveToTopButton;
+export default ScrollToTop;
