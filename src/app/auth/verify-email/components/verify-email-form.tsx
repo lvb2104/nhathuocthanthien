@@ -22,7 +22,6 @@ import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { useAuthStore } from '@/store';
 import { useVerifyEmail } from '@/hooks';
 import CustomInputOTPSlot from '@/components/custom/custom-input-otp-slot';
-import ResendOtpButton from '@/components/custom/resend-otp-button';
 
 const formSchema = z.object({
 	email: z.string().email({ message: 'Email không hợp lệ' }),

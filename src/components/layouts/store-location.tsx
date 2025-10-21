@@ -1,7 +1,7 @@
 import React from 'react';
-import ContentWrapper from './ContentWrapper';
+import ContentWrapper from './content-wrapper';
 
-function StoreLocationBar() {
+function StoreLocation() {
 	return (
 		<section className='bg-[#7AB02C] py-4'>
 			<ContentWrapper>
@@ -21,4 +21,4 @@ function StoreLocationBar() {
 	);
 }
 
-export default StoreLocationBar;
+export default StoreLocation;

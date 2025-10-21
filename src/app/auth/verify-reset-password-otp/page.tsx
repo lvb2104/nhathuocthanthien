@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import VerifyResetPasswordOtpForm from './components/VerifyResetPasswordOtpForm';
+import VerifyResetPasswordOtpForm from './components/verify-reset-password-otp-form';
 import { useAuthStore } from '@/store';
 import LoadingScreen from '@/components/custom/loading-screen';
 import NotFound from '@/app/not-found';

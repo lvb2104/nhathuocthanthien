@@ -1,12 +1,12 @@
-import React from 'react'
-import SignInForm from './components/SignInForm'
+import React from 'react';
+import SignInForm from './components/sign-in-form';
 
 function SignInPage() {
 	return (
 		<main className='container mx-auto px-6 py-16'>
 			<SignInForm />
 		</main>
-	)
+	);
 }
 
-export default SignInPage
+export default SignInPage;

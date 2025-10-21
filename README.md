@@ -7,6 +7,7 @@
 
 ## Todo
 
-- [ ] Implement spinner
-- [ ] Prevent accessing disallowed URLs
+- [x] Implement spinner
 - [x] Use queryClientConfig
+- [x] Use refresh token api
+- [ ] Prevent accessing disallowed URLs

@@ -8,7 +8,7 @@ import user from '@/assets/icons/user.svg';
 import list from '@/assets/icons/list.png';
 import cart from '@/assets/icons/cart.svg';
 import downArrow from '@/assets/icons/down-arrow.svg';
-import ContentWrapper from './ContentWrapper';
+import ContentWrapper from './content-wrapper';
 import { useSignOut } from '@/hooks';
 import { toast } from 'react-toastify';
 import router from 'next/router';
