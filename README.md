@@ -9,5 +9,5 @@
 
 - [x] Implement spinner
 - [x] Use queryClientConfig
-- [ ] Use refresh token api
+- [x] Use refresh token api
 - [ ] Prevent accessing disallowed URLs
