@@ -43,31 +43,15 @@ export const navItems: NavItem[] = [
 		href: '#',
 		textLinks: [
 			{
-				label: 'Hỗ trợ điều trị',
+				label: 'Chăm sóc tóc - da đầu',
 				href: '#',
 			},
 			{
-				label: 'Tim mạch - tiểu đường - mỡ máu',
+				label: 'Chăm sóc da mặt',
 				href: '#',
 			},
 			{
-				label: 'Thần kinh não',
-				href: '#',
-			},
-			{
-				label: 'Ăn - ngủ - tiêu hóa',
-				href: '#',
-			},
-			{
-				label: 'Hoạt huyết dưỡng não',
-				href: '#',
-			},
-			{
-				label: 'Hô hấp xoang cảm cúm',
-				href: '#',
-			},
-			{
-				label: 'Tăng sức đề kháng',
+				label: 'Chăm sóc cơ thể',
 				href: '#',
 			},
 		],
@@ -77,31 +61,27 @@ export const navItems: NavItem[] = [
 		href: '#',
 		textLinks: [
 			{
-				label: 'Hỗ trợ điều trị',
+				label: 'Miễn dịch',
 				href: '#',
 			},
 			{
-				label: 'Tim mạch - tiểu đường - mỡ máu',
+				label: 'Trẻ em',
 				href: '#',
 			},
 			{
-				label: 'Thần kinh não',
+				label: 'Lợi sữa',
 				href: '#',
 			},
 			{
-				label: 'Ăn - ngủ - tiêu hóa',
+				label: 'Sữa',
 				href: '#',
 			},
 			{
-				label: 'Hoạt huyết dưỡng não',
+				label: 'ZinC',
 				href: '#',
 			},
 			{
-				label: 'Hô hấp xoang cảm cúm',
-				href: '#',
-			},
-			{
-				label: 'Tăng sức đề kháng',
+				label: 'DHA',
 				href: '#',
 			},
 		],
@@ -111,65 +91,35 @@ export const navItems: NavItem[] = [
 		href: '#',
 		textLinks: [
 			{
-				label: 'Hỗ trợ điều trị',
+				label: 'Không kê đơn',
 				href: '#',
 			},
 			{
-				label: 'Tim mạch - tiểu đường - mỡ máu',
+				label: 'Đông dược',
 				href: '#',
 			},
 			{
-				label: 'Thần kinh não',
+				label: 'Tim mạch',
 				href: '#',
 			},
 			{
-				label: 'Ăn - ngủ - tiêu hóa',
+				label: 'Tiểu đường',
 				href: '#',
 			},
 			{
-				label: 'Hoạt huyết dưỡng não',
+				label: 'Huyết áp',
 				href: '#',
 			},
 			{
-				label: 'Hô hấp xoang cảm cúm',
+				label: 'Xương khớp',
 				href: '#',
 			},
 			{
-				label: 'Tăng sức đề kháng',
-				href: '#',
-			},
-		],
-	},
-	{
-		label: 'Bao cao su',
-		href: '#',
-		textLinks: [
-			{
-				label: 'Hỗ trợ điều trị',
+				label: 'Dạ dày',
 				href: '#',
 			},
 			{
-				label: 'Tim mạch - tiểu đường - mỡ máu',
-				href: '#',
-			},
-			{
-				label: 'Thần kinh não',
-				href: '#',
-			},
-			{
-				label: 'Ăn - ngủ - tiêu hóa',
-				href: '#',
-			},
-			{
-				label: 'Hoạt huyết dưỡng não',
-				href: '#',
-			},
-			{
-				label: 'Hô hấp xoang cảm cúm',
-				href: '#',
-			},
-			{
-				label: 'Tăng sức đề kháng',
+				label: 'Tránh thai',
 				href: '#',
 			},
 		],
@@ -183,31 +133,15 @@ export const navItems: NavItem[] = [
 		href: '#',
 		textLinks: [
 			{
-				label: 'Hỗ trợ điều trị',
+				label: 'Cửa hàng',
 				href: '#',
 			},
 			{
-				label: 'Tim mạch - tiểu đường - mỡ máu',
+				label: 'Thảo dược',
 				href: '#',
 			},
 			{
-				label: 'Thần kinh não',
-				href: '#',
-			},
-			{
-				label: 'Ăn - ngủ - tiêu hóa',
-				href: '#',
-			},
-			{
-				label: 'Hoạt huyết dưỡng não',
-				href: '#',
-			},
-			{
-				label: 'Hô hấp xoang cảm cúm',
-				href: '#',
-			},
-			{
-				label: 'Tăng sức đề kháng',
+				label: 'Dược liệu',
 				href: '#',
 			},
 		],

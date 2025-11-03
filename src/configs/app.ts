@@ -8,5 +8,6 @@ export const app = {
 		ACCESS_TOKEN: 'access_token',
 		AUTH_STORAGE: 'auth_storage',
 		OTP_STORAGE: 'otp_cooldown_expires_at',
+		USER_STORAGE: 'user_storage',
 	},
 };
