@@ -4,19 +4,26 @@ import { Search } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
-import user from '@/assets/icons/user.svg';
-import list from '@/assets/icons/list.png';
-import cart from '@/assets/icons/cart.svg';
-import downArrow from '@/assets/icons/down-arrow.svg';
 import ContentWrapper from './content-wrapper';
 import { useSignOut } from '@/hooks';
 import { toast } from 'react-toastify';
 import router from 'next/router';
 import { useAuthStore } from '@/store';
+import {
+	NavigationMenu,
+	NavigationMenuContent,
+	NavigationMenuItem,
+	NavigationMenuLink,
+	NavigationMenuList,
+	NavigationMenuTrigger,
+} from '@/components/ui/navigation-menu';
+import useIsMobile from '@/hooks/use-is-mobile';
+import { NavItem, navItems } from '@/lib/placeholder-data';
 
 function Header() {
 	const { mutate } = useSignOut();
 	const { isLoggedIn } = useAuthStore();
+	const { isMobile } = useIsMobile();
 
 	function handleSignOut() {
 		mutate(undefined, {
@@ -27,7 +34,7 @@ function Header() {
 		});
 	}
 	return (
-		<header className='bg-(--primary-color) text-white'>
+		<header className='bg-(--primary-color) text-white pb-2'>
 			<ContentWrapper>
 				{/* Top Bar */}
 				<div
@@ -35,7 +42,7 @@ function Header() {
 					title='Tài khoản của bạn'
 				>
 					<Link href={routes.profile} className='flex items-center'>
-						<Image src={user} alt='User' width={15} height={15} />
+						<Image src='/icons/user.svg' alt='User' width={15} height={15} />
 					</Link>
 					{isLoggedIn ? (
 						<button className='cursor-pointer' onClick={handleSignOut}>
@@ -83,19 +90,29 @@ function Header() {
 					<div className='flex items-center gap-4'>
 						<div className='flex items-center cursor-pointer'>
 							<div className='p-2 rounded'>
-								<Image src={list} alt='Order Tracking' width={30} height={30} />
+								<Image
+									src='/icons/list.png'
+									alt='Order Tracking'
+									width={30}
+									height={30}
+								/>
 							</div>
 							<div>
-								<div className='text-xs'>Tra cứu</div>
+								<div className='text-xs mb-[-2px]'>Tra cứu</div>
 								<div className='font-semibold'>Đơn hàng</div>
 							</div>
 						</div>
 						<div className='flex items-center cursor-pointer'>
 							<div className='p-2 rounded'>
-								<Image src={cart} alt='Cart' width={30} height={30} />
+								<Image
+									src='/icons/cart.svg'
+									alt='Cart'
+									width={30}
+									height={30}
+								/>
 							</div>
 							<div>
-								<div className='text-xs'>Giỏ hàng</div>
+								<div className='text-xs mb-[-2px]'>Giỏ hàng</div>
 								<div className='font-semibold'>
 									<span className='rounded-[2px] px-[3px] bg-white text-[#ff5722] font-[500] text-sm text-center'>
 										0
@@ -107,100 +124,31 @@ function Header() {
 					</div>
 				</div>
 				{/* Navigation */}
-				<nav>
-					<div className='container mx-auto px-6 flex items-center justify-between text-sm py-2'>
-						<button className='flex justify-center'>
-							Thực phẩm chức năng
-							<Image
-								src={downArrow}
-								alt='Down Arrow'
-								width={10}
-								height={10}
-								className='inline ml-1	'
-							/>
-						</button>
-						<button className='flex justify-center'>
-							Mỹ phẩm
-							<Image
-								src={downArrow}
-								alt='Down Arrow'
-								width={10}
-								height={10}
-								className='inline ml-1'
-							/>
-						</button>
-						<button className='flex justify-center'>
-							Mẹ & bé
-							<Image
-								src={downArrow}
-								alt='Down Arrow'
-								width={10}
-								height={10}
-								className='inline ml-1'
-							/>
-						</button>
-						<button className='flex justify-center'>
-							Dược phẩm
-							<Image
-								src={downArrow}
-								alt='Down Arrow'
-								width={10}
-								height={10}
-								className='inline ml-1'
-							/>
-						</button>
-						<button className='flex justify-center'>
-							Bao cao su
-							<Image
-								src={downArrow}
-								alt='Down Arrow'
-								width={10}
-								height={10}
-								className='inline ml-1'
-							/>
-						</button>
-						<button className='flex justify-center'>
-							Bệnh học
-							<Image
-								src={downArrow}
-								alt='Down Arrow'
-								width={10}
-								height={10}
-								className='inline ml-1'
-							/>
-						</button>
-						<button className='flex justify-center'>
-							Giới thiệu
-							<Image
-								src={downArrow}
-								alt='Down Arrow'
-								width={10}
-								height={10}
-								className='inline ml-1'
-							/>
-						</button>
-						<button className='flex justify-center'>
-							Dược thư
-							<Image
-								src={downArrow}
-								alt='Down Arrow'
-								width={10}
-								height={10}
-								className='inline ml-1'
-							/>
-						</button>
-						<button className='flex justify-center'>
-							Có may mắn
-							<Image
-								src={downArrow}
-								alt='Down Arrow'
-								width={10}
-								height={10}
-								className='inline ml-1'
-							/>
-						</button>
-					</div>
-				</nav>
+				<NavigationMenu viewport={isMobile ? true : false}>
+					<NavigationMenuList className='flex-wrap'>
+						{navItems.map((item: NavItem) => (
+							<NavigationMenuItem key={item.label}>
+								<NavigationMenuTrigger className='bg-(--primary-color) cursor-pointer'>
+									{item.label}
+								</NavigationMenuTrigger>
+								{item.textLinks ? (
+									<NavigationMenuContent className='z-50'>
+										{item.textLinks
+											? item.textLinks.map(textLink => (
+													<NavigationMenuLink
+														key={textLink.label || textLink.href}
+														href={textLink.href}
+													>
+														{textLink.label}
+													</NavigationMenuLink>
+												))
+											: null}
+									</NavigationMenuContent>
+								) : null}
+							</NavigationMenuItem>
+						))}
+					</NavigationMenuList>
+				</NavigationMenu>
 			</ContentWrapper>
 		</header>
 	);
