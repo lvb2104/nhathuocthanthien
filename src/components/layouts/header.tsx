@@ -7,7 +7,6 @@ import React from 'react';
 import ContentWrapper from './content-wrapper';
 import { useIsMobile, useSignOut } from '@/hooks';
 import { toast } from 'react-toastify';
-import router from 'next/navigation';
 import { useAuthStore } from '@/store';
 import {
 	NavigationMenu,
@@ -18,11 +17,13 @@ import {
 	NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
 import { NavItem, navItems } from '@/lib/placeholder-data';
+import { useRouter } from 'next/navigation';
 
 function Header() {
 	const { mutate } = useSignOut();
 	const { isLoggedIn } = useAuthStore();
 	const { isMobile } = useIsMobile();
+	const router = useRouter();
 
 	function handleSignOut() {
 		mutate(undefined, {
