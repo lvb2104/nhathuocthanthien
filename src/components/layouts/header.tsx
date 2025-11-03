@@ -5,9 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 import ContentWrapper from './content-wrapper';
-import { useSignOut } from '@/hooks';
+import { useIsMobile, useSignOut } from '@/hooks';
 import { toast } from 'react-toastify';
-import router from 'next/router';
 import { useAuthStore } from '@/store';
 import {
 	NavigationMenu,
@@ -17,13 +16,14 @@ import {
 	NavigationMenuList,
 	NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
-import useIsMobile from '@/hooks/use-is-mobile';
 import { NavItem, navItems } from '@/lib/placeholder-data';
+import { useRouter } from 'next/navigation';
 
 function Header() {
 	const { mutate } = useSignOut();
 	const { isLoggedIn } = useAuthStore();
 	const { isMobile } = useIsMobile();
+	const router = useRouter();
 
 	function handleSignOut() {
 		mutate(undefined, {
@@ -58,23 +58,18 @@ function Header() {
 				{/* Main Header */}
 				<div className='flex items-center justify-between pb-2'>
 					{/* Logo */}
-					<Link className='flex items-center' href={routes.home}>
-						<div>
+					<Link href={routes.home}>
+						<div className='relative w-[150px] h-[50px]'>
 							<Image
 								src='/images/logo.png'
 								alt='Logo'
-								width={100}
-								height={100}
+								fill
+								className='object-contain'
 							/>
-						</div>
-						<div>
-							<div className='text-xs uppercase'>Nhà thuốc</div>
-							<div className='text-2xl font-bold'>thân thiện</div>
-							<div className='text-xs'>Pharmacy</div>
 						</div>
 					</Link>
 					{/* Search Bar */}
-					<div className='flex-1 max-w-xl mx-8'>
+					<div className='flex-1 max-w-xl'>
 						<div className='relative'>
 							<input
 								type='text'

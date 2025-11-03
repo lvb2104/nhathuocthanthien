@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 	description:
 		'Nền tảng đặt mua thuốc và sản phẩm chăm sóc sức khỏe trực tuyến hàng đầu Việt Nam',
 	icons: {
-		icon: '/images/logo.png',
+		icon: '/images/favicon.png',
 	},
 };
 

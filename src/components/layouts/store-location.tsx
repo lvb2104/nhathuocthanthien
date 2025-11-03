@@ -12,7 +12,7 @@ function StoreLocation() {
 						</svg>
 						<span className='text-xl font-semibold'>Tìm cửa hàng gần bạn</span>
 					</div>
-					<button className='bg-white text-[#7AB02C] px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition'>
+					<button className='bg-white text-[#7AB02C] px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition cursor-pointer'>
 						Xem hệ thống cửa hàng
 					</button>
 				</div>

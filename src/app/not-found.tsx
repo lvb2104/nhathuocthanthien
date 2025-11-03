@@ -15,7 +15,7 @@ function NotFound() {
 			setCooldown(prev => {
 				if (prev <= 1) {
 					clearInterval(interval);
-					router.push(routes.home);
+					router.replace(routes.home);
 				}
 				return prev - 1;
 			});

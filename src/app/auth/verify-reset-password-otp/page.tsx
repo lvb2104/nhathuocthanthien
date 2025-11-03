@@ -3,18 +3,15 @@ import React from 'react';
 import VerifyResetPasswordOtpForm from './components/verify-reset-password-otp-form';
 import { useAuthStore } from '@/store';
 import LoadingScreen from '@/components/custom/loading-screen';
-import NotFound from '@/app/not-found';
+import { useRouter } from 'next/navigation';
 
 function VerifyResetPasswordOtpPage() {
 	const { isLoggedIn, hasHydrated } = useAuthStore();
+	const router = useRouter();
 
-	if (!hasHydrated) {
-		return <LoadingScreen />;
-	}
+	if (!hasHydrated) return <LoadingScreen />;
 
-	if (isLoggedIn) {
-		return <NotFound />;
-	}
+	if (isLoggedIn) router.push('/');
 
 	return (
 		<main className='container mx-auto px-6 py-16'>

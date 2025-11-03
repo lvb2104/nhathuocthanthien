@@ -57,3 +57,10 @@ export type JwtPayload = {
 	iat: number;
 	exp: number;
 };
+
+export type User = {
+	id: number;
+	fullName: string;
+	avatarUrl: string;
+	role: string;
+};

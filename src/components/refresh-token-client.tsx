@@ -1,6 +1,6 @@
 'use client';
 import { app } from '@/configs/app';
-import { useRefreshToken } from '@/hooks/use-refresh-token';
+import { useRefreshToken } from '@/hooks';
 import { RefreshTokenResponse } from '@/lib/types';
 import { getExpFromJwtToken } from '@/lib/utils';
 import { useCallback, useEffect, useRef, useState } from 'react';
