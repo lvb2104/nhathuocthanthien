@@ -1,7 +1,6 @@
 'use client';
 import Image from 'next/image';
 import React from 'react';
-import mail from '@/assets/icons/mail.png';
 import {
 	Form,
 	FormControl,
@@ -66,7 +65,7 @@ function ResetPasswordForm() {
 			<div className='flex justify-center mb-6'>
 				<div className='flex items-center gap-2 px-8 py-3 bg-white border-2 border-amber-600 text-amber-600 rounded-full font-semibold'>
 					<div className='rounded-full flex items-center justify-center'>
-						<Image src={mail} alt='Mail' width={35} height={35} />
+						<Image src='/icons/mail.png' alt='Mail' width={35} height={35} />
 					</div>
 					Đặt lại mật khẩu
 				</div>

@@ -11,3 +11,4 @@
 - [x] Use queryClientConfig
 - [x] Use refresh token api
 - [ ] Prevent accessing disallowed URLs
+- [ ] Fix Image tag with width and height props
