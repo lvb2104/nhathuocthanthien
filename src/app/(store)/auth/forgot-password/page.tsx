@@ -1,0 +1,23 @@
+'use client';
+import { useAuthStore } from '@/store';
+import Loading from '@/app/loading';
+import { useRouter } from 'next/navigation';
+import { routes } from '@/configs/routes';
+import ForgotPasswordForm from '@/components/forms/forgot-password-form';
+
+function ForgotPasswordPage() {
+	const { isLoggedIn, hasHydrated } = useAuthStore();
+	const router = useRouter();
+
+	if (!hasHydrated) return <Loading />;
+
+	if (isLoggedIn) router.replace(routes.home);
+
+	return (
+		<main className='container mx-auto px-6 py-16'>
+			<ForgotPasswordForm />
+		</main>
+	);
+}
+
+export default ForgotPasswordPage;

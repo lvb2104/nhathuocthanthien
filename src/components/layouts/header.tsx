@@ -3,7 +3,6 @@ import { routes } from '@/configs/routes';
 import { Search } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react';
 import ContentWrapper from './content-wrapper';
 import { useIsMobile, useSignOut } from '@/hooks';
 import { toast } from 'react-toastify';
@@ -22,7 +21,7 @@ import { useRouter } from 'next/navigation';
 function Header() {
 	const { mutate } = useSignOut();
 	const { isLoggedIn } = useAuthStore();
-	const { isMobile } = useIsMobile();
+	const isMobile = useIsMobile();
 	const router = useRouter();
 
 	function handleSignOut() {

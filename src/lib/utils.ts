@@ -29,7 +29,7 @@ export function handleAxiosError(error: any) {
 	}
 }
 
-export function getExpFromJwtToken(token: string) {
+export function getDecodedPayloadFromJwt(token: string) {
 	const decodedPayload = jwtDecode<JwtPayload>(token);
-	return decodedPayload.exp;
+	return decodedPayload;
 }

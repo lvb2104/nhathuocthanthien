@@ -1,5 +1,4 @@
 import { Clock, RefreshCw, Truck } from 'lucide-react';
-import React from 'react';
 import ContentWrapper from './content-wrapper';
 
 function Features() {

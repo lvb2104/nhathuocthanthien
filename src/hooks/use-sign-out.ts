@@ -11,6 +11,9 @@ export function useSignOut() {
 			authStore.setIsLoggedIn(false);
 			authStore.setEmailPendingVerification(undefined);
 			localStorage.removeItem(app.localStorageKey.ACCESS_TOKEN);
+			localStorage.removeItem(app.localStorageKey.USER_STORAGE);
+			localStorage.removeItem(app.localStorageKey.AUTH_STORAGE);
+			localStorage.removeItem(app.localStorageKey.OTP_STORAGE);
 			return;
 		},
 		onSuccess: () => {},

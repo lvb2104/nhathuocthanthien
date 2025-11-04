@@ -1,17 +1,13 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import AppProvider from '../components/providers/app-provider';
 import { Bounce, ToastContainer } from 'react-toastify';
 import NextTopLoader from 'nextjs-toploader';
 import { fonts } from '@/configs/fonts';
 import ScrollToTop from '@/components/layouts/scroll-to-top';
-import StoreLocation from '@/components/layouts/store-location';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/next';
-import Header from '@/components/layouts/header';
-import Features from '@/components/layouts/features';
-import Footer from '@/components/layouts/footer';
 import RefreshTokenClientWrapper from '@/components/refresh-token-client-wrapper';
+import AppProvider from '@/components/providers/app-provider';
 
 export const metadata: Metadata = {
 	title: 'Nhà thuốc thân thiện',
@@ -40,12 +36,8 @@ export default function RootLayout({
 					shadow={false}
 				/>
 				<AppProvider>
-					<Header />
-					{children}
-					<Features />
-					<StoreLocation />
-					<Footer />
 					<RefreshTokenClientWrapper />
+					{children}
 				</AppProvider>
 				<ScrollToTop />
 				<ToastContainer
