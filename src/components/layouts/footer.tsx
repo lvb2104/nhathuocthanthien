@@ -1,4 +1,3 @@
-import React from 'react';
 import Image from 'next/image';
 import ContentWrapper from './content-wrapper';
 import Link from 'next/link';

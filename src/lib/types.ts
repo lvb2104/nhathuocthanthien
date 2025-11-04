@@ -53,14 +53,20 @@ export type JwtPayload = {
 	id: number;
 	fullName: string;
 	avatarUrl: string;
-	role: string;
+	role: UserRole;
 	iat: number;
 	exp: number;
 };
+
+export enum UserRole {
+	CUSTOMER = 'customer',
+	ADMIN = 'admin',
+	PHARMACIST = 'pharmacist',
+}
 
 export type User = {
 	id: number;
 	fullName: string;
 	avatarUrl: string;
-	role: string;
+	role: UserRole;
 };
