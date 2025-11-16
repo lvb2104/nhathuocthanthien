@@ -18,29 +18,23 @@ import { routes } from '@/configs/routes';
 import LoadingButton from '@/components/custom/loading-button';
 import { useForgotPassword } from '@/hooks';
 import CustomInput from '@/components/custom/custom-input';
-
-const formSchema = z.object({
-	email: z.string().email({ message: 'Email không hợp lệ' }),
-});
+import { ForgotPasswordFormSchema } from '@/types';
 
 function ForgotPasswordForm() {
 	const { mutate, isPending } = useForgotPassword();
 	const router = useRouter();
 
-	const form = useForm<z.infer<typeof formSchema>>({
-		resolver: zodResolver(formSchema),
-		defaultValues: {
-			email: '',
-		},
+	const form = useForm<z.infer<typeof ForgotPasswordFormSchema>>({
+		resolver: zodResolver(ForgotPasswordFormSchema),
 	});
 
-	function handleSubmit(values: z.infer<typeof formSchema>) {
+	function handleSubmit(values: z.infer<typeof ForgotPasswordFormSchema>) {
 		mutate(values, {
 			onSuccess: () => {
 				toast.success(
 					'Đã gửi email đặt lại mật khẩu! Vui lòng kiểm tra hộp thư đến.',
 				);
-				router.push(routes.auth.verifyResetPasswordOtp);
+				router.replace(routes.auth.verifyResetPasswordOtp);
 			},
 		});
 	}

@@ -1,8 +1,8 @@
 'use client';
 import { app } from '@/configs/app';
 import { useRefreshToken } from '@/hooks';
-import { RefreshTokenResponse } from '@/lib/types';
 import { getDecodedPayloadFromJwt } from '@/lib/utils';
+import { RefreshTokenResponse } from '@/types';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 function RefreshTokenClient() {
@@ -22,7 +22,6 @@ function RefreshTokenClient() {
 		(token: string) => {
 			const { exp } = getDecodedPayloadFromJwt(token);
 			const delay = exp * 1000 - Date.now() - app.REFRESH_THRESHOLD_MS; // Refresh before expiration based on configured threshold
-			// const delay = 10_000; // For testing, refresh every 10 seconds
 
 			if (delay <= 0) {
 				return; // Token already expired or about to expire

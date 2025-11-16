@@ -1,5 +1,5 @@
 import { app } from '@/configs/app';
-import { User } from '@/lib/types';
+import { User } from '@/types';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 

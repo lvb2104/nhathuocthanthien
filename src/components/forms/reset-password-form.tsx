@@ -21,41 +21,25 @@ import Link from 'next/link';
 import { useResetPassword } from '@/hooks';
 import { useAuthStore } from '@/store';
 import CustomPasswordInput from '@/components/custom/custom-password-input';
-
-const formSchema = z
-	.object({
-		email: z.string().email({ message: 'Email không hợp lệ' }),
-		newPassword: z
-			.string()
-			.min(6, { message: 'Mật khẩu phải có ít nhất 6 ký tự' }),
-		confirmedPassword: z
-			.string()
-			.min(6, { message: 'Mật khẩu xác nhận phải có ít nhất 6 ký tự' }),
-	})
-	.refine(data => data.newPassword === data.confirmedPassword, {
-		message: 'Mật khẩu xác nhận không khớp',
-		path: ['confirmedPassword'],
-	});
+import { ResetPasswordFormSchema } from '@/types';
 
 function ResetPasswordForm() {
 	const { mutate, isPending } = useResetPassword();
 	const { emailPendingVerification } = useAuthStore();
 	const router = useRouter();
 
-	const form = useForm<z.infer<typeof formSchema>>({
-		resolver: zodResolver(formSchema),
+	const form = useForm<z.infer<typeof ResetPasswordFormSchema>>({
+		resolver: zodResolver(ResetPasswordFormSchema),
 		defaultValues: {
 			email: emailPendingVerification,
-			newPassword: '',
-			confirmedPassword: '',
 		},
 	});
 
-	function handleSubmit(values: z.infer<typeof formSchema>) {
+	function handleSubmit(values: z.infer<typeof ResetPasswordFormSchema>) {
 		mutate(omit(values, ['confirmedPassword']), {
 			onSuccess: () => {
 				toast.success('Đặt lại mật khẩu thành công! Vui lòng đăng nhập lại.');
-				router.push(routes.auth.signIn); // Redirect to sign in page
+				router.replace(routes.auth.signIn); // Redirect to sign in page
 			},
 		});
 	}

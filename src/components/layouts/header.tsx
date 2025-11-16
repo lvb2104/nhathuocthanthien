@@ -6,7 +6,7 @@ import Link from 'next/link';
 import ContentWrapper from './content-wrapper';
 import { useIsMobile, useSignOut } from '@/hooks';
 import { toast } from 'react-toastify';
-import { useAuthStore } from '@/store';
+import { useAuthStore, useUserStore } from '@/store';
 import {
 	NavigationMenu,
 	NavigationMenuContent,
@@ -17,21 +17,24 @@ import {
 } from '@/components/ui/navigation-menu';
 import { NavItem, navItems } from '@/lib/placeholder-data';
 import { useRouter } from 'next/navigation';
+import { UserRole } from '@/types';
 
 function Header() {
 	const { mutate } = useSignOut();
 	const { isLoggedIn } = useAuthStore();
 	const isMobile = useIsMobile();
 	const router = useRouter();
+	const { user } = useUserStore();
 
 	function handleSignOut() {
 		mutate(undefined, {
 			onSuccess: () => {
 				toast.success('Đăng xuất thành công!');
-				router.push(routes.home);
+				router.replace(routes.home);
 			},
 		});
 	}
+
 	return (
 		<header className='bg-(--primary-color) text-white pb-2'>
 			<ContentWrapper>
@@ -40,7 +43,7 @@ function Header() {
 					className='flex justify-end align-center gap-2 text-sm pt-2'
 					title='Tài khoản của bạn'
 				>
-					<Link href={routes.profile} className='flex items-center'>
+					<Link href={routes.user.profile} className='flex items-center'>
 						<Image src='/icons/user.svg' alt='User' width={15} height={15} />
 					</Link>
 					{isLoggedIn ? (
@@ -82,7 +85,16 @@ function Header() {
 					</div>
 					{/* Cart and Order Tracking */}
 					<div className='flex items-center gap-4'>
-						<div className='flex items-center cursor-pointer'>
+						<Link
+							className='flex items-center cursor-pointer'
+							href={
+								user?.role === UserRole.ADMIN
+									? routes.admin.overview
+									: user?.role === UserRole.PHARMACIST
+										? routes.pharmacist.overview
+										: routes.user.orders
+							}
+						>
 							<div className='p-2 rounded'>
 								<Image
 									src='/icons/list.png'
@@ -95,7 +107,7 @@ function Header() {
 								<div className='text-xs mb-[-2px]'>Tra cứu</div>
 								<div className='font-semibold'>Đơn hàng</div>
 							</div>
-						</div>
+						</Link>
 						<div className='flex items-center cursor-pointer'>
 							<div className='p-2 rounded'>
 								<Image

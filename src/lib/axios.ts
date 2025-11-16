@@ -7,10 +7,8 @@ import { toast } from 'react-toastify';
 
 export const axiosInstance = axios.create({
 	baseURL: process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000/api',
-	headers: {
-		'Content-Type': 'application/json',
-	},
 	timeout: app.AXIOS_TIMEOUT,
+	withCredentials: true,
 });
 
 // Add a request interceptor to include the access token in headers of each request

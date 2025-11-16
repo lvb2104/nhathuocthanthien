@@ -20,29 +20,21 @@ import Link from 'next/link';
 import { useSignIn } from '@/hooks';
 import CustomPasswordInput from '@/components/custom/custom-password-input';
 import CustomInput from '@/components/custom/custom-input';
-
-const formSchema = z.object({
-	email: z.string().email({ message: 'Email không hợp lệ' }),
-	password: z.string().min(6, { message: 'Mật khẩu phải có ít nhất 6 ký tự' }),
-});
+import { SignInFormSchema } from '@/types';
 
 function SignInForm() {
 	const { mutate, isPending } = useSignIn();
 	const router = useRouter();
 
-	const form = useForm<z.infer<typeof formSchema>>({
-		resolver: zodResolver(formSchema),
-		defaultValues: {
-			email: '',
-			password: '',
-		},
+	const form = useForm<z.infer<typeof SignInFormSchema>>({
+		resolver: zodResolver(SignInFormSchema),
 	});
 
-	function handleSubmit(values: z.infer<typeof formSchema>) {
+	function handleSubmit(values: z.infer<typeof SignInFormSchema>) {
 		mutate(values, {
 			onSuccess: () => {
 				toast.success('Đăng nhập thành công!');
-				router.push(routes.home);
+				router.replace(routes.home);
 			},
 		});
 	}

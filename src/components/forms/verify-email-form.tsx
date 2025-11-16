@@ -20,31 +20,26 @@ import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { useAuthStore } from '@/store';
 import { useVerifyEmail } from '@/hooks';
 import CustomInputOTPSlot from '@/components/custom/custom-input-otp-slot';
-
-const formSchema = z.object({
-	email: z.string().email({ message: 'Email không hợp lệ' }),
-	otp: z.string().min(6, { message: 'Mã OTP phải có 6 chữ số' }),
-});
+import { VerifyEmailFormSchema } from '@/types';
 
 function VerifyEmailForm() {
 	const { emailPendingVerification } = useAuthStore();
 	const { mutate, isPending } = useVerifyEmail();
 	const router = useRouter();
 
-	const form = useForm<z.infer<typeof formSchema>>({
-		resolver: zodResolver(formSchema),
+	const form = useForm<z.infer<typeof VerifyEmailFormSchema>>({
+		resolver: zodResolver(VerifyEmailFormSchema),
 		defaultValues: {
 			email: emailPendingVerification,
-			otp: '',
 		},
 	});
 
-	function handleSubmit(values: z.infer<typeof formSchema>) {
+	function handleSubmit(values: z.infer<typeof VerifyEmailFormSchema>) {
 		if (!values.email) return;
 		mutate(values, {
 			onSuccess: () => {
 				toast.success('Xác minh email thành công! Vui lòng đăng nhập lại.');
-				router.push(routes.auth.signIn);
+				router.replace(routes.auth.signIn);
 			},
 		});
 	}

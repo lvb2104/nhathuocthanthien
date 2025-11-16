@@ -21,44 +21,21 @@ import Link from 'next/link';
 import { useSignUp } from '@/hooks';
 import CustomInput from '@/components/custom/custom-input';
 import CustomPasswordInput from '@/components/custom/custom-password-input';
-
-const formSchema = z
-	.object({
-		email: z.string().email({ message: 'Email không hợp lệ' }),
-		password: z
-			.string()
-			.min(6, { message: 'Mật khẩu phải có ít nhất 6 ký tự' }),
-		confirmedPassword: z
-			.string()
-			.min(6, { message: 'Mật khẩu xác nhận phải có ít nhất 6 ký tự' }),
-		fullName: z
-			.string()
-			.min(2, { message: 'Họ và tên phải có ít nhất 2 ký tự' }),
-	})
-	.refine(data => data.password === data.confirmedPassword, {
-		message: 'Mật khẩu xác nhận không khớp',
-		path: ['confirmedPassword'],
-	});
+import { SignUpFormSchema } from '@/types';
 
 function SignUpForm() {
 	const { mutate, isPending } = useSignUp();
 	const router = useRouter();
 
-	const form = useForm<z.infer<typeof formSchema>>({
-		resolver: zodResolver(formSchema),
-		defaultValues: {
-			email: '',
-			password: '',
-			confirmedPassword: '',
-			fullName: '',
-		},
+	const form = useForm<z.infer<typeof SignUpFormSchema>>({
+		resolver: zodResolver(SignUpFormSchema),
 	});
 
-	function handleSubmit(values: z.infer<typeof formSchema>) {
+	function handleSubmit(values: z.infer<typeof SignUpFormSchema>) {
 		mutate(omit(values, ['confirmedPassword']), {
 			onSuccess: () => {
 				toast.success('Đăng ký thành công! Vui lòng xác nhận email.');
-				router.push(routes.auth.verifyEmail); // Redirect to email verification page
+				router.replace(routes.auth.verifyEmail); // Redirect to email verification page
 			},
 		});
 	}

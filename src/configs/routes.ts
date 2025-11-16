@@ -9,5 +9,17 @@ export const routes = {
 		verifyResetPasswordOtp: '/auth/verify-reset-password-otp',
 		resetPassword: '/auth/reset-password',
 	},
-	profile: '/profile',
+	user: {
+		profile: '/profile',
+		orders: '/orders',
+	},
+	admin: {
+		overview: '/admin/overview',
+		products: {
+			create: '/admin/products/create',
+		},
+	},
+	pharmacist: {
+		overview: '/pharmacist/overview',
+	},
 };

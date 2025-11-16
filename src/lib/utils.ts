@@ -3,7 +3,7 @@ import { clsx, type ClassValue } from 'clsx';
 import { toast } from 'react-toastify';
 import { twMerge } from 'tailwind-merge';
 import { jwtDecode } from 'jwt-decode';
-import { JwtPayload } from './types';
+import { JwtPayload } from '@/types';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));

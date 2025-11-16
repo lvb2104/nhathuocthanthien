@@ -21,11 +21,7 @@ import { useAuthStore } from '@/store';
 import { useForgotPassword, useVerifyResetPasswordOtp } from '@/hooks';
 import CustomInputOTPSlot from '@/components/custom/custom-input-otp-slot';
 import ResendOtpButton from '@/components/custom/resend-otp-button';
-
-const formSchema = z.object({
-	email: z.string().email({ message: 'Email không hợp lệ' }),
-	otp: z.string().min(6, { message: 'Mã OTP phải có 6 chữ số' }),
-});
+import { VerifyResetPasswordOtpFormSchema } from '@/types';
 
 function VerifyResetPasswordOtpForm() {
 	const { emailPendingVerification } = useAuthStore();
@@ -33,20 +29,21 @@ function VerifyResetPasswordOtpForm() {
 	const { mutate: mutateForgotPassword } = useForgotPassword();
 	const router = useRouter();
 
-	const form = useForm<z.infer<typeof formSchema>>({
-		resolver: zodResolver(formSchema),
+	const form = useForm<z.infer<typeof VerifyResetPasswordOtpFormSchema>>({
+		resolver: zodResolver(VerifyResetPasswordOtpFormSchema),
 		defaultValues: {
 			email: emailPendingVerification,
-			otp: '',
 		},
 	});
 
-	function handleSubmit(values: z.infer<typeof formSchema>) {
+	function handleSubmit(
+		values: z.infer<typeof VerifyResetPasswordOtpFormSchema>,
+	) {
 		if (!values.email) return;
 		mutate(values, {
 			onSuccess: () => {
 				toast.success('Xác minh email thành công! Vui lòng nhập mật khẩu mới.');
-				router.push(routes.auth.resetPassword);
+				router.replace(routes.auth.resetPassword);
 			},
 		});
 	}

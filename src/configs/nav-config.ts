@@ -1,179 +1,80 @@
+import {
+	IconChartBar,
+	IconDashboard,
+	IconDatabase,
+	IconFileWord,
+	IconFolder,
+	IconHelp,
+	IconListDetails,
+	IconReport,
+	IconSearch,
+	IconSettings,
+	IconUsers,
+} from '@tabler/icons-react';
+
 export const navConfig = {
 	admin: {
-		label: 'Admin',
-		href: '/admin',
-		versions: ['1.0.1', '1.1.0-alpha', '2.0.0-beta1'],
 		navMain: [
 			{
-				title: 'Dashboard',
-				url: '#',
-				items: [
-					{
-						title: 'Overview',
-						url: '#',
-						isActive: true,
-					},
-					{
-						title: 'Analytics',
-						url: '#',
-						isActive: false,
-					},
-				],
+				title: 'Overview',
+				url: '/admin/overview',
+				icon: IconDashboard,
 			},
 			{
-				title: 'Management',
-				url: '#',
-				items: [
-					{
-						title: 'Products',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'Orders',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'Customers',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'Reports',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'Shipping',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'Payments',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'Discounts',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'Integrations',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'Settings',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'Sliders',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'Banners',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'Inventories',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'Categories',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'Suppliers',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'Permissions',
-						url: '#',
-						isActive: false,
-					},
-				],
+				title: 'Products',
+				url: '/admin/products',
+				icon: IconListDetails,
 			},
 			{
-				title: 'API Reference',
-				url: '#',
-				items: [
-					{
-						title: 'Components',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'File Conventions',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'Functions',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'next.config.js Options',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'CLI',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'Edge Runtime',
-						url: '#',
-						isActive: false,
-					},
-				],
+				title: 'Analytics',
+				url: '/admin/analytics',
+				icon: IconChartBar,
 			},
 			{
-				title: 'Architecture',
-				url: '#',
-				items: [
-					{
-						title: 'Accessibility',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'Fast Refresh',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'Next.js Compiler',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'Supported Browsers',
-						url: '#',
-						isActive: false,
-					},
-					{
-						title: 'Turbopack',
-						url: '#',
-						isActive: false,
-					},
-				],
+				title: 'Projects',
+				url: '/admin/projects',
+				icon: IconFolder,
+			},
+			{
+				title: 'Team',
+				url: '/admin/team',
+				icon: IconUsers,
+			},
+		],
+		documents: [
+			{
+				name: 'Data Library',
+				url: '/admin/data-library',
+				icon: IconDatabase,
+			},
+			{
+				name: 'Reports',
+				url: '/admin/reports',
+				icon: IconReport,
+			},
+			{
+				name: 'Word Assistant',
+				url: '/admin/word-assistant',
+				icon: IconFileWord,
+			},
+		],
+		navSecondary: [
+			{
+				title: 'Settings',
+				url: '/admin/settings',
+				icon: IconSettings,
+			},
+			{
+				title: 'Get Help',
+				url: '/admin/get-help',
+				icon: IconHelp,
+			},
+			{
+				title: 'Search',
+				url: '/admin/search',
+				icon: IconSearch,
 			},
 		],
 	},
-	pharmacist: {
-		label: 'Pharmacist',
-		href: '/pharmacist',
-		versions: ['1.0.0'],
-		navMain: [],
-	},
+	pharmacist: {},
 };
