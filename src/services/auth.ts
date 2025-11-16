@@ -1,16 +1,16 @@
 import { apiEndpoints } from '@/configs/apis';
 import { axiosInstance } from '@/lib/axios';
 import {
-	ForgotPasswordDto,
-	ResetPasswordDto,
-	SignInDto,
-	SignUpDto,
-	VerifyEmailDto,
-	VerifyResetPasswordOtpDto,
-} from '@/lib/types';
+	ForgotPasswordRequest,
+	ResetPasswordRequest,
+	SignInRequest,
+	SignUpRequest,
+	VerifyEmailRequest,
+	VerifyResetPasswordOtpRequest,
+} from '@/types';
 
-export async function signIn(signInDto: SignInDto) {
-	const res = await axiosInstance.post(apiEndpoints.auth.signIn, signInDto);
+export async function signIn(signInRequest: SignInRequest) {
+	const res = await axiosInstance.post(apiEndpoints.auth.signIn, signInRequest);
 	return res.data;
 }
 
@@ -19,41 +19,51 @@ export async function refreshToken() {
 	return res.data;
 }
 
-export async function signUp(signUp: SignUpDto) {
-	const res = await axiosInstance.post(apiEndpoints.auth.signUp, signUp);
+export async function signUp(signUpRequest: SignUpRequest) {
+	const res = await axiosInstance.post(apiEndpoints.auth.signUp, signUpRequest);
 	return res.data;
 }
 
-export async function verifyEmail(verifyEmailDto: VerifyEmailDto) {
+export async function verifyEmail(verifyEmailRequest: VerifyEmailRequest) {
 	const res = await axiosInstance.post(
 		apiEndpoints.auth.verifyEmail,
-		verifyEmailDto,
+		verifyEmailRequest,
 	);
 	return res.data;
 }
 
-export async function forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+export async function forgotPassword(
+	forgotPasswordRequest: ForgotPasswordRequest,
+) {
 	const res = await axiosInstance.post(
 		apiEndpoints.auth.forgotPassword,
-		forgotPasswordDto,
+		forgotPasswordRequest,
 	);
 	return res.data;
 }
 
 export async function verifyResetPasswordOtp(
-	verifyResetPasswordOtpDto: VerifyResetPasswordOtpDto,
+	verifyResetPasswordOtpRequest: VerifyResetPasswordOtpRequest,
 ) {
 	const res = await axiosInstance.post(
 		apiEndpoints.auth.verifyResetPasswordOtp,
-		verifyResetPasswordOtpDto,
+		verifyResetPasswordOtpRequest,
 	);
 	return res.data;
 }
 
-export async function resetPassword(resetPasswordDto: ResetPasswordDto) {
+export async function resetPassword(
+	resetPasswordRequest: ResetPasswordRequest,
+) {
 	const res = await axiosInstance.post(
 		apiEndpoints.auth.resetPassword,
-		resetPasswordDto,
+		resetPasswordRequest,
 	);
+	return res.data;
+}
+
+export async function signOut() {
+	const res = await axiosInstance.post(apiEndpoints.auth.signOut);
+	console.log(res.data);
 	return res.data;
 }

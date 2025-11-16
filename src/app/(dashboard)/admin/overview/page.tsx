@@ -1,7 +1,16 @@
+import { ChartAreaInteractive } from '@/components/chart-area-interactive';
+import { SectionCards } from '@/components/section-cards';
 import React from 'react';
 
 function OverviewPage() {
-	return <div>OverviewPage</div>;
+	return (
+		<>
+			<SectionCards />
+			<div className='px-4 lg:px-6'>
+				<ChartAreaInteractive />
+			</div>
+		</>
+	);
 }
 
 export default OverviewPage;

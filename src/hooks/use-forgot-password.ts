@@ -1,20 +1,20 @@
-import { ForgotPasswordDto, ForgotPasswordResponse } from '@/lib/types'
-import { handleAxiosError } from '@/lib/utils'
-import { forgotPassword } from '@/services'
-import { useAuthStore } from '@/store'
-import { useMutation } from '@tanstack/react-query'
+import { handleAxiosError } from '@/lib/utils';
+import { forgotPassword } from '@/services';
+import { useAuthStore } from '@/store';
+import { ForgotPasswordRequest, ForgotPasswordResponse } from '@/types';
+import { useMutation } from '@tanstack/react-query';
 
 export function useForgotPassword() {
-	const { setEmailPendingVerification } = useAuthStore()
+	const { setEmailPendingVerification } = useAuthStore();
 
 	return useMutation({
 		mutationFn: forgotPassword,
 		onSuccess: (
 			forgotPasswordResponse: ForgotPasswordResponse,
-			forgotPasswordDto: ForgotPasswordDto,
+			forgotPasswordRequest: ForgotPasswordRequest,
 		) => {
-			setEmailPendingVerification(forgotPasswordDto.email)
+			setEmailPendingVerification(forgotPasswordRequest.email);
 		},
 		onError: (error: any) => handleAxiosError(error),
-	})
+	});
 }
