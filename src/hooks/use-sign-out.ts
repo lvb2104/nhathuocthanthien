@@ -9,7 +9,7 @@ export function useSignOut() {
 
 	return useMutation({
 		mutationFn: signOut,
-		onSuccess: async () => {
+		onSuccess: () => {
 			authStore.setIsLoggedIn(false);
 			authStore.setEmailPendingVerification(undefined);
 			localStorage.removeItem(app.localStorageKey.ACCESS_TOKEN);

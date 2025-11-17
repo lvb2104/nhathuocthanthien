@@ -16,21 +16,16 @@ import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import {
 	arrayMove,
 	SortableContext,
-	useSortable,
 	verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import {
 	IconChevronDown,
 	IconChevronLeft,
 	IconChevronRight,
 	IconChevronsLeft,
 	IconChevronsRight,
-	IconCircleCheckFilled,
 	IconDotsVertical,
-	IconGripVertical,
 	IconLayoutColumns,
-	IconLoader,
 	IconPlus,
 	IconTrendingUp,
 } from '@tabler/icons-react';
@@ -44,7 +39,6 @@ import {
 	getFilteredRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
-	Row,
 	SortingState,
 	useReactTable,
 	VisibilityState,
@@ -102,247 +96,64 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
 import { routes } from '@/configs/routes';
 import { toast } from 'react-toastify';
+import { CategoryResponse, ProductSchema } from '@/types';
+import { DragHandle } from './drag-handle';
+import { DraggableRow } from './draggable-row';
+import { useEffect } from 'react';
+import { useCategories, useDeleteProduct, useProducts } from '@/hooks';
+import { RefreshCcw } from 'lucide-react';
 
-// Define the schema for the data
-export const schema = z.object({
-	id: z.number(),
-	name: z.string(),
-	category: z.string(),
-	status: z.string(),
-	target: z.string(),
-	limit: z.string(),
-	reviewer: z.string(),
-});
-
-// Create a separate component for the drag handle
-function DragHandle({ id }: { id: number }) {
-	const { attributes, listeners } = useSortable({
-		id,
-	});
-
-	return (
-		<Button
-			{...attributes}
-			{...listeners}
-			variant='ghost'
-			size='icon'
-			className='text-muted-foreground size-7 hover:bg-transparent'
-		>
-			<IconGripVertical className='text-muted-foreground size-3' />
-			<span className='sr-only'>Drag to reorder</span>
-		</Button>
-	);
-}
-
-// Define the columns for the table
-const columns: ColumnDef<z.infer<typeof schema>>[] = [
-	{
-		id: 'drag',
-		header: () => null,
-		cell: ({ row }) => <DragHandle id={row.original.id} />,
-	},
-	{
-		id: 'select',
-		header: ({ table }) => (
-			<div className='flex items-center justify-center'>
-				<Checkbox
-					checked={
-						table.getIsAllPageRowsSelected() ||
-						(table.getIsSomePageRowsSelected() && 'indeterminate')
-					}
-					onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
-					aria-label='Select all'
-				/>
-			</div>
-		),
-		cell: ({ row }) => (
-			<div className='flex items-center justify-center'>
-				<Checkbox
-					checked={row.getIsSelected()}
-					onCheckedChange={value => row.toggleSelected(!!value)}
-					aria-label='Select row'
-				/>
-			</div>
-		),
-		enableSorting: false,
-		enableHiding: false,
-	},
-	{
-		accessorKey: 'name',
-		header: 'Name',
-		cell: ({ row }) => {
-			return <TableCellViewer item={row.original} />;
-		},
-		enableHiding: false,
-	},
-	{
-		accessorKey: 'category',
-		header: 'Category',
-		cell: ({ row }) => (
-			<div className='w-32'>
-				<Badge variant='outline' className='text-muted-foreground px-1.5'>
-					{row.original.category}
-				</Badge>
-			</div>
-		),
-	},
-	{
-		accessorKey: 'status',
-		header: 'Status',
-		cell: ({ row }) => (
-			<Badge variant='outline' className='text-muted-foreground px-1.5'>
-				{row.original.status === 'Done' ? (
-					<IconCircleCheckFilled className='fill-green-500 dark:fill-green-400' />
-				) : (
-					<IconLoader />
-				)}
-				{row.original.status}
-			</Badge>
-		),
-	},
-	{
-		accessorKey: 'target',
-		header: () => <div className='w-full text-right'>Target</div>,
-		cell: ({ row }) => (
-			<form
-				onSubmit={e => {
-					e.preventDefault();
-					toast.promise(new Promise(resolve => setTimeout(resolve, 1000)), {
-						pending: `Saving ${row.original.name}`,
-						success: 'Done',
-						error: 'Error',
-					});
-				}}
-			>
-				<Label htmlFor={`${row.original.id}-target`} className='sr-only'>
-					Target
-				</Label>
-				<Input
-					className='hover:bg-input/30 focus-visible:bg-background dark:hover:bg-input/30 dark:focus-visible:bg-input/30 h-8 w-16 border-transparent bg-transparent text-right shadow-none focus-visible:border dark:bg-transparent'
-					defaultValue={row.original.target}
-					id={`${row.original.id}-target`}
-				/>
-			</form>
-		),
-	},
-	{
-		accessorKey: 'limit',
-		header: () => <div className='w-full text-right'>Limit</div>,
-		cell: ({ row }) => (
-			<form
-				onSubmit={e => {
-					e.preventDefault();
-					toast.promise(new Promise(resolve => setTimeout(resolve, 1000)), {
-						pending: `Saving ${row.original.name}`,
-						success: 'Done',
-						error: 'Error',
-					});
-				}}
-			>
-				<Label htmlFor={`${row.original.id}-limit`} className='sr-only'>
-					Limit
-				</Label>
-				<Input
-					className='hover:bg-input/30 focus-visible:bg-background dark:hover:bg-input/30 dark:focus-visible:bg-input/30 h-8 w-16 border-transparent bg-transparent text-right shadow-none focus-visible:border dark:bg-transparent'
-					defaultValue={row.original.limit}
-					id={`${row.original.id}-limit`}
-				/>
-			</form>
-		),
-	},
-	{
-		accessorKey: 'reviewer',
-		header: 'Reviewer',
-		cell: ({ row }) => {
-			const isAssigned = row.original.reviewer !== 'Assign reviewer';
-
-			if (isAssigned) {
-				return row.original.reviewer;
-			}
-
-			return (
-				<>
-					<Label htmlFor={`${row.original.id}-reviewer`} className='sr-only'>
-						Reviewer
-					</Label>
-					<Select>
-						<SelectTrigger
-							className='w-38 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate'
-							size='sm'
-							id={`${row.original.id}-reviewer`}
-						>
-							<SelectValue placeholder='Assign reviewer' />
-						</SelectTrigger>
-						<SelectContent align='end'>
-							<SelectItem value='Eddie Lake'>Eddie Lake</SelectItem>
-							<SelectItem value='Jamik Tashpulatov'>
-								Jamik Tashpulatov
-							</SelectItem>
-						</SelectContent>
-					</Select>
-				</>
-			);
-		},
-	},
-	{
-		id: 'actions',
-		cell: () => (
-			<DropdownMenu>
-				<DropdownMenuTrigger asChild>
-					<Button
-						variant='ghost'
-						className='data-[state=open]:bg-muted text-muted-foreground flex size-8'
-						size='icon'
-					>
-						<IconDotsVertical />
-						<span className='sr-only'>Open menu</span>
-					</Button>
-				</DropdownMenuTrigger>
-				<DropdownMenuContent align='end' className='w-32'>
-					<DropdownMenuItem>Edit</DropdownMenuItem>
-					<DropdownMenuItem>Make a copy</DropdownMenuItem>
-					<DropdownMenuItem>Favorite</DropdownMenuItem>
-					<DropdownMenuSeparator />
-					<DropdownMenuItem variant='destructive'>Delete</DropdownMenuItem>
-				</DropdownMenuContent>
-			</DropdownMenu>
-		),
-	},
+const chartData = [
+	{ month: 'January', desktop: 186, mobile: 80 },
+	{ month: 'February', desktop: 305, mobile: 200 },
+	{ month: 'March', desktop: 237, mobile: 120 },
+	{ month: 'April', desktop: 73, mobile: 190 },
+	{ month: 'May', desktop: 209, mobile: 130 },
+	{ month: 'June', desktop: 214, mobile: 140 },
 ];
 
-// Component for draggable table row
-function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
-	const { transform, transition, setNodeRef, isDragging } = useSortable({
-		id: row.original.id,
-	});
-
-	return (
-		<TableRow
-			data-state={row.getIsSelected() && 'selected'}
-			data-dragging={isDragging}
-			ref={setNodeRef}
-			className='relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80'
-			style={{
-				transform: CSS.Transform.toString(transform),
-				transition: transition,
-			}}
-		>
-			{row.getVisibleCells().map(cell => (
-				<TableCell key={cell.id}>
-					{flexRender(cell.column.columnDef.cell, cell.getContext())}
-				</TableCell>
-			))}
-		</TableRow>
-	);
-}
+const chartConfig = {
+	desktop: {
+		label: 'Desktop',
+		color: 'var(--primary)',
+	},
+	mobile: {
+		label: 'Mobile',
+		color: 'var(--primary)',
+	},
+} satisfies ChartConfig;
 
 // Main DataTable component
-export function DataTable({
-	data: initialData,
-}: {
-	data: z.infer<typeof schema>[];
-}) {
-	const [data, setData] = React.useState(() => initialData);
+export function DataTable() {
+	const {
+		data: products,
+		isError: isProductsError,
+		refetch: refreshProducts,
+		isFetching,
+	} = useProducts();
+	const [data, setData] = React.useState<z.infer<typeof ProductSchema>[]>(
+		() => [],
+	);
+	const { data: categories, isError: isCategoriesError } = useCategories();
+	const { mutateAsync } = useDeleteProduct();
+	// const { mutateAsync: mutateAsyncUpdateProduct } = useUpdateProduct();
+
+	useEffect(() => {
+		if (isProductsError) {
+			toast.error('Error loading categories');
+		}
+		if (isCategoriesError) {
+			toast.error('Failed to load products. Please try again later.');
+		}
+	}, [isCategoriesError, isProductsError]);
+
+	useEffect(() => {
+		if (products) {
+			// Prefill
+			setData(products);
+		}
+	}, [products]);
+
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] =
 		React.useState<VisibilityState>({});
@@ -365,6 +176,172 @@ export function DataTable({
 		() => data?.map(({ id }) => id) || [],
 		[data],
 	);
+
+	// Define the columns for the table
+	const columns: ColumnDef<z.infer<typeof ProductSchema>>[] = [
+		{
+			id: 'drag',
+			header: () => null,
+			cell: ({ row }) => <DragHandle id={row.original.id} />, // handle for dragging only for this cell
+		},
+		{
+			id: 'select',
+			header: ({ table }) => (
+				<div className='flex items-center justify-center'>
+					<Checkbox
+						checked={
+							table.getIsAllPageRowsSelected() ||
+							(table.getIsSomePageRowsSelected() && 'indeterminate')
+						}
+						onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
+						aria-label='Select all'
+					/>
+				</div>
+			),
+			cell: ({ row }) => (
+				<div className='flex items-center justify-center'>
+					<Checkbox
+						checked={row.getIsSelected()}
+						onCheckedChange={value => row.toggleSelected(!!value)}
+						aria-label='Select row'
+					/>
+				</div>
+			), // handle for selecting only for this cell
+			enableSorting: false,
+			enableHiding: false,
+		},
+		{
+			accessorKey: 'name',
+			header: 'Name',
+			cell: ({ row }) => {
+				return (
+					<div className='max-w-[200px] truncate'>
+						<TableCellViewer
+							item={row.original}
+							triggerContent={row.getValue('name') as string}
+							categories={categories}
+						/>
+					</div>
+				);
+			}, // handle for viewing details only for this cell
+			enableHiding: false,
+		},
+		{
+			accessorKey: 'description',
+			header: 'Description',
+			cell: ({ row }) => {
+				const description = row.getValue('description') as string;
+				return (
+					<div className='max-w-[300px] truncate' title={description}>
+						{description}
+					</div>
+				);
+			},
+			enableHiding: false,
+		},
+		{
+			accessorKey: 'price',
+			header: () => <div className='w-full text-left pl-[16px]'>Price</div>,
+			cell: ({ row }) => (
+				<form
+					onSubmit={e => {
+						e.preventDefault();
+						toast.promise(new Promise(resolve => setTimeout(resolve, 1000)), {
+							pending: `Saving ${row.original.name}`,
+							success: 'Done',
+							error: 'Error',
+						});
+						// const fd = new FormData(e.currentTarget);
+					}}
+				>
+					<Label htmlFor={`${row.original.id}-price`} className='sr-only'>
+						Price
+					</Label>
+					<Input
+						className='hover:bg-input/30 focus-visible:bg-background dark:hover:bg-input/30 dark:focus-visible:bg-input/30 h-8 w-16 border-transparent bg-transparent text-right shadow-none focus-visible:border dark:bg-transparent'
+						defaultValue={row.original.price}
+						id={`${row.original.id}-price`}
+					/>
+				</form>
+			), // handle for editing price only for this cell
+		},
+		{
+			accessorKey: 'manufacturer',
+			header: 'Manufacturer',
+			cell: ({ row }) => {
+				const manufacturer = row.getValue('manufacturer') as string;
+				return (
+					<div className='max-w-[150px] truncate' title={manufacturer}>
+						{manufacturer}
+					</div>
+				);
+			},
+			enableHiding: false,
+		},
+		{
+			accessorKey: 'category.name',
+			header: 'Category',
+			cell: ({ row }) => {
+				return (
+					<>
+						<Label
+							htmlFor={`${row.original.categoryId}-category`}
+							className='sr-only'
+						>
+							Category
+						</Label>
+						<Select defaultValue={row.original.category?.name}>
+							<SelectTrigger
+								className='w-38 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate'
+								size='sm'
+								id={`${row.original.categoryId}-category`}
+							>
+								<SelectValue placeholder='Select category' />
+							</SelectTrigger>
+							<SelectContent align='end'>
+								{categories?.map((category: CategoryResponse) => (
+									<SelectItem key={category.id} value={category.name}>
+										{category.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</>
+				);
+			}, // handle for changing category only for this cell
+		},
+		{
+			id: 'actions',
+			cell: ({ row }) => (
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button
+							variant='ghost'
+							className='data-[state=open]:bg-muted text-muted-foreground flex size-8'
+							size='icon'
+						>
+							<IconDotsVertical />
+							<span className='sr-only'>Open menu</span>
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align='end' className='w-32'>
+						<Link href={routes.admin.products.edit(row.original.id)}>
+							<DropdownMenuItem>Edit</DropdownMenuItem>
+						</Link>
+						<DropdownMenuItem>Make a copy</DropdownMenuItem>
+						<DropdownMenuItem>Favorite</DropdownMenuItem>
+						<DropdownMenuSeparator />
+						<DropdownMenuItem
+							variant='destructive'
+							onClick={() => handleDelete(row.original.id)}
+						>
+							Delete
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
+			),
+		},
+	];
 
 	const table = useReactTable({
 		data,
@@ -400,6 +377,24 @@ export function DataTable({
 				return arrayMove(data, oldIndex, newIndex);
 			});
 		}
+	}
+
+	function handleDelete(id: number) {
+		toast.promise(
+			mutateAsync(id, {
+				onError: (error: any) => {
+					toast.error(
+						error?.message || 'Error deleting product. Please try again.',
+					);
+				},
+			}).then(() => {
+				setData(prevData => prevData.filter(item => item.id !== id));
+			}),
+			{
+				pending: 'Deleting product...',
+				success: 'Product deleted successfully',
+			},
+		);
 	}
 
 	return (
@@ -470,6 +465,26 @@ export function DataTable({
 								})}
 						</DropdownMenuContent>
 					</DropdownMenu>
+					<Button
+						variant='outline'
+						size='sm'
+						className='cursor-pointer'
+						onClick={() => {
+							toast.promise(
+								async () => {
+									return await refreshProducts();
+								},
+								{
+									pending: 'Refreshing products...',
+									success: 'Products refreshed',
+									error: 'Error refreshing products',
+								},
+							);
+						}}
+					>
+						<RefreshCcw />
+						<span className='hidden lg:inline'>Refresh</span>
+					</Button>
 					<Link href={routes.admin.products.create}>
 						<Button variant='outline' size='sm' className='cursor-pointer'>
 							<IconPlus />
@@ -630,34 +645,22 @@ export function DataTable({
 	);
 }
 
-const chartData = [
-	{ month: 'January', desktop: 186, mobile: 80 },
-	{ month: 'February', desktop: 305, mobile: 200 },
-	{ month: 'March', desktop: 237, mobile: 120 },
-	{ month: 'April', desktop: 73, mobile: 190 },
-	{ month: 'May', desktop: 209, mobile: 130 },
-	{ month: 'June', desktop: 214, mobile: 140 },
-];
-
-const chartConfig = {
-	desktop: {
-		label: 'Desktop',
-		color: 'var(--primary)',
-	},
-	mobile: {
-		label: 'Mobile',
-		color: 'var(--primary)',
-	},
-} satisfies ChartConfig;
-
-function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
+function TableCellViewer({
+	item,
+	triggerContent,
+	categories,
+}: {
+	item: z.infer<typeof ProductSchema>;
+	triggerContent: React.ReactNode;
+	categories: CategoryResponse[] | undefined;
+}) {
 	const isMobile = useIsMobile();
 
 	return (
 		<Drawer direction={isMobile ? 'bottom' : 'right'}>
 			<DrawerTrigger asChild>
 				<Button variant='link' className='text-foreground w-fit px-0 text-left'>
-					{item.name}
+					{triggerContent}
 				</Button>
 			</DrawerTrigger>
 			<DrawerContent>
@@ -733,68 +736,25 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
 						<div className='grid grid-cols-2 gap-4'>
 							<div className='flex flex-col gap-3'>
 								<Label htmlFor='category'>Category</Label>
-								<Select defaultValue={item.category}>
+								<Select defaultValue={item.category?.name}>
 									<SelectTrigger id='category' className='w-full'>
 										<SelectValue placeholder='Select a type' />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value='Table of Contents'>
-											Table of Contents
-										</SelectItem>
-										<SelectItem value='Executive Summary'>
-											Executive Summary
-										</SelectItem>
-										<SelectItem value='Technical Approach'>
-											Technical Approach
-										</SelectItem>
-										<SelectItem value='Design'>Design</SelectItem>
-										<SelectItem value='Capabilities'>Capabilities</SelectItem>
-										<SelectItem value='Focus Documents'>
-											Focus Documents
-										</SelectItem>
-										<SelectItem value='Narrative'>Narrative</SelectItem>
-										<SelectItem value='Cover Page'>Cover Page</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-							<div className='flex flex-col gap-3'>
-								<Label htmlFor='status'>Status</Label>
-								<Select defaultValue={item.status}>
-									<SelectTrigger id='status' className='w-full'>
-										<SelectValue placeholder='Select a status' />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value='Done'>Done</SelectItem>
-										<SelectItem value='In Progress'>In Progress</SelectItem>
-										<SelectItem value='Not Started'>Not Started</SelectItem>
+										{categories?.map((category: CategoryResponse) => (
+											<SelectItem key={category.id} value={category.name}>
+												{category.name}
+											</SelectItem>
+										))}
 									</SelectContent>
 								</Select>
 							</div>
 						</div>
 						<div className='grid grid-cols-2 gap-4'>
 							<div className='flex flex-col gap-3'>
-								<Label htmlFor='target'>Target</Label>
-								<Input id='target' defaultValue={item.target} />
+								<Label htmlFor='price'>Price</Label>
+								<Input id='price' defaultValue={item.price} />
 							</div>
-							<div className='flex flex-col gap-3'>
-								<Label htmlFor='limit'>Limit</Label>
-								<Input id='limit' defaultValue={item.limit} />
-							</div>
-						</div>
-						<div className='flex flex-col gap-3'>
-							<Label htmlFor='reviewer'>Reviewer</Label>
-							<Select defaultValue={item.reviewer}>
-								<SelectTrigger id='reviewer' className='w-full'>
-									<SelectValue placeholder='Select a reviewer' />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value='Eddie Lake'>Eddie Lake</SelectItem>
-									<SelectItem value='Jamik Tashpulatov'>
-										Jamik Tashpulatov
-									</SelectItem>
-									<SelectItem value='Emily Whalen'>Emily Whalen</SelectItem>
-								</SelectContent>
-							</Select>
 						</div>
 					</form>
 				</div>

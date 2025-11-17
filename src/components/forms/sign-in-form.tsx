@@ -23,7 +23,7 @@ import CustomInput from '@/components/custom/custom-input';
 import { SignInFormSchema } from '@/types';
 
 function SignInForm() {
-	const { mutate, isPending } = useSignIn();
+	const { mutateAsync, isPending } = useSignIn();
 	const router = useRouter();
 
 	const form = useForm<z.infer<typeof SignInFormSchema>>({
@@ -31,12 +31,21 @@ function SignInForm() {
 	});
 
 	function handleSubmit(values: z.infer<typeof SignInFormSchema>) {
-		mutate(values, {
-			onSuccess: () => {
-				toast.success('Đăng nhập thành công!');
+		toast.promise(
+			mutateAsync(values, {
+				onError: (error: any) => {
+					toast.error(
+						error?.message || 'Đăng nhập thất bại. Vui lòng thử lại.',
+					);
+				},
+			}).then(() => {
 				router.replace(routes.home);
+			}),
+			{
+				pending: 'Đang đăng nhập...',
+				success: 'Đăng nhập thành công!',
 			},
-		});
+		);
 	}
 	return (
 		<div className='max-w-md mx-auto'>

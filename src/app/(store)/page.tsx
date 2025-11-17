@@ -2,6 +2,7 @@
 import Loading from '@/app/loading';
 import ContentWrapper from '@/components/layouts/content-wrapper';
 import Hero from '@/components/layouts/hero';
+import MostSoldProductsWidget from '@/components/most-sold-products-widget';
 import { Suspense } from 'react';
 
 function StorePageContent() {
@@ -12,7 +13,7 @@ function StorePageContent() {
 				{/* Featured products section */}
 				<section>
 					{/* Most sold products */}
-					<div></div>
+					<MostSoldProductsWidget />
 					{/* Categories */}
 					<div></div>
 					{/* Top search */}

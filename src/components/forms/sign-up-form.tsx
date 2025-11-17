@@ -24,7 +24,7 @@ import CustomPasswordInput from '@/components/custom/custom-password-input';
 import { SignUpFormSchema } from '@/types';
 
 function SignUpForm() {
-	const { mutate, isPending } = useSignUp();
+	const { mutateAsync, isPending } = useSignUp();
 	const router = useRouter();
 
 	const form = useForm<z.infer<typeof SignUpFormSchema>>({
@@ -32,12 +32,19 @@ function SignUpForm() {
 	});
 
 	function handleSubmit(values: z.infer<typeof SignUpFormSchema>) {
-		mutate(omit(values, ['confirmedPassword']), {
-			onSuccess: () => {
-				toast.success('Đăng ký thành công! Vui lòng xác nhận email.');
+		toast.promise(
+			mutateAsync(omit(values, ['confirmedPassword']), {
+				onError: (error: any) => {
+					toast.error(error?.message || 'Đăng ký thất bại. Vui lòng thử lại.');
+				},
+			}).then(() => {
 				router.replace(routes.auth.verifyEmail); // Redirect to email verification page
+			}),
+			{
+				pending: 'Đang đăng ký...',
+				success: 'Đăng ký thành công! Vui lòng xác nhận email.',
 			},
-		});
+		);
 	}
 	return (
 		<div className='max-w-md mx-auto'>

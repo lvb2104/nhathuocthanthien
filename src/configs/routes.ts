@@ -17,6 +17,7 @@ export const routes = {
 		overview: '/admin/overview',
 		products: {
 			create: '/admin/products/create',
+			edit: (id: number) => `/admin/products/edit/${id}`,
 		},
 	},
 	pharmacist: {

@@ -21,7 +21,7 @@ import CustomInput from '@/components/custom/custom-input';
 import { ForgotPasswordFormSchema } from '@/types';
 
 function ForgotPasswordForm() {
-	const { mutate, isPending } = useForgotPassword();
+	const { mutateAsync, isPending } = useForgotPassword();
 	const router = useRouter();
 
 	const form = useForm<z.infer<typeof ForgotPasswordFormSchema>>({
@@ -29,14 +29,22 @@ function ForgotPasswordForm() {
 	});
 
 	function handleSubmit(values: z.infer<typeof ForgotPasswordFormSchema>) {
-		mutate(values, {
-			onSuccess: () => {
-				toast.success(
-					'Đã gửi email đặt lại mật khẩu! Vui lòng kiểm tra hộp thư đến.',
-				);
+		toast.promise(
+			mutateAsync(values, {
+				onError: (error: any) => {
+					toast.error(
+						error?.message || 'Đã xảy ra lỗi khi gửi email đặt lại mật khẩu',
+					);
+				},
+			}).then(() => {
 				router.replace(routes.auth.verifyResetPasswordOtp);
+			}),
+			{
+				pending: 'Đang gửi email đặt lại mật khẩu...',
+				success:
+					'Đã gửi email đặt lại mật khẩu! Vui lòng kiểm tra hộp thư đến.',
 			},
-		});
+		);
 	}
 	return (
 		<div className='max-w-md mx-auto'>

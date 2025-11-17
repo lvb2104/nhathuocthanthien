@@ -49,7 +49,7 @@ export const useFileUpload = () => {
 type FileUploaderProps = {
 	value: File[] | null;
 	reSelect?: boolean;
-	onValueChange: (value: File[] | null) => void;
+	onValueChange: (value: File[]) => void;
 	dropzoneOptions: DropzoneOptions;
 	orientation?: 'horizontal' | 'vertical';
 };

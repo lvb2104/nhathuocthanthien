@@ -64,6 +64,5 @@ export async function resetPassword(
 
 export async function signOut() {
 	const res = await axiosInstance.post(apiEndpoints.auth.signOut);
-	console.log(res.data);
 	return res.data;
 }

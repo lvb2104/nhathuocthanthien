@@ -1,10 +1,10 @@
 import { handleAxiosError } from '@/lib/utils';
-import { refreshToken } from '@/services';
+import { UpdateProduct } from '@/services';
 import { useMutation } from '@tanstack/react-query';
 
-export function useRefreshToken() {
+export function useUpdateProduct() {
 	return useMutation({
-		mutationFn: refreshToken,
+		mutationFn: UpdateProduct,
 		onError: (error: any) => handleAxiosError(error),
 	});
 }

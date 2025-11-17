@@ -20,8 +20,34 @@ export const CreateProductSchema = z.object({
 	detail: ProductDetailSchema,
 });
 
+export const UpdateProductSchema = CreateProductSchema;
+
+export const CategorySchema = z.object({
+	id: z.number(),
+	name: z.string(),
+});
+
+export const ImageSchema = z.object({
+	id: z.number(),
+	imageUrl: z.string(),
+});
+
+export const ProductSchema = z.object({
+	id: z.number(),
+	categoryId: z.number(),
+	name: z.string(),
+	description: z.string().nullable(),
+	price: z.string(),
+	manufacturer: z.string().nullable(),
+	createdAt: z.string(),
+	updatedAt: z.string(),
+	category: CategorySchema,
+	images: z.array(ImageSchema).optional().default([]),
+});
+
 // Requests
 export type CreateProductRequest = FormData;
+export type UpdateProductRequest = FormData;
 
 // Responses
 export type CreateProductResponse = {
@@ -34,12 +60,19 @@ export type CreateProductResponse = {
 	createdAt: string;
 	updatedAt: string;
 	category: CategoryResponse;
-	images: Image[];
+	images: ImageSchema[];
 	detail: ProductDetail;
 };
 
+export type UpdateProductResponse = CreateProductResponse;
+
+export type ProductsResponse = z.infer<(typeof ProductSchema)[]>;
+export type ProductResponse = z.infer<typeof ProductSchema>;
+
+export type ProductByIdResponse = CreateProductResponse;
+
 // Models
-export type Image = {
+export type ImageSchema = {
 	id: number;
 	imageUrl: string;
 };

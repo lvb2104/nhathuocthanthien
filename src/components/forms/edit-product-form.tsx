@@ -28,15 +28,18 @@ import {
 	FileUploaderItem,
 } from '@/components/ui/file-upload';
 import { toast } from 'react-toastify';
-import { CategoryResponse, CreateProductSchema } from '@/types';
+import { CategoryResponse, UpdateProductSchema } from '@/types';
 import LoadingButton from '../custom/loading-button';
 import { useCategories } from '@/hooks/use-categories';
-import { useCreateProduct } from '@/hooks';
+import { useProduct, useUpdateProduct } from '@/hooks';
+import { useRouter } from 'next/navigation';
 
-export default function CreateProductForm() {
-	const { mutateAsync, isPending } = useCreateProduct();
+export default function EditProductForm({ id }: { id: number }) {
 	const { data, isError } = useCategories();
 	const [files, setFiles] = useState<File[]>([]);
+	const { data: productData, isError: isProductError } = useProduct(id);
+	const { mutateAsync, isPending } = useUpdateProduct();
+	const router = useRouter();
 
 	useEffect(() => {
 		if (isError) {
@@ -44,13 +47,19 @@ export default function CreateProductForm() {
 		}
 	}, [isError]);
 
+	useEffect(() => {
+		if (isProductError) {
+			toast.error('Error fetching product data');
+		}
+	}, [isProductError]);
+
 	const dropZoneConfig = {
 		maxFiles: 5,
 		maxSize: 1024 * 1024 * 4,
 		multiple: true,
 	};
-	const form = useForm<z.infer<typeof CreateProductSchema>>({
-		resolver: zodResolver(CreateProductSchema),
+	const form = useForm<z.infer<typeof UpdateProductSchema>>({
+		resolver: zodResolver(UpdateProductSchema),
 		defaultValues: {
 			name: '',
 			description: '',
@@ -64,11 +73,11 @@ export default function CreateProductForm() {
 				targetUser: '',
 				warning: '',
 			},
-			images: undefined,
+			images: [],
 		},
 	});
 
-	function onSubmit(values: z.infer<typeof CreateProductSchema>) {
+	function onSubmit(values: z.infer<typeof UpdateProductSchema>) {
 		const fd = new FormData();
 		fd.append('name', values.name);
 		fd.append('description', values.description || '');
@@ -86,22 +95,42 @@ export default function CreateProductForm() {
 		});
 
 		toast.promise(
-			mutateAsync(fd, {
-				onError: (error: any) => {
-					toast.error(
-						error?.message || 'Error creating product. Please try again.',
-					);
+			mutateAsync(
+				{ id: id, updateProductRequest: fd },
+				{
+					onError: (error: any) => {
+						toast.error(error?.message || 'Error updating product');
+					},
 				},
-			}).then(() => {
-				form.reset();
-				setFiles([]);
+			).then(() => {
+				router.back();
 			}),
 			{
-				pending: 'Creating product...',
-				success: 'Product created successfully',
+				pending: 'Updating product...',
+				success: 'Product updated successfully',
 			},
 		);
 	}
+
+	// Populate form with existing product data
+	useEffect(() => {
+		if (productData) {
+			form.reset({
+				name: productData.name || '',
+				description: productData.description || '',
+				price: productData.price?.toString() || '',
+				manufacturer: productData.manufacturer || '',
+				categoryId: productData.categoryId?.toString() || '',
+				detail: {
+					composition: productData.detail?.composition || '',
+					usageText: productData.detail?.usageText || '',
+					dosage: productData.detail?.dosage || '',
+					targetUser: productData.detail?.targetUser || '',
+					warning: productData.detail?.warning || '',
+				},
+			});
+		}
+	}, [productData, form]);
 
 	return (
 		<Form {...form}>
@@ -183,7 +212,11 @@ export default function CreateProductForm() {
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>Category</FormLabel>
-							<Select onValueChange={field.onChange}>
+							<Select
+								onValueChange={field.onChange}
+								defaultValue={productData?.categoryId?.toString()}
+								value={field.value}
+							>
 								<FormControl>
 									<SelectTrigger>
 										<SelectValue placeholder='Select a category to display' />
@@ -340,7 +373,7 @@ export default function CreateProductForm() {
 					)}
 				/>
 				<LoadingButton
-					text='Add'
+					text='Update'
 					isLoading={isPending}
 					loadingText='Processing...'
 				/>

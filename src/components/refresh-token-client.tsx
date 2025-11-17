@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 function RefreshTokenClient() {
 	const [accessToken, setAccessToken] = useState<string | null>(null);
-	const { mutate } = useRefreshToken();
+	const { mutateAsync } = useRefreshToken();
 	const refreshTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const isFetchingRef = useRef<boolean>(false);
 
@@ -35,21 +35,20 @@ function RefreshTokenClient() {
 				if (isFetchingRef.current) return;
 
 				isFetchingRef.current = true;
-				mutate(undefined, {
-					onSuccess: (refreshTokenResponse: RefreshTokenResponse) => {
+				mutateAsync()
+					.then((refreshTokenResponse: RefreshTokenResponse) => {
 						const newToken = refreshTokenResponse.accessToken;
 						localStorage.setItem(app.localStorageKey.ACCESS_TOKEN, newToken);
 						setAccessToken(newToken);
 						isFetchingRef.current = false;
 						scheduleTokenRefresh(newToken); // Schedule next refresh
-					},
-					onError: () => {
+					})
+					.catch(() => {
 						isFetchingRef.current = false;
-					},
-				});
+					});
 			}, delay);
 		},
-		[mutate],
+		[mutateAsync],
 	);
 
 	useEffect(() => {
