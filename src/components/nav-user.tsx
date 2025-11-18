@@ -33,16 +33,25 @@ import { toast } from 'react-toastify';
 export function NavUser() {
 	const { isMobile } = useSidebar();
 	const { user } = useUserStore();
-	const { mutate } = useSignOut();
+	const { mutateAsync } = useSignOut();
 	const router = useRouter();
 
 	function handleSignOut() {
-		mutate(undefined, {
-			onSuccess: () => {
-				toast.success('Đăng xuất thành công!');
+		toast.promise(
+			mutateAsync(undefined, {
+				onError: (error: any) => {
+					toast.error(
+						error?.message || 'Đăng xuất thất bại. Vui lòng thử lại!',
+					);
+				},
+			}).then(() => {
 				router.replace(routes.auth.signIn);
+			}),
+			{
+				pending: 'Đang đăng xuất...',
+				success: 'Đăng xuất thành công!',
 			},
-		});
+		);
 	}
 
 	return (

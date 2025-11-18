@@ -1,10 +1,10 @@
 import { handleAxiosError } from '@/lib/utils';
-import { refreshToken } from '@/services';
+import { DeleteProduct } from '@/services';
 import { useMutation } from '@tanstack/react-query';
 
-export function useRefreshToken() {
+export function useDeleteProduct() {
 	return useMutation({
-		mutationFn: refreshToken,
+		mutationFn: DeleteProduct,
 		onError: (error: any) => handleAxiosError(error),
 	});
 }

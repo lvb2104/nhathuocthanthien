@@ -20,19 +20,28 @@ import { useRouter } from 'next/navigation';
 import { UserRole } from '@/types';
 
 function Header() {
-	const { mutate } = useSignOut();
+	const { mutateAsync } = useSignOut();
 	const { isLoggedIn } = useAuthStore();
 	const isMobile = useIsMobile();
 	const router = useRouter();
 	const { user } = useUserStore();
 
 	function handleSignOut() {
-		mutate(undefined, {
-			onSuccess: () => {
-				toast.success('Đăng xuất thành công!');
+		toast.promise(
+			mutateAsync(undefined, {
+				onError: (error: any) => {
+					toast.error(
+						error?.message || 'Đăng xuất thất bại. Vui lòng thử lại!',
+					);
+				},
+			}).then(() => {
 				router.replace(routes.home);
+			}),
+			{
+				pending: 'Đang đăng xuất...',
+				success: 'Đăng xuất thành công!',
 			},
-		});
+		);
 	}
 
 	return (

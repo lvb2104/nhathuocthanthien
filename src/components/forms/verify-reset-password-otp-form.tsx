@@ -25,8 +25,10 @@ import { VerifyResetPasswordOtpFormSchema } from '@/types';
 
 function VerifyResetPasswordOtpForm() {
 	const { emailPendingVerification } = useAuthStore();
-	const { mutate, isPending } = useVerifyResetPasswordOtp();
-	const { mutate: mutateForgotPassword } = useForgotPassword();
+	const { mutateAsync: mutateAsyncVerifyReset, isPending: isPendingVerify } =
+		useVerifyResetPasswordOtp();
+	const { mutateAsync: mutateAsyncForgotPassword, isPending: isPendingForgot } =
+		useForgotPassword();
 	const router = useRouter();
 
 	const form = useForm<z.infer<typeof VerifyResetPasswordOtpFormSchema>>({
@@ -40,25 +42,43 @@ function VerifyResetPasswordOtpForm() {
 		values: z.infer<typeof VerifyResetPasswordOtpFormSchema>,
 	) {
 		if (!values.email) return;
-		mutate(values, {
-			onSuccess: () => {
-				toast.success('Xác minh email thành công! Vui lòng nhập mật khẩu mới.');
+		toast.promise(
+			mutateAsyncVerifyReset(values, {
+				onError: (error: any) => {
+					toast.error(
+						error?.message ||
+							'Mã OTP không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.',
+					);
+				},
+			}).then(() => {
 				router.replace(routes.auth.resetPassword);
+			}),
+			{
+				pending: 'Đang xác minh mã OTP...',
+				success: 'Xác minh mã OTP thành công! Vui lòng nhập mật khẩu mới.',
 			},
-		});
+		);
 	}
 
 	function handleResendOtp() {
 		if (!emailPendingVerification) return;
 		form.setValue('otp', '');
-		mutateForgotPassword(
-			{
-				email: emailPendingVerification,
-			},
-			{
-				onSuccess: () => {
-					toast.success('Gửi lại mã OTP thành công! Vui lòng kiểm tra email.');
+		toast.promise(
+			mutateAsyncForgotPassword(
+				{
+					email: emailPendingVerification,
 				},
+				{
+					onError: (error: any) => {
+						toast.error(
+							error?.message || 'Gửi lại mã OTP thất bại! Vui lòng thử lại.',
+						);
+					},
+				},
+			),
+			{
+				pending: 'Đang gửi lại mã OTP...',
+				success: 'Gửi lại mã OTP thành công! Vui lòng kiểm tra email.',
 			},
 		);
 	}
@@ -108,7 +128,7 @@ function VerifyResetPasswordOtpForm() {
 						/>
 						<ResendOtpButton onResendOtp={() => handleResendOtp()} />
 						<LoadingButton
-							isLoading={isPending}
+							isLoading={isPendingVerify || isPendingForgot}
 							loadingText='Đang xử lý...'
 							text='Gửi'
 						/>

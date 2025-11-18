@@ -24,7 +24,7 @@ import { VerifyEmailFormSchema } from '@/types';
 
 function VerifyEmailForm() {
 	const { emailPendingVerification } = useAuthStore();
-	const { mutate, isPending } = useVerifyEmail();
+	const { mutateAsync, isPending } = useVerifyEmail();
 	const router = useRouter();
 
 	const form = useForm<z.infer<typeof VerifyEmailFormSchema>>({
@@ -36,12 +36,22 @@ function VerifyEmailForm() {
 
 	function handleSubmit(values: z.infer<typeof VerifyEmailFormSchema>) {
 		if (!values.email) return;
-		mutate(values, {
-			onSuccess: () => {
-				toast.success('Xác minh email thành công! Vui lòng đăng nhập lại.');
+		toast.promise(
+			mutateAsync(values, {
+				onError: (error: any) => {
+					toast.error(
+						error?.message ||
+							'Mã OTP không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.',
+					);
+				},
+			}).then(() => {
 				router.replace(routes.auth.signIn);
+			}),
+			{
+				pending: 'Đang xác minh email...',
+				success: 'Xác minh email thành công! Vui lòng đăng nhập lại.',
 			},
-		});
+		);
 	}
 	return (
 		<div className='max-w-md mx-auto'>

@@ -24,7 +24,7 @@ import CustomPasswordInput from '@/components/custom/custom-password-input';
 import { ResetPasswordFormSchema } from '@/types';
 
 function ResetPasswordForm() {
-	const { mutate, isPending } = useResetPassword();
+	const { mutateAsync, isPending } = useResetPassword();
 	const { emailPendingVerification } = useAuthStore();
 	const router = useRouter();
 
@@ -36,12 +36,19 @@ function ResetPasswordForm() {
 	});
 
 	function handleSubmit(values: z.infer<typeof ResetPasswordFormSchema>) {
-		mutate(omit(values, ['confirmedPassword']), {
-			onSuccess: () => {
-				toast.success('Đặt lại mật khẩu thành công! Vui lòng đăng nhập lại.');
+		toast.promise(
+			mutateAsync(omit(values, ['confirmedPassword']), {
+				onError: (error: any) => {
+					toast.error(error?.message || 'Đã có lỗi xảy ra. Vui lòng thử lại.');
+				},
+			}).then(() => {
 				router.replace(routes.auth.signIn); // Redirect to sign in page
+			}),
+			{
+				pending: 'Đang đặt lại mật khẩu...',
+				success: 'Đặt lại mật khẩu thành công! Vui lòng đăng nhập lại.',
 			},
-		});
+		);
 	}
 	return (
 		<div className='max-w-md mx-auto'>

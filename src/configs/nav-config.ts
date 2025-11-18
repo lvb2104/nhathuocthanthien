@@ -1,4 +1,5 @@
 import {
+	IconCategory,
 	IconChartBar,
 	IconDashboard,
 	IconDatabase,
@@ -26,9 +27,9 @@ export const navConfig = {
 				icon: IconListDetails,
 			},
 			{
-				title: 'Analytics',
-				url: '/admin/analytics',
-				icon: IconChartBar,
+				title: 'Categories',
+				url: '/admin/categories',
+				icon: IconCategory,
 			},
 			{
 				title: 'Projects',

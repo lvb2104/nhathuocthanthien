@@ -18,7 +18,8 @@ export function handleAxiosError(error: any) {
 	const axiosError = error as AxiosError;
 	if (!axiosError.response) {
 		toast.error(
-			'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng của bạn.',
+			axiosError.message ||
+				'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng của bạn.',
 		);
 	} else {
 		const message =
