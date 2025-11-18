@@ -129,7 +129,7 @@ export function DataTable() {
 		data: products,
 		isError: isProductsError,
 		refetch: refreshProducts,
-		isFetching,
+		isPending: isProductsPending,
 	} = useProducts();
 	const [data, setData] = React.useState<z.infer<typeof ProductSchema>[]>(
 		() => [],
@@ -394,6 +394,14 @@ export function DataTable() {
 				pending: 'Deleting product...',
 				success: 'Product deleted successfully',
 			},
+		);
+	}
+
+	if (isProductsPending) {
+		return (
+			<div className='flex h-48 w-full items-center justify-center'>
+				Loading products...
+			</div>
 		);
 	}
 

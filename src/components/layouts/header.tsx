@@ -28,7 +28,7 @@ function Header() {
 
 	function handleSignOut() {
 		toast.promise(
-			mutateAsync(_, {
+			mutateAsync(undefined, {
 				onError: (error: any) => {
 					toast.error(
 						error?.message || 'Đăng xuất thất bại. Vui lòng thử lại!',
