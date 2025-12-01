@@ -64,7 +64,7 @@ function MostSoldProductsWidget() {
 								</div>
 
 								<div className='mt-auto pt-2 text-base font-semibold text-red-600'>
-									{product.price}
+									{Number(product.price).toLocaleString('vi-VN')}đ
 								</div>
 							</div>
 						</Link>
