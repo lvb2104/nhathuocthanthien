@@ -81,19 +81,33 @@ export type SignInResponse = {
 	accessToken: string;
 };
 
-export type RefreshTokenResponse = SignInResponse;
+export type RefreshTokenResponse = {
+	accessToken: string;
+};
 
 export type SignUpResponse = {
 	message: string;
 };
 
-export type VerifyEmailResponse = SignUpResponse;
+export type VerifyEmailResponse = {
+	message: string;
+};
 
-export type ForgotPasswordResponse = SignUpResponse;
+export type ForgotPasswordResponse = {
+	message: string;
+};
 
-export type VerifyResetPasswordOtpResponse = SignUpResponse;
+export type VerifyResetPasswordOtpResponse = {
+	message: string;
+};
 
-export type ResetPasswordResponse = SignUpResponse;
+export type ResetPasswordResponse = {
+	message: string;
+};
+
+export type SignOutResponse = {
+	message: string;
+};
 
 // Models
 export type JwtPayload = {

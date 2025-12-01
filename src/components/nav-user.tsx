@@ -24,15 +24,16 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from '@/components/ui/sidebar';
-import { useUserStore } from '@/store';
 import { useSignOut } from '@/hooks';
 import { routes } from '@/configs/routes';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
+import { useSession } from 'next-auth/react';
 
 export function NavUser() {
 	const { isMobile } = useSidebar();
-	const { user } = useUserStore();
+	const { data: session } = useSession();
+	const user = session?.user;
 	const { mutateAsync } = useSignOut();
 	const router = useRouter();
 

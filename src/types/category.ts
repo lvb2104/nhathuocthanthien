@@ -1,5 +1,8 @@
 // Responses
-export type CategoryResponse = {
+export type GetCategoriesResponse = Category[];
+
+// Models
+export type Category = {
 	id: number;
 	name: string;
 };

@@ -1,40 +1,12 @@
-'use client';
-import Loading from '@/app/loading';
 import { AppSidebar } from '@/components/app-sidebar';
 import { SiteHeader } from '@/components/side-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { routes } from '@/configs/routes';
-import { useAuthStore, useUserStore } from '@/store';
-import { UserRole } from '@/types';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 
 export default function AdminLayout({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
-	const router = useRouter();
-	const { hasHydrated, isLoggedIn } = useAuthStore();
-	const { user } = useUserStore();
-
-	// Redirect based on auth state and role
-	useEffect(() => {
-		if (!hasHydrated) return;
-		if (!isLoggedIn) {
-			router.replace(routes.auth.signIn);
-			return;
-		}
-		if (!user || user.role !== UserRole.ADMIN) {
-			router.replace(routes.home);
-		}
-	}, [hasHydrated, isLoggedIn, user, router]);
-
-	// Hide content until auth state is determined and user is confirmed admin
-	if (!hasHydrated || !isLoggedIn || !user || user.role !== UserRole.ADMIN) {
-		return <Loading />;
-	}
-
 	return (
 		<SidebarProvider
 			style={

@@ -6,7 +6,6 @@ import { fonts } from '@/configs/fonts';
 import ScrollToTop from '@/components/layouts/scroll-to-top';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/next';
-import RefreshTokenClientWrapper from '@/components/refresh-token-client-wrapper';
 import AppProvider from '@/components/providers/app-provider';
 
 export const metadata: Metadata = {
@@ -35,10 +34,7 @@ export default function RootLayout({
 					showSpinner={false}
 					shadow={false}
 				/>
-				<AppProvider>
-					<RefreshTokenClientWrapper />
-					{children}
-				</AppProvider>
+				<AppProvider>{children}</AppProvider>
 				<ScrollToTop />
 				<ToastContainer
 					position='bottom-right'

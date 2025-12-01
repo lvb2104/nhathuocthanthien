@@ -96,7 +96,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
 import { routes } from '@/configs/routes';
 import { toast } from 'react-toastify';
-import { CategoryResponse, ProductSchema } from '@/types';
+import { Category, ProductSchema } from '@/types';
 import { DragHandle } from './drag-handle';
 import { DraggableRow } from './draggable-row';
 import { useEffect } from 'react';
@@ -134,7 +134,11 @@ export function DataTable() {
 	const [data, setData] = React.useState<z.infer<typeof ProductSchema>[]>(
 		() => [],
 	);
-	const { data: categories, isError: isCategoriesError } = useCategories();
+	const {
+		data: categories,
+		isError: isCategoriesError,
+		isPending: isCategoriesPending,
+	} = useCategories();
 	const { mutateAsync } = useDeleteProduct();
 	// const { mutateAsync: mutateAsyncUpdateProduct } = useUpdateProduct();
 
@@ -299,7 +303,7 @@ export function DataTable() {
 								<SelectValue placeholder='Select category' />
 							</SelectTrigger>
 							<SelectContent align='end'>
-								{categories?.map((category: CategoryResponse) => (
+								{categories?.map((category: Category) => (
 									<SelectItem key={category.id} value={category.name}>
 										{category.name}
 									</SelectItem>
@@ -397,7 +401,7 @@ export function DataTable() {
 		);
 	}
 
-	if (isProductsPending) {
+	if (isProductsPending || isCategoriesPending) {
 		return (
 			<div className='flex h-48 w-full items-center justify-center'>
 				Loading products...
@@ -660,7 +664,7 @@ function TableCellViewer({
 }: {
 	item: z.infer<typeof ProductSchema>;
 	triggerContent: React.ReactNode;
-	categories: CategoryResponse[] | undefined;
+	categories: Category[] | undefined;
 }) {
 	const isMobile = useIsMobile();
 
@@ -749,7 +753,7 @@ function TableCellViewer({
 										<SelectValue placeholder='Select a type' />
 									</SelectTrigger>
 									<SelectContent>
-										{categories?.map((category: CategoryResponse) => (
+										{categories?.map((category: Category) => (
 											<SelectItem key={category.id} value={category.name}>
 												{category.name}
 											</SelectItem>
