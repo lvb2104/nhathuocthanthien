@@ -1,5 +1,6 @@
 import { apiEndpoints } from '@/configs/apis';
 import { axiosInstance } from '@/lib/axios';
+import { serverAxios } from '@/lib/server-axios';
 import {
 	CreateProductRequest,
 	CreateProductResponse,
@@ -10,7 +11,7 @@ import {
 	UpdateProductResponse,
 } from '@/types';
 
-export async function CreateProduct(
+export async function createProduct(
 	createProductRequest: CreateProductRequest,
 ): Promise<CreateProductResponse> {
 	const res = await axiosInstance.post(
@@ -20,19 +21,31 @@ export async function CreateProduct(
 	return res.data;
 }
 
-export async function GetProducts(): Promise<GetProductsResponse> {
+export async function getProducts(): Promise<GetProductsResponse> {
 	const res = await axiosInstance.get(apiEndpoints.products.getAll);
 	return res.data;
 }
 
-export async function GetProductById(
+export async function serverGetProducts(): Promise<GetProductsResponse> {
+	const res = await serverAxios.get(apiEndpoints.products.getAll);
+	return res.data;
+}
+
+export async function getProductById(
 	id: number,
 ): Promise<GetProductByIdResponse> {
 	const res = await axiosInstance.get(apiEndpoints.products.getById(id));
 	return res.data;
 }
 
-export async function UpdateProduct({
+export async function serverGetProductById(
+	id: number,
+): Promise<GetProductByIdResponse> {
+	const res = await serverAxios.get(apiEndpoints.products.getById(id));
+	return res.data;
+}
+
+export async function updateProduct({
 	id,
 	updateProductRequest,
 }: {
@@ -46,7 +59,7 @@ export async function UpdateProduct({
 	return res.data;
 }
 
-export async function DeleteProduct(
+export async function deleteProduct(
 	id: number,
 ): Promise<DeleteProductResponse> {
 	const res = await axiosInstance.delete(apiEndpoints.products.delete(id));

@@ -35,9 +35,13 @@ import { useCreateProduct } from '@/hooks';
 import { useRouter } from 'next/navigation';
 import { routes } from '@/configs/routes';
 
-export default function CreateProductForm() {
+export default function CreateProductForm({
+	initialCategories,
+}: {
+	initialCategories?: Category[];
+}) {
 	const { mutateAsync, isPending } = useCreateProduct();
-	const { data, isError } = useCategories();
+	const { data, isError } = useCategories(initialCategories);
 	const [files, setFiles] = useState<File[]>([]);
 	const router = useRouter();
 

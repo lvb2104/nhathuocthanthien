@@ -1,10 +1,10 @@
 import { handleAxiosError } from '@/lib/utils';
-import { CreateProduct } from '@/services';
+import { createProduct } from '@/services';
 import { useMutation } from '@tanstack/react-query';
 
 export function useCreateProduct() {
 	return useMutation({
-		mutationFn: CreateProduct,
+		mutationFn: createProduct,
 		onError: (error: any) => handleAxiosError(error),
 	});
 }
