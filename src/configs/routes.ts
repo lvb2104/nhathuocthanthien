@@ -10,14 +10,20 @@ export const routes = {
 		resetPassword: '/auth/reset-password',
 	},
 	user: {
-		profile: '/profile',
-		orders: '/orders',
+		profile: '/user/profile',
+		orders: '/user/orders',
 	},
 	admin: {
 		overview: '/admin/overview',
 		products: {
+			main: '/admin/products',
 			create: '/admin/products/create',
 			edit: (id: number) => `/admin/products/edit/${id}`,
+		},
+		categories: {
+			main: '/admin/categories',
+			create: '/admin/categories/create',
+			edit: (id: number) => `/admin/categories/edit/${id}`,
 		},
 	},
 	pharmacist: {

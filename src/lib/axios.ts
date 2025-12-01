@@ -1,8 +1,8 @@
 'use client';
 import { app } from '@/configs/app';
 import { routes } from '@/configs/routes';
-import { refreshToken } from '@/services';
 import axios from 'axios';
+import { getSession, signOut } from 'next-auth/react';
 import { toast } from 'react-toastify';
 
 export const axiosInstance = axios.create({
@@ -13,8 +13,10 @@ export const axiosInstance = axios.create({
 
 // Add a request interceptor to include the access token in headers of each request
 axiosInstance.interceptors.request.use(
-	config => {
-		const token = localStorage.getItem(app.localStorageKey.ACCESS_TOKEN);
+	// still need access token for backend APIs
+	async config => {
+		const session = await getSession();
+		const token = session?.accessToken;
 		if (token) {
 			config.headers.Authorization = `Bearer ${token}`;
 		}
@@ -23,7 +25,7 @@ axiosInstance.interceptors.request.use(
 	error => Promise.reject(error),
 );
 
-// Add a response interceptor to call refresh token api and handle errors of each response
+// Add a response interceptor to handle auth errors
 axiosInstance.interceptors.response.use(
 	response => response,
 	async error => {
@@ -31,35 +33,8 @@ axiosInstance.interceptors.response.use(
 			const originalRequest = error.config;
 			if (originalRequest && !originalRequest._retry) {
 				originalRequest._retry = true;
-				try {
-					const accessToken = localStorage.getItem(
-						app.localStorageKey.ACCESS_TOKEN,
-					);
-
-					if (!accessToken) {
-						toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
-						localStorage.clear();
-						window.location.href = routes.auth.signIn;
-						return;
-					}
-
-					const data = await refreshToken();
-					if (data.accessToken) {
-						localStorage.setItem(
-							app.localStorageKey.ACCESS_TOKEN,
-							data.accessToken,
-						);
-						originalRequest.headers['Authorization'] =
-							'Bearer ' + data.accessToken;
-					}
-
-					return axiosInstance(originalRequest);
-				} catch (error) {
-					toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
-					localStorage.clear();
-					window.location.href = routes.auth.signIn;
-					return Promise.reject(error);
-				}
+				toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+				await signOut({ callbackUrl: routes.auth.signIn });
 			}
 		}
 		return Promise.reject(error);

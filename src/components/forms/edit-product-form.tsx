@@ -28,7 +28,7 @@ import {
 	FileUploaderItem,
 } from '@/components/ui/file-upload';
 import { toast } from 'react-toastify';
-import { CategoryResponse, UpdateProductSchema } from '@/types';
+import { Category, UpdateProductSchema } from '@/types';
 import LoadingButton from '../custom/loading-button';
 import { useCategories } from '@/hooks/use-categories';
 import { useProduct, useUpdateProduct } from '@/hooks';
@@ -223,7 +223,7 @@ export default function EditProductForm({ id }: { id: number }) {
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
-									{data?.map((category: CategoryResponse) => (
+									{data?.map((category: Category) => (
 										<SelectItem
 											key={category.id}
 											value={category.id.toString()}

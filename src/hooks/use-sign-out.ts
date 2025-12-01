@@ -1,21 +1,16 @@
-import { app } from '@/configs/app';
 import { handleAxiosError } from '@/lib/utils';
-import { signOut } from '@/services';
-import { useAuthStore } from '@/store';
+import { signOut as signOutApi } from '@/services';
 import { useMutation } from '@tanstack/react-query';
+import { signOut as signOutNextAuth } from 'next-auth/react';
 
 export function useSignOut() {
-	const authStore = useAuthStore();
-
 	return useMutation({
-		mutationFn: signOut,
-		onSuccess: () => {
-			authStore.setIsLoggedIn(false);
-			authStore.setEmailPendingVerification(undefined);
-			localStorage.removeItem(app.localStorageKey.ACCESS_TOKEN);
-			localStorage.removeItem(app.localStorageKey.USER_STORAGE);
-			localStorage.removeItem(app.localStorageKey.AUTH_STORAGE);
-			localStorage.removeItem(app.localStorageKey.OTP_STORAGE);
+		mutationFn: async () => {
+			try {
+				await signOutApi();
+			} finally {
+				await signOutNextAuth({ redirect: false });
+			}
 		},
 		onError: (error: any) => handleAxiosError(error),
 	});

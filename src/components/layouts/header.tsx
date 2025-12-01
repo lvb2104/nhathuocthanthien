@@ -6,7 +6,6 @@ import Link from 'next/link';
 import ContentWrapper from './content-wrapper';
 import { useIsMobile, useSignOut } from '@/hooks';
 import { toast } from 'react-toastify';
-import { useAuthStore, useUserStore } from '@/store';
 import {
 	NavigationMenu,
 	NavigationMenuContent,
@@ -18,13 +17,14 @@ import {
 import { NavItem, navItems } from '@/lib/placeholder-data';
 import { useRouter } from 'next/navigation';
 import { UserRole } from '@/types';
+import { useSession } from 'next-auth/react';
 
 function Header() {
 	const { mutateAsync } = useSignOut();
-	const { isLoggedIn } = useAuthStore();
 	const isMobile = useIsMobile();
 	const router = useRouter();
-	const { user } = useUserStore();
+	const { data: session } = useSession();
+	const user = session?.user;
 
 	function handleSignOut() {
 		toast.promise(
@@ -55,7 +55,7 @@ function Header() {
 					<Link href={routes.user.profile} className='flex items-center'>
 						<Image src='/icons/user.svg' alt='User' width={15} height={15} />
 					</Link>
-					{isLoggedIn ? (
+					{session?.user ? (
 						<button className='cursor-pointer' onClick={handleSignOut}>
 							Đăng xuất
 						</button>

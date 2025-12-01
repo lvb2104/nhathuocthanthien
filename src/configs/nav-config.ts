@@ -1,6 +1,5 @@
 import {
 	IconCategory,
-	IconChartBar,
 	IconDashboard,
 	IconDatabase,
 	IconFileWord,
@@ -12,23 +11,24 @@ import {
 	IconSettings,
 	IconUsers,
 } from '@tabler/icons-react';
+import { routes } from './routes';
 
 export const navConfig = {
 	admin: {
 		navMain: [
 			{
 				title: 'Overview',
-				url: '/admin/overview',
+				url: routes.admin.overview,
 				icon: IconDashboard,
 			},
 			{
 				title: 'Products',
-				url: '/admin/products',
+				url: routes.admin.products.main,
 				icon: IconListDetails,
 			},
 			{
 				title: 'Categories',
-				url: '/admin/categories',
+				url: routes.admin.categories.main,
 				icon: IconCategory,
 			},
 			{

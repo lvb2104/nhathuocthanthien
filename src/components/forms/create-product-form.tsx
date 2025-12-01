@@ -28,15 +28,18 @@ import {
 	FileUploaderItem,
 } from '@/components/ui/file-upload';
 import { toast } from 'react-toastify';
-import { CategoryResponse, CreateProductSchema } from '@/types';
+import { Category, CreateProductSchema } from '@/types';
 import LoadingButton from '../custom/loading-button';
 import { useCategories } from '@/hooks/use-categories';
 import { useCreateProduct } from '@/hooks';
+import { useRouter } from 'next/navigation';
+import { routes } from '@/configs/routes';
 
 export default function CreateProductForm() {
 	const { mutateAsync, isPending } = useCreateProduct();
 	const { data, isError } = useCategories();
 	const [files, setFiles] = useState<File[]>([]);
+	const router = useRouter();
 
 	useEffect(() => {
 		if (isError) {
@@ -84,6 +87,8 @@ export default function CreateProductForm() {
 		files.forEach(file => {
 			fd.append('images', file);
 		});
+
+		router.push(routes.admin.products.main);
 
 		toast.promise(
 			mutateAsync(fd, {
@@ -190,7 +195,7 @@ export default function CreateProductForm() {
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
-									{data?.map((category: CategoryResponse) => (
+									{data?.map((category: Category) => (
 										<SelectItem
 											key={category.id}
 											value={category.id.toString()}
