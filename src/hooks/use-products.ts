@@ -1,9 +1,11 @@
-import { GetProducts } from '@/services';
+import { getProducts } from '@/services';
+import { GetProductsResponse } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 
-export function useProducts() {
+export function useProducts(initialData?: GetProductsResponse) {
 	return useQuery({
 		queryKey: ['products'],
-		queryFn: () => GetProducts(),
+		queryFn: () => getProducts(),
+		initialData,
 	});
 }

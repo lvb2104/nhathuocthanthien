@@ -28,16 +28,33 @@ import {
 	FileUploaderItem,
 } from '@/components/ui/file-upload';
 import { toast } from 'react-toastify';
-import { Category, UpdateProductSchema } from '@/types';
+import { Category, GetProductByIdResponse, UpdateProductSchema } from '@/types';
 import LoadingButton from '../custom/loading-button';
 import { useCategories } from '@/hooks/use-categories';
 import { useProduct, useUpdateProduct } from '@/hooks';
 import { useRouter } from 'next/navigation';
+import Loading from '@/app/loading';
 
-export default function EditProductForm({ id }: { id: number }) {
-	const { data, isError } = useCategories();
+export default function EditProductForm({
+	initialCategories,
+	initialProduct,
+	id,
+}: {
+	initialCategories?: Category[];
+	initialProduct?: GetProductByIdResponse;
+	id: string;
+}) {
+	const {
+		data,
+		isError,
+		isPending: isCategoriesPending,
+	} = useCategories(initialCategories);
+	const {
+		data: productData,
+		isError: isProductError,
+		isPending: isProductPending,
+	} = useProduct(Number(id), initialProduct);
 	const [files, setFiles] = useState<File[]>([]);
-	const { data: productData, isError: isProductError } = useProduct(id);
 	const { mutateAsync, isPending } = useUpdateProduct();
 	const router = useRouter();
 
@@ -45,13 +62,10 @@ export default function EditProductForm({ id }: { id: number }) {
 		if (isError) {
 			toast.error('Error fetching categories');
 		}
-	}, [isError]);
-
-	useEffect(() => {
 		if (isProductError) {
 			toast.error('Error fetching product data');
 		}
-	}, [isProductError]);
+	}, [isError, isProductError]);
 
 	const dropZoneConfig = {
 		maxFiles: 5,
@@ -61,17 +75,17 @@ export default function EditProductForm({ id }: { id: number }) {
 	const form = useForm<z.infer<typeof UpdateProductSchema>>({
 		resolver: zodResolver(UpdateProductSchema),
 		defaultValues: {
-			name: '',
-			description: '',
-			price: '',
-			manufacturer: '',
-			categoryId: '',
+			name: productData?.name || '',
+			description: productData?.description || '',
+			price: productData?.price?.toString() || '',
+			manufacturer: productData?.manufacturer || '',
+			categoryId: productData?.categoryId?.toString() || '',
 			detail: {
-				composition: '',
-				usageText: '',
-				dosage: '',
-				targetUser: '',
-				warning: '',
+				composition: productData?.detail?.composition || '',
+				usageText: productData?.detail?.usageText || '',
+				dosage: productData?.detail?.dosage || '',
+				targetUser: productData?.detail?.targetUser || '',
+				warning: productData?.detail?.warning || '',
 			},
 			images: [],
 		},
@@ -96,7 +110,7 @@ export default function EditProductForm({ id }: { id: number }) {
 
 		toast.promise(
 			mutateAsync(
-				{ id: id, updateProductRequest: fd },
+				{ id: Number(id), updateProductRequest: fd },
 				{
 					onError: (error: any) => {
 						toast.error(error?.message || 'Error updating product');
@@ -131,6 +145,10 @@ export default function EditProductForm({ id }: { id: number }) {
 			});
 		}
 	}, [productData, form]);
+
+	if (isCategoriesPending || isProductPending) {
+		return <Loading />;
+	}
 
 	return (
 		<Form {...form}>
@@ -212,11 +230,7 @@ export default function EditProductForm({ id }: { id: number }) {
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>Category</FormLabel>
-							<Select
-								onValueChange={field.onChange}
-								defaultValue={productData?.categoryId?.toString()}
-								value={field.value}
-							>
+							<Select onValueChange={field.onChange} value={field.value}>
 								<FormControl>
 									<SelectTrigger>
 										<SelectValue placeholder='Select a category to display' />

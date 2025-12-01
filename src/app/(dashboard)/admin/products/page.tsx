@@ -1,7 +1,19 @@
-import { DataTable } from '@/components/data-table';
+import { ProductsTable } from '@/components/products-table';
+import { serverGetCategories, serverGetProducts } from '@/services';
 
-function ProductsPage() {
-	return <DataTable />;
+async function ProductsPage() {
+	try {
+		const categories = await serverGetCategories();
+		const products = await serverGetProducts();
+		return (
+			<ProductsTable
+				initialCategories={categories}
+				initialProducts={products}
+			/>
+		);
+	} catch (error) {
+		throw error;
+	}
 }
 
 export default ProductsPage;

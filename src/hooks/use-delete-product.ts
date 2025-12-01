@@ -1,10 +1,10 @@
 import { handleAxiosError } from '@/lib/utils';
-import { DeleteProduct } from '@/services';
+import { deleteProduct } from '@/services';
 import { useMutation } from '@tanstack/react-query';
 
 export function useDeleteProduct() {
 	return useMutation({
-		mutationFn: DeleteProduct,
+		mutationFn: deleteProduct,
 		onError: (error: any) => handleAxiosError(error),
 	});
 }

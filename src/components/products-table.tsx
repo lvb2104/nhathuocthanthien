@@ -96,7 +96,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
 import { routes } from '@/configs/routes';
 import { toast } from 'react-toastify';
-import { Category, ProductSchema } from '@/types';
+import {
+	Category,
+	GetCategoriesResponse,
+	GetProductsResponse,
+	ProductSchema,
+} from '@/types';
 import { DragHandle } from './drag-handle';
 import { DraggableRow } from './draggable-row';
 import { useEffect } from 'react';
@@ -124,21 +129,27 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 // Main DataTable component
-export function DataTable() {
+export function ProductsTable({
+	initialCategories,
+	initialProducts,
+}: {
+	initialCategories?: GetCategoriesResponse;
+	initialProducts?: GetProductsResponse;
+}) {
+	const [data, setData] = React.useState<z.infer<typeof ProductSchema>[]>(
+		() => [],
+	);
 	const {
 		data: products,
 		isError: isProductsError,
 		refetch: refreshProducts,
 		isPending: isProductsPending,
-	} = useProducts();
-	const [data, setData] = React.useState<z.infer<typeof ProductSchema>[]>(
-		() => [],
-	);
+	} = useProducts(initialProducts);
 	const {
 		data: categories,
 		isError: isCategoriesError,
 		isPending: isCategoriesPending,
-	} = useCategories();
+	} = useCategories(initialCategories);
 	const { mutateAsync } = useDeleteProduct();
 	// const { mutateAsync: mutateAsyncUpdateProduct } = useUpdateProduct();
 

@@ -4,9 +4,15 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useProducts } from '@/hooks';
 import { toast } from 'react-toastify';
+import { GetProductsResponse } from '@/types';
 
-function MostSoldProductsWidget() {
-	const { data: products, isError: isProductsError } = useProducts();
+function MostSoldProductsWidget({
+	initialProducts,
+}: {
+	initialProducts: GetProductsResponse;
+}) {
+	const { data: products, isError: isProductsError } =
+		useProducts(initialProducts);
 
 	useEffect(() => {
 		if (isProductsError) {

@@ -1,7 +1,5 @@
-import { DataTable } from '@/components/data-table';
-
-function ProductsPage() {
-	return <DataTable />;
+function CategoriesPage() {
+	return <div>CategoriesPage</div>;
 }
 
-export default ProductsPage;
+export default CategoriesPage;

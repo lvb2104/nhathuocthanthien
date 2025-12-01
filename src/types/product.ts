@@ -82,11 +82,11 @@ export type Product = {
 	createdAt: string;
 	updatedAt: string;
 	category: Category;
-	images: Image[];
+	images: ImageDto[];
 	detail: ProductDetail;
 };
 
-export type Image = {
+export type ImageDto = {
 	id: number;
 	imageUrl: string;
 };
