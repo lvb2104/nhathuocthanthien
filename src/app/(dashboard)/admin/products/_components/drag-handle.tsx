@@ -1,5 +1,5 @@
 import { useSortable } from '@dnd-kit/sortable';
-import { Button } from './ui/button';
+import { Button } from '../../../../../components/ui/button';
 import { IconGripVertical } from '@tabler/icons-react';
 
 export function DragHandle({ id }: { id: number }) {

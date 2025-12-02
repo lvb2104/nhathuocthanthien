@@ -1,16 +1,18 @@
 'use client';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import ContentWrapper from './layouts/content-wrapper';
+import ContentWrapper from '../../../../../components/layouts/content-wrapper';
 import { routes } from '@/configs/routes';
 import Link from 'next/link';
 import { Product } from '@/types';
-import { Button } from './ui/button';
+import { Button } from '../../../../../components/ui/button';
 import Lightbox from 'yet-another-react-lightbox';
 import { Zoom, Thumbnails } from 'yet-another-react-lightbox/plugins';
 import { useProduct } from '@/hooks';
 import { toast } from 'react-toastify';
 import Loading from '@/app/loading';
+import { useShoppingCart } from 'use-shopping-cart';
+import { app } from '@/configs/app';
 
 function ProductDetail({
 	initialProduct,
@@ -34,6 +36,8 @@ function ProductDetail({
 	const [lightboxOpen, setLightboxOpen] = useState(false);
 	const [lightboxIndex, setLightboxIndex] = useState(0);
 	const [selectedImage, setSelectedImage] = useState<string | null>(null);
+	const { addItem, incrementItem, cartDetails } = useShoppingCart();
+
 	if (isProductPending) return <Loading />;
 
 	const images =
@@ -42,12 +46,39 @@ function ProductDetail({
 			: [
 					{
 						id: 0,
-						imageUrl:
-							'https://res.cloudinary.com/dh4vuuxwg/image/upload/v1763375954/products/gds5aglnl8u9izxym9hn.jpg',
+						imageUrl: app.DEFAULT_IMAGE_URL,
 					},
 				];
 	const activeImage = selectedImage ?? images[0]?.imageUrl;
 	const lightboxSlides = images.map(img => ({ src: img.imageUrl }));
+
+	function handleAddItemToCart() {
+		if (!product) return;
+
+		const currentQuantity = cartDetails ? cartDetails[product.id]?.quantity : 0;
+		if (currentQuantity > 0) {
+			incrementItem(product.id.toString(), { count: 1 });
+			toast.success('Đã thêm sản phẩm vào giỏ hàng');
+			return;
+		}
+
+		addItem(
+			{
+				name: product.name,
+				sku: `SP${product.id}`,
+				description: product.description || undefined,
+				price: Number(product.price),
+				currency: 'VND',
+				id: product.id.toString(),
+				image:
+					product.images && product.images.length > 0
+						? product.images[0].imageUrl
+						: undefined,
+			},
+			{ count: currentQuantity + 1 },
+		);
+		toast.success('Đã thêm sản phẩm vào giỏ hàng');
+	}
 
 	return (
 		<main className='py-6'>
@@ -92,7 +123,7 @@ function ProductDetail({
 						href={routes.home}
 						className='text-neutral-600 transition-colors hover:text-green-600'
 					>
-						Sản phẩm
+						{product?.category?.name || 'Danh mục'}
 					</Link>
 
 					<svg
@@ -290,7 +321,10 @@ function ProductDetail({
 							<Button className='flex-1 rounded-lg bg-orange-500 px-6 py-3.5 text-base font-semibold text-white shadow-sm transition-all hover:bg-orange-600 hover:shadow-md active:scale-[0.98]'>
 								Mua ngay
 							</Button>
-							<Button className='flex-1 rounded-lg border-2 border-orange-500 bg-white px-6 py-3.5 text-base font-semibold text-orange-600 shadow-sm transition-all hover:bg-orange-50 active:scale-[0.98]'>
+							<Button
+								onClick={handleAddItemToCart}
+								className='flex-1 rounded-lg border-2 border-orange-500 bg-white px-6 py-3.5 text-base font-semibold text-orange-600 shadow-sm transition-all hover:bg-orange-50 active:scale-[0.98]'
+							>
 								Thêm vào giỏ
 							</Button>
 						</div>

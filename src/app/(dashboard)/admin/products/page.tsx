@@ -1,4 +1,4 @@
-import { ProductsTable } from '@/components/products-table';
+import { ProductsTable } from '@/app/(dashboard)/admin/products/_components/products-table';
 import { serverGetCategories, serverGetProducts } from '@/services';
 
 async function ProductsPage() {

@@ -1,7 +1,7 @@
 import 'yet-another-react-lightbox/styles.css';
 import 'yet-another-react-lightbox/plugins/thumbnails.css';
-import ProductDetail from '@/components/product-detail';
 import { serverGetProductById } from '@/services';
+import ProductDetail from './_components/product-detail';
 
 async function ProductDetailPage({
 	params,

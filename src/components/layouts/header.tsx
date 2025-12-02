@@ -18,6 +18,7 @@ import { NavItem, navItems } from '@/lib/placeholder-data';
 import { useRouter } from 'next/navigation';
 import { UserRole } from '@/types';
 import { useSession } from 'next-auth/react';
+import { useShoppingCart } from 'use-shopping-cart';
 
 function Header() {
 	const { mutateAsync } = useSignOut();
@@ -25,6 +26,7 @@ function Header() {
 	const router = useRouter();
 	const { data: session } = useSession();
 	const user = session?.user;
+	const { cartCount } = useShoppingCart();
 
 	function handleSignOut() {
 		toast.promise(
@@ -112,12 +114,27 @@ function Header() {
 									height={30}
 								/>
 							</div>
-							<div>
-								<div className='text-xs mb-[-2px]'>Tra cứu</div>
-								<div className='font-semibold'>Đơn hàng</div>
-							</div>
+							{user?.role === UserRole.ADMIN ? (
+								<div>
+									<div className='text-xs mb-[-2px]'>Quản lý</div>
+									<div className='font-semibold'>Bảng điều khiển</div>
+								</div>
+							) : user?.role === UserRole.PHARMACIST ? (
+								<div>
+									<div className='text-xs mb-[-2px]'>Quản lý</div>
+									<div className='font-semibold'>Nhà thuốc</div>
+								</div>
+							) : (
+								<div>
+									<div className='text-xs mb-[-2px]'>Tra cứu</div>
+									<div className='font-semibold'>Đơn hàng</div>
+								</div>
+							)}
 						</Link>
-						<div className='flex items-center cursor-pointer'>
+						<Link
+							className='flex items-center cursor-pointer'
+							href={routes.user.cart}
+						>
 							<div className='p-2 rounded'>
 								<Image
 									src='/icons/cart.svg'
@@ -130,12 +147,12 @@ function Header() {
 								<div className='text-xs mb-[-2px]'>Giỏ hàng</div>
 								<div className='font-semibold'>
 									<span className='rounded-[2px] px-[3px] bg-white text-[#ff5722] font-[500] text-sm text-center'>
-										0
+										{cartCount || 0}
 									</span>{' '}
 									sản phẩm
 								</div>
 							</div>
-						</div>
+						</Link>
 					</div>
 				</div>
 				{/* Navigation */}

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useProducts } from '@/hooks';
 import { toast } from 'react-toastify';
 import { GetProductsResponse } from '@/types';
+import { app } from '@/configs/app';
 
 function MostSoldProductsWidget({
 	initialProducts,
@@ -37,10 +38,7 @@ function MostSoldProductsWidget({
 
 								<div className='relative h-44 w-full overflow-hidden rounded-t-xl bg-neutral-100'>
 									<Image
-										src={
-											product.images[0]?.imageUrl ||
-											'https://res.cloudinary.com/dh4vuuxwg/image/upload/v1763375954/products/gds5aglnl8u9izxym9hn.jpg'
-										}
+										src={product.images[0]?.imageUrl || app.DEFAULT_IMAGE_URL}
 										alt={product.name}
 										fill
 										className='object-contain p-4 transition-transform duration-300 group-hover:scale-105'

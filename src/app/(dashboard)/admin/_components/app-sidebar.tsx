@@ -13,11 +13,11 @@ import { IconInnerShadowTop } from '@tabler/icons-react';
 import { navConfig } from '@/configs/nav-config';
 import { NavMain } from './nav-main';
 import { NavDocuments } from './nav-document';
-import { NavSecondary } from './nav-secondary';
 import { NavUser } from './nav-user';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { routes } from '@/configs/routes';
+import { NavSecondary } from './nav-secondary';
 
 export const dynamic = 'force-dynamic';
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
