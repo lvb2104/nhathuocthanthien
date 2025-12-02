@@ -12,6 +12,7 @@ export const routes = {
 	user: {
 		profile: '/user/profile',
 		orders: '/user/orders',
+		cart: '/user/cart',
 	},
 	admin: {
 		overview: '/admin/overview',

@@ -1,6 +1,6 @@
-import { AppSidebar } from '@/components/app-sidebar';
-import { SiteHeader } from '@/components/side-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { AppSidebar } from './_components/app-sidebar';
+import { SiteHeader } from './_components/side-header';
 
 export default function AdminLayout({
 	children,

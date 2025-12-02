@@ -25,10 +25,10 @@ export const apiEndpoints = {
 		delete: (id: number) => `/categories/${id}`,
 	},
 	cart: {
-		getCart: '/cart',
+		get: '/cart',
 		addItem: (id: number) => `/cart/${id}`,
 		updateQuantity: (id: number) => `/cart/${id}`,
 		deleteItem: (id: number) => `/cart/${id}`,
-		clearCart: '/cart',
+		clear: '/cart',
 	},
 };

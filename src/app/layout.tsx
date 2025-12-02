@@ -7,6 +7,7 @@ import ScrollToTop from '@/components/layouts/scroll-to-top';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/next';
 import AppProvider from '@/components/providers/app-provider';
+import CartProvider from '@/components/providers/cart-provider';
 
 export const metadata: Metadata = {
 	title: 'Nhà thuốc thân thiện',
@@ -23,7 +24,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang='en'>
+		<html lang='vi'>
 			<body
 				className={`${fonts.geistSans.variable} ${fonts.geistMono.variable} antialiased`}
 			>
@@ -34,7 +35,9 @@ export default function RootLayout({
 					showSpinner={false}
 					shadow={false}
 				/>
-				<AppProvider>{children}</AppProvider>
+				<AppProvider>
+					<CartProvider>{children}</CartProvider>
+				</AppProvider>
 				<ScrollToTop />
 				<ToastContainer
 					position='bottom-right'
