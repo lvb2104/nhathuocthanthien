@@ -4,7 +4,7 @@ import { Search } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import ContentWrapper from './content-wrapper';
-import { useIsMobile, useSignOut } from '@/hooks';
+import { useIsMobile, useSignOut, useUnifiedCart } from '@/hooks';
 import { toast } from 'react-toastify';
 import {
 	NavigationMenu,
@@ -18,7 +18,6 @@ import { NavItem, navItems } from '@/lib/placeholder-data';
 import { useRouter } from 'next/navigation';
 import { UserRole } from '@/types';
 import { useSession } from 'next-auth/react';
-import { useShoppingCart } from 'use-shopping-cart';
 
 function Header() {
 	const { mutateAsync } = useSignOut();
@@ -26,7 +25,7 @@ function Header() {
 	const router = useRouter();
 	const { data: session } = useSession();
 	const user = session?.user;
-	const { cartCount } = useShoppingCart();
+	const { cartCount } = useUnifiedCart();
 
 	function handleSignOut() {
 		toast.promise(
@@ -147,7 +146,7 @@ function Header() {
 								<div className='text-xs mb-[-2px]'>Giỏ hàng</div>
 								<div className='font-semibold'>
 									<span className='rounded-[2px] px-[3px] bg-white text-[#ff5722] font-[500] text-sm text-center'>
-										{cartCount || 0}
+										{cartCount}
 									</span>{' '}
 									sản phẩm
 								</div>

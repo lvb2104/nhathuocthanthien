@@ -151,7 +151,6 @@ export function ProductsTable({
 		isPending: isCategoriesPending,
 	} = useCategories(initialCategories);
 	const { mutateAsync } = useDeleteProduct();
-	// const { mutateAsync: mutateAsyncUpdateProduct } = useUpdateProduct();
 
 	useEffect(() => {
 		if (isProductsError) {

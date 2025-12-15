@@ -26,11 +26,11 @@ export async function signIn(
 }
 
 export async function serverSignIn(
-	signInRequest: SignInRequest,
+	request: SignInRequest,
 ): Promise<SignInResponse> {
 	const res = await serverAxios.post<SignInResponse>(
 		apiEndpoints.auth.signIn,
-		signInRequest,
+		request,
 	);
 	return res.data;
 }
@@ -40,56 +40,57 @@ export async function refreshToken(): Promise<RefreshTokenResponse> {
 	return res.data;
 }
 
-export async function serverRefreshToken(): Promise<RefreshTokenResponse> {
+export async function serverRefreshToken(
+	cookieHeader?: string,
+): Promise<RefreshTokenResponse> {
 	const res = await serverAxios.post<RefreshTokenResponse>(
 		apiEndpoints.auth.refreshToken,
+		undefined,
+		{
+			headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+		},
 	);
 	return res.data;
 }
 
-export async function signUp(
-	signUpRequest: SignUpRequest,
-): Promise<SignUpResponse> {
-	const res = await axiosInstance.post(apiEndpoints.auth.signUp, signUpRequest);
+export async function signUp(request: SignUpRequest): Promise<SignUpResponse> {
+	const res = await axiosInstance.post(apiEndpoints.auth.signUp, request);
 	return res.data;
 }
 
 export async function verifyEmail(
-	verifyEmailRequest: VerifyEmailRequest,
+	request: VerifyEmailRequest,
 ): Promise<VerifyEmailResponse> {
-	const res = await axiosInstance.post(
-		apiEndpoints.auth.verifyEmail,
-		verifyEmailRequest,
-	);
+	const res = await axiosInstance.post(apiEndpoints.auth.verifyEmail, request);
 	return res.data;
 }
 
 export async function forgotPassword(
-	forgotPasswordRequest: ForgotPasswordRequest,
+	request: ForgotPasswordRequest,
 ): Promise<ForgotPasswordResponse> {
 	const res = await axiosInstance.post(
 		apiEndpoints.auth.forgotPassword,
-		forgotPasswordRequest,
+		request,
 	);
 	return res.data;
 }
 
 export async function verifyResetPasswordOtp(
-	verifyResetPasswordOtpRequest: VerifyResetPasswordOtpRequest,
+	request: VerifyResetPasswordOtpRequest,
 ): Promise<VerifyResetPasswordOtpResponse> {
 	const res = await axiosInstance.post(
 		apiEndpoints.auth.verifyResetPasswordOtp,
-		verifyResetPasswordOtpRequest,
+		request,
 	);
 	return res.data;
 }
 
 export async function resetPassword(
-	resetPasswordRequest: ResetPasswordRequest,
+	request: ResetPasswordRequest,
 ): Promise<ResetPasswordResponse> {
 	const res = await axiosInstance.post(
 		apiEndpoints.auth.resetPassword,
-		resetPasswordRequest,
+		request,
 	);
 	return res.data;
 }

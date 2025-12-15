@@ -8,10 +8,9 @@ import { Product } from '@/types';
 import { Button } from '../../../../../components/ui/button';
 import Lightbox from 'yet-another-react-lightbox';
 import { Zoom, Thumbnails } from 'yet-another-react-lightbox/plugins';
-import { useProduct } from '@/hooks';
+import { useProduct, useUnifiedCart } from '@/hooks';
 import { toast } from 'react-toastify';
 import Loading from '@/app/loading';
-import { useShoppingCart } from 'use-shopping-cart';
 import { app } from '@/configs/app';
 
 function ProductDetail({
@@ -36,7 +35,7 @@ function ProductDetail({
 	const [lightboxOpen, setLightboxOpen] = useState(false);
 	const [lightboxIndex, setLightboxIndex] = useState(0);
 	const [selectedImage, setSelectedImage] = useState<string | null>(null);
-	const { addItem, incrementItem, cartDetails } = useShoppingCart();
+	const { addItem } = useUnifiedCart();
 
 	if (isProductPending) return <Loading />;
 
@@ -52,32 +51,27 @@ function ProductDetail({
 	const activeImage = selectedImage ?? images[0]?.imageUrl;
 	const lightboxSlides = images.map(img => ({ src: img.imageUrl }));
 
-	function handleAddItemToCart() {
+	async function handleAddItemToCart() {
 		if (!product) return;
 
-		const currentQuantity = cartDetails ? cartDetails[product.id]?.quantity : 0;
-		if (currentQuantity > 0) {
-			incrementItem(product.id.toString(), { count: 1 });
+		try {
+			await addItem(
+				product.id,
+				{
+					name: product.name,
+					price: Number(product.price),
+					description: product.description || undefined,
+					image: product.images?.[0]?.imageUrl,
+				},
+				1,
+			);
 			toast.success('Đã thêm sản phẩm vào giỏ hàng');
-			return;
+		} catch (error: any) {
+			const errorMessage =
+				error?.response?.data?.message || 'Không thể thêm vào giỏ hàng';
+			toast.error(errorMessage);
+			console.error('Failed to add item to cart:', error);
 		}
-
-		addItem(
-			{
-				name: product.name,
-				sku: `SP${product.id}`,
-				description: product.description || undefined,
-				price: Number(product.price),
-				currency: 'VND',
-				id: product.id.toString(),
-				image:
-					product.images && product.images.length > 0
-						? product.images[0].imageUrl
-						: undefined,
-			},
-			{ count: currentQuantity + 1 },
-		);
-		toast.success('Đã thêm sản phẩm vào giỏ hàng');
 	}
 
 	return (
@@ -87,7 +81,7 @@ function ProductDetail({
 				<nav className='mb-6 flex items-center gap-2 text-sm'>
 					<Link
 						href={routes.home}
-						className='flex items-center gap-1.5 text-neutral-600 transition-colors hover:text-green-600'
+						className='cursor-pointer flex items-center gap-1.5 text-neutral-600 transition-colors hover:text-green-600'
 					>
 						<svg
 							className='h-4 w-4'
@@ -121,9 +115,9 @@ function ProductDetail({
 
 					<Link
 						href={routes.home}
-						className='text-neutral-600 transition-colors hover:text-green-600'
+						className='cursor-pointer text-neutral-600 transition-colors hover:text-green-600'
 					>
-						{product?.category?.name || 'Danh mục'}
+						{product?.category?.name}
 					</Link>
 
 					<svg
@@ -184,7 +178,7 @@ function ProductDetail({
 									<button
 										key={image.id}
 										onClick={() => setSelectedImage(image.imageUrl)}
-										className={`group relative h-20 w-full overflow-hidden rounded-lg transition-all duration-200 ${
+										className={`cursor-pointer group relative h-20 w-full overflow-hidden rounded-lg transition-all duration-200 ${
 											isActive
 												? 'ring-2 ring-green-600 ring-offset-2 scale-105'
 												: 'ring-1 ring-neutral-200 hover:ring-green-400 hover:scale-105'
@@ -282,7 +276,7 @@ function ProductDetail({
 						<div className='mb-6 space-y-3 rounded-lg bg-neutral-50 p-4 text-sm'>
 							<div className='flex items-start gap-2'>
 								<span className='min-w-[80px] font-semibold text-neutral-700'>
-									Brand:
+									Nhãn hiệu:
 								</span>
 								<span className='text-neutral-900'>
 									{product?.manufacturer || 'Đang cập nhật'}
@@ -290,27 +284,19 @@ function ProductDetail({
 							</div>
 							<div className='flex items-start gap-2'>
 								<span className='min-w-[80px] font-semibold text-neutral-700'>
-									Category:
+									Danh mục:
 								</span>
 								<span className='text-neutral-900'>
 									{product?.category?.name || 'Đang cập nhật'}
 								</span>
 							</div>
-							<div className='flex items-start gap-2'>
-								<span className='min-w-[80px] font-semibold text-neutral-700'>
-									SKU:
-								</span>
-								<span className='font-mono text-neutral-900'>
-									SP{product?.id}
-								</span>
-							</div>
 							{product?.detail?.targetUser && (
 								<div className='flex items-start gap-2'>
 									<span className='min-w-[80px] font-semibold text-neutral-700'>
-										Đối tượng:
+										Mô tả:
 									</span>
 									<span className='text-neutral-900'>
-										{product?.detail.targetUser}
+										{product?.description || 'Đang cập nhật'}
 									</span>
 								</div>
 							)}
@@ -386,11 +372,36 @@ function ProductDetail({
 
 					{/* Content Sections */}
 					<div className='divide-y divide-neutral-100'>
-						{/* Thành phần */}
-						{product?.detail?.composition && (
+						{/* Mô tả chung */}
+						{product?.description && (
 							<details className='group' open>
 								<summary className='flex cursor-pointer items-center justify-between px-6 py-4 font-semibold text-neutral-900 transition-colors hover:bg-neutral-50'>
-									<span>Thành phần {product.name}</span>
+									<span>Mô tả sản phẩm</span>
+									<svg
+										className='h-5 w-5 text-neutral-400 transition-transform group-open:rotate-180'
+										fill='none'
+										viewBox='0 0 24 24'
+										stroke='currentColor'
+									>
+										<path
+											strokeLinecap='round'
+											strokeLinejoin='round'
+											strokeWidth={2}
+											d='M19 9l-7 7-7-7'
+										/>
+									</svg>
+								</summary>
+								<div className='px-6 pb-4 pt-2 text-sm leading-relaxed text-neutral-700'>
+									<p className='whitespace-pre-line'>{product.description}</p>
+								</div>
+							</details>
+						)}
+
+						{/* Thành phần */}
+						{product?.detail?.composition && (
+							<details className='group'>
+								<summary className='flex cursor-pointer items-center justify-between px-6 py-4 font-semibold text-neutral-900 transition-colors hover:bg-neutral-50'>
+									<span>Thành phần</span>
 									<svg
 										className='h-5 w-5 text-neutral-400 transition-transform group-open:rotate-180'
 										fill='none'
@@ -413,38 +424,11 @@ function ProductDetail({
 							</details>
 						)}
 
-						{/* Đối tượng sử dụng */}
-						{product?.detail?.targetUser && (
-							<details className='group'>
-								<summary className='flex cursor-pointer items-center justify-between px-6 py-4 font-semibold text-neutral-900 transition-colors hover:bg-neutral-50'>
-									<span>Đối tượng sử dụng {product.name}</span>
-									<svg
-										className='h-5 w-5 text-neutral-400 transition-transform group-open:rotate-180'
-										fill='none'
-										viewBox='0 0 24 24'
-										stroke='currentColor'
-									>
-										<path
-											strokeLinecap='round'
-											strokeLinejoin='round'
-											strokeWidth={2}
-											d='M19 9l-7 7-7-7'
-										/>
-									</svg>
-								</summary>
-								<div className='px-6 pb-4 pt-2 text-sm leading-relaxed text-neutral-700'>
-									<p className='whitespace-pre-line'>
-										{product.detail.targetUser}
-									</p>
-								</div>
-							</details>
-						)}
-
 						{/* Công dụng */}
 						{product?.detail?.usageText && (
 							<details className='group'>
 								<summary className='flex cursor-pointer items-center justify-between px-6 py-4 font-semibold text-neutral-900 transition-colors hover:bg-neutral-50'>
-									<span>Công dụng {product.name}</span>
+									<span>Công dụng</span>
 									<svg
 										className='h-5 w-5 text-neutral-400 transition-transform group-open:rotate-180'
 										fill='none'
@@ -467,11 +451,38 @@ function ProductDetail({
 							</details>
 						)}
 
+						{/* Đối tượng sử dụng */}
+						{product?.detail?.targetUser && (
+							<details className='group'>
+								<summary className='flex cursor-pointer items-center justify-between px-6 py-4 font-semibold text-neutral-900 transition-colors hover:bg-neutral-50'>
+									<span>Đối tượng sử dụng</span>
+									<svg
+										className='h-5 w-5 text-neutral-400 transition-transform group-open:rotate-180'
+										fill='none'
+										viewBox='0 0 24 24'
+										stroke='currentColor'
+									>
+										<path
+											strokeLinecap='round'
+											strokeLinejoin='round'
+											strokeWidth={2}
+											d='M19 9l-7 7-7-7'
+										/>
+									</svg>
+								</summary>
+								<div className='px-6 pb-4 pt-2 text-sm leading-relaxed text-neutral-700'>
+									<p className='whitespace-pre-line'>
+										{product.detail.targetUser}
+									</p>
+								</div>
+							</details>
+						)}
+
 						{/* Liều dùng & Cách dùng */}
 						{product?.detail?.dosage && (
 							<details className='group'>
 								<summary className='flex cursor-pointer items-center justify-between px-6 py-4 font-semibold text-neutral-900 transition-colors hover:bg-neutral-50'>
-									<span>Cách dùng {product.name}</span>
+									<span>Cách dùng</span>
 									<svg
 										className='h-5 w-5 text-neutral-400 transition-transform group-open:rotate-180'
 										fill='none'
@@ -516,7 +527,7 @@ function ProductDetail({
 						{product?.detail?.warning && (
 							<details className='group'>
 								<summary className='flex cursor-pointer items-center justify-between px-6 py-4 font-semibold text-neutral-900 transition-colors hover:bg-neutral-50'>
-									<span>Lưu ý khi sử dụng {product.name}</span>
+									<span>Lưu ý khi sử dụng</span>
 									<svg
 										className='h-5 w-5 text-neutral-400 transition-transform group-open:rotate-180'
 										fill='none'
@@ -537,31 +548,6 @@ function ProductDetail({
 											{product.detail.warning}
 										</p>
 									</div>
-								</div>
-							</details>
-						)}
-
-						{/* Mô tả chung */}
-						{product?.description && (
-							<details className='group'>
-								<summary className='flex cursor-pointer items-center justify-between px-6 py-4 font-semibold text-neutral-900 transition-colors hover:bg-neutral-50'>
-									<span>Mô tả sản phẩm</span>
-									<svg
-										className='h-5 w-5 text-neutral-400 transition-transform group-open:rotate-180'
-										fill='none'
-										viewBox='0 0 24 24'
-										stroke='currentColor'
-									>
-										<path
-											strokeLinecap='round'
-											strokeLinejoin='round'
-											strokeWidth={2}
-											d='M19 9l-7 7-7-7'
-										/>
-									</svg>
-								</summary>
-								<div className='px-6 pb-4 pt-2 text-sm leading-relaxed text-neutral-700'>
-									<p className='whitespace-pre-line'>{product.description}</p>
 								</div>
 							</details>
 						)}

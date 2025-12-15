@@ -9,27 +9,30 @@ import { app } from '@/configs/app';
 
 function MostSoldProductsWidget({
 	initialProducts,
+	title,
 }: {
 	initialProducts: GetProductsResponse;
+	title: string;
 }) {
 	const { data: products, isError: isProductsError } =
 		useProducts(initialProducts);
 
 	useEffect(() => {
 		if (isProductsError) {
-			toast.error('Lỗi khi tải sản phẩm đã bán chạy.');
+			toast.error('Lỗi khi tải sản phẩm.');
 		}
 	}, [isProductsError]);
 
 	return (
 		<div className='w-full bg-neutral-50 py-6'>
 			<div className='mx-auto max-w-6xl px-4 lg:px-0'>
+				<h2 className='mb-4 text-xl font-semibold text-neutral-900'>{title}</h2>
 				<div className='grid gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6'>
 					{products?.map(product => (
 						<Link
 							href={`/products/${product.id}`}
 							key={product.id}
-							className='group flex h-full flex-col rounded-xl border border-neutral-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md'
+							className='cursor-pointer group flex h-full flex-col rounded-xl border border-neutral-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md'
 						>
 							<div className='relative'>
 								<span className='absolute left-2 top-2 rounded-sm bg-green-500 px-2 py-0.5 text-xs font-semibold text-white z-10'>

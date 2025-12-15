@@ -7,6 +7,7 @@ export function useProduct(id: number, initialData?: GetProductByIdResponse) {
 		queryKey: ['product', id],
 		queryFn: () => getProductById(id),
 		enabled: typeof id === 'number' && !Number.isNaN(id),
+		staleTime: 1000 * 60 * 5, // 5 minutes
 		initialData,
 	});
 }

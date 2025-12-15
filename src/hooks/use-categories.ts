@@ -6,6 +6,7 @@ export function useCategories(initialData?: GetCategoriesResponse) {
 	return useQuery({
 		queryKey: ['categories'],
 		queryFn: () => getCategories(),
+		staleTime: 1000 * 60 * 5, // 5 minutes
 		initialData,
 	});
 }
