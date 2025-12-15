@@ -10,4 +10,5 @@ export const app = {
 	},
 	DEFAULT_IMAGE_URL:
 		'https://res.cloudinary.com/dh4vuuxwg/image/upload/v1763375954/products/gds5aglnl8u9izxym9hn.jpg',
+	CREDENTIALSPROVIDERID: 'credentials',
 };

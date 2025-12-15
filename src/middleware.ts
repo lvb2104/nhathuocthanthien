@@ -2,22 +2,32 @@ import { NextResponse } from 'next/server';
 import { withAuth } from 'next-auth/middleware';
 import { UserRole } from '@/types';
 import { routes } from './configs/routes';
+import { getDecodedPayloadFromJwt } from './lib/utils';
 
 export default withAuth(
 	// Call middleware
 	function middleware(req) {
 		const token = req.nextauth.token;
 		const pathname = req.nextUrl.pathname;
+		const role = getDecodedPayloadFromJwt(token?.accessToken || '')?.role;
 
-		if (pathname.startsWith('/admin') && token?.role !== UserRole.ADMIN) {
+		if (!role) {
+			return NextResponse.redirect(new URL(routes.auth.signIn, req.url));
+		}
+
+		if (pathname.startsWith('/admin') && role !== UserRole.ADMIN) {
+			return NextResponse.redirect(new URL(routes.home, req.url));
+		}
+
+		if (pathname.startsWith('/pharmacist') && role !== UserRole.PHARMACIST) {
 			return NextResponse.redirect(new URL(routes.home, req.url));
 		}
 
 		if (
-			pathname.startsWith('/pharmacist') &&
-			token?.role !== UserRole.PHARMACIST
+			pathname.startsWith('/user') &&
+			![UserRole.CUSTOMER, UserRole.ADMIN, UserRole.PHARMACIST].includes(role)
 		) {
-			return NextResponse.redirect(new URL(routes.home, req.url));
+			return NextResponse.redirect(new URL(routes.auth.signIn, req.url));
 		}
 
 		return NextResponse.next();

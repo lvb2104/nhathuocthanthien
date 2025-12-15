@@ -22,22 +22,19 @@ export async function deleteCart(): Promise<ClearCartResponse> {
 
 export async function addItemToCart(
 	id: number,
-	addItemToCartRequest: AddItemToCartRequest,
+	request: AddItemToCartRequest,
 ): Promise<AddItemToCartResponse> {
-	const res = await axiosInstance.post(
-		apiEndpoints.cart.addItem(id),
-		addItemToCartRequest,
-	);
+	const res = await axiosInstance.post(apiEndpoints.cart.addItem(id), request);
 	return res.data;
 }
 
 export async function updateQuantity(
 	id: number,
-	updateQuantityRequest: UpdateQuantityRequest,
+	request: UpdateQuantityRequest,
 ): Promise<UpdateQuantityResponse> {
 	const res = await axiosInstance.put(
 		apiEndpoints.cart.updateQuantity(id),
-		updateQuantityRequest,
+		request,
 	);
 	return res.data;
 }

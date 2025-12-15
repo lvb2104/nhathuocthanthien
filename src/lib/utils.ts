@@ -31,6 +31,14 @@ export function handleAxiosError(error: any) {
 }
 
 export function getDecodedPayloadFromJwt(token: string) {
-	const decodedPayload = jwtDecode<JwtPayload>(token);
-	return decodedPayload;
+	if (!token || typeof token !== 'string') {
+		return null;
+	}
+
+	try {
+		return jwtDecode<JwtPayload | null>(token);
+	} catch {
+		// jwt-decode throws on malformed tokens (e.g., missing parts); swallow and return null
+		return null;
+	}
 }

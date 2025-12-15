@@ -1,5 +1,5 @@
 import { apiEndpoints } from '@/configs/apis';
-import { credentialsProviderId } from '@/lib/auth';
+import { app } from '@/configs/app';
 import { handleAxiosError } from '@/lib/utils';
 import { SignInRequest } from '@/types';
 import { useMutation } from '@tanstack/react-query';
@@ -8,7 +8,7 @@ import { getSession, signIn } from 'next-auth/react';
 export function useSignIn() {
 	return useMutation({
 		mutationFn: async (payload: SignInRequest) => {
-			const result = await signIn(credentialsProviderId, {
+			const result = await signIn(app.CREDENTIALSPROVIDERID, {
 				...payload, // Pass email and password to credentials provider
 				redirect: false,
 			});

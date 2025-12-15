@@ -11,6 +11,9 @@ export const axiosInstance = axios.create({
 	withCredentials: true,
 });
 
+// Prevent duplicate logout/toast when multiple requests hit 401 simultaneously
+let isHandlingAuthExpiry = false;
+
 // Add a request interceptor to include the access token in headers of each request
 axiosInstance.interceptors.request.use(
 	// still need access token for backend APIs
@@ -31,10 +34,20 @@ axiosInstance.interceptors.response.use(
 	async error => {
 		if (axios.isAxiosError(error) && error.response?.status === 401) {
 			const originalRequest = error.config;
-			if (originalRequest && !originalRequest._retry) {
+			// Avoid reacting to auth endpoints themselves to prevent loops
+			const url = (originalRequest?.url || '').toString();
+			const isAuthEndpoint = url.includes('/auth/') || url.includes('nextauth');
+			if (!isAuthEndpoint && originalRequest && !originalRequest._retry) {
 				originalRequest._retry = true;
-				toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
-				await signOut({ callbackUrl: routes.auth.signIn });
+				if (!isHandlingAuthExpiry) {
+					isHandlingAuthExpiry = true;
+					toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+					await signOut({ callbackUrl: routes.auth.signIn });
+					// Reset flag after a short delay to allow navigation to complete
+					setTimeout(() => {
+						isHandlingAuthExpiry = false;
+					}, 2000);
+				}
 			}
 		}
 		return Promise.reject(error);

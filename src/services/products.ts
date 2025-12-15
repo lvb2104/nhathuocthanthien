@@ -12,12 +12,9 @@ import {
 } from '@/types';
 
 export async function createProduct(
-	createProductRequest: CreateProductRequest,
+	request: CreateProductRequest,
 ): Promise<CreateProductResponse> {
-	const res = await axiosInstance.post(
-		apiEndpoints.products.create,
-		createProductRequest,
-	);
+	const res = await axiosInstance.post(apiEndpoints.products.create, request);
 	return res.data;
 }
 
@@ -45,16 +42,13 @@ export async function serverGetProductById(
 	return res.data;
 }
 
-export async function updateProduct({
-	id,
-	updateProductRequest,
-}: {
-	id: number;
-	updateProductRequest: UpdateProductRequest;
-}): Promise<UpdateProductResponse> {
+export async function updateProduct(
+	id: number,
+	request: UpdateProductRequest,
+): Promise<UpdateProductResponse> {
 	const res = await axiosInstance.put(
 		apiEndpoints.products.update(id),
-		updateProductRequest,
+		request,
 	);
 	return res.data;
 }

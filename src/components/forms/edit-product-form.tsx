@@ -110,7 +110,7 @@ export default function EditProductForm({
 
 		toast.promise(
 			mutateAsync(
-				{ id: Number(id), updateProductRequest: fd },
+				{ id: Number(id), request: fd },
 				{
 					onError: (error: any) => {
 						toast.error(error?.message || 'Error updating product');
@@ -216,7 +216,11 @@ export default function EditProductForm({
 						<FormItem>
 							<FormLabel>Manufacturer</FormLabel>
 							<FormControl>
-								<Input placeholder='PharmaVN 123' type='text' {...field} />
+								<Textarea
+									placeholder='PharmaVN 123'
+									className='resize-none'
+									{...field}
+								/>
 							</FormControl>
 
 							<FormMessage />
@@ -260,7 +264,11 @@ export default function EditProductForm({
 						<FormItem>
 							<FormLabel>Composition</FormLabel>
 							<FormControl>
-								<Input placeholder='Paracetamol 500mg' type='text' {...field} />
+								<Textarea
+									placeholder='Paracetamol 500mg'
+									className='resize-none'
+									{...field}
+								/>
 							</FormControl>
 
 							<FormMessage />
@@ -275,7 +283,11 @@ export default function EditProductForm({
 						<FormItem>
 							<FormLabel>Usage</FormLabel>
 							<FormControl>
-								<Input placeholder='Uống sau khi ăn' type='text' {...field} />
+								<Textarea
+									placeholder='Uống sau khi ăn'
+									className='resize-none'
+									{...field}
+								/>
 							</FormControl>
 
 							<FormMessage />
@@ -290,9 +302,9 @@ export default function EditProductForm({
 						<FormItem>
 							<FormLabel>Dosage</FormLabel>
 							<FormControl>
-								<Input
+								<Textarea
 									placeholder='1–2 viên/lần, tối đa 4 lần/ngày'
-									type='text'
+									className='resize-none'
 									{...field}
 								/>
 							</FormControl>
@@ -309,9 +321,9 @@ export default function EditProductForm({
 						<FormItem>
 							<FormLabel>Target User</FormLabel>
 							<FormControl>
-								<Input
+								<Textarea
 									placeholder='Người lớn và trẻ em trên 12 tuổi'
-									type='text'
+									className='resize-none'
 									{...field}
 								/>
 							</FormControl>
@@ -328,9 +340,9 @@ export default function EditProductForm({
 						<FormItem>
 							<FormLabel>Warning</FormLabel>
 							<FormControl>
-								<Input
+								<Textarea
 									placeholder='Không dùng cho người dị ứng paracetamol'
-									type='text'
+									className='resize-none'
 									{...field}
 								/>
 							</FormControl>

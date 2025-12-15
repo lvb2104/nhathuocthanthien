@@ -1,5 +1,6 @@
 'use client';
-import { useShoppingCart } from 'use-shopping-cart';
+import { useUnifiedCart } from '@/hooks';
+import { toast } from 'react-toastify';
 import Image from 'next/image';
 import { app } from '@/configs/app';
 import { X, Minus, Plus } from 'lucide-react';
@@ -16,7 +17,7 @@ function CartCard() {
 		formattedTotalPrice,
 		cartCount,
 		redirectToCheckout,
-	} = useShoppingCart();
+	} = useUnifiedCart();
 	const [showCoupon, setShowCoupon] = useState(false);
 	const [coupon, setCoupon] = useState('');
 
@@ -30,6 +31,37 @@ function CartCard() {
 
 	const handleCheckout = () => {
 		redirectToCheckout();
+	};
+
+	const handleIncrement = async (productId: number) => {
+		try {
+			await incrementItem(productId);
+		} catch (error: any) {
+			const message =
+				error?.response?.data?.message || 'Không thể tăng số lượng sản phẩm';
+			toast.error(message);
+		}
+	};
+
+	const handleDecrement = async (productId: number) => {
+		try {
+			await decrementItem(productId);
+		} catch (error: any) {
+			const message =
+				error?.response?.data?.message || 'Không thể giảm số lượng sản phẩm';
+			toast.error(message);
+		}
+	};
+
+	const handleRemove = async (productId: number) => {
+		try {
+			await removeItem(productId);
+			toast.success('Đã xóa sản phẩm khỏi giỏ hàng');
+		} catch (error: any) {
+			const message =
+				error?.response?.data?.message || 'Không thể xóa sản phẩm';
+			toast.error(message);
+		}
 	};
 
 	const cartItems = cartDetails ? Object.values(cartDetails) : [];
@@ -54,7 +86,7 @@ function CartCard() {
 					{/* Back to shopping link */}
 					<Link
 						href={routes.home}
-						className='inline-flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors'
+						className='cursor-pointer inline-flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors'
 					>
 						<svg
 							className='w-5 h-5'
@@ -101,7 +133,7 @@ function CartCard() {
 
 									{/* Remove Button */}
 									<button
-										onClick={() => removeItem(item.id)}
+										onClick={() => handleRemove(Number(item.id))}
 										className='text-gray-400 hover:text-red-500 transition-colors cursor-pointer'
 										aria-label='Xóa sản phẩm'
 									>
@@ -118,9 +150,9 @@ function CartCard() {
 									{/* Quantity Controls */}
 									<div className='flex items-center gap-2 border border-gray-300 rounded'>
 										<button
-											onClick={() => decrementItem(item.id)}
+											onClick={() => handleDecrement(Number(item.id))}
 											disabled={item.quantity <= 1}
-											className='p-1.5 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+											className='cursor-pointer p-1.5 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
 											aria-label='Giảm số lượng'
 										>
 											<Minus size={16} className='text-gray-600' />
@@ -134,8 +166,8 @@ function CartCard() {
 										/>
 
 										<button
-											onClick={() => incrementItem(item.id)}
-											className='p-1.5 hover:bg-gray-100 transition-colors'
+											onClick={() => handleIncrement(Number(item.id))}
+											className='cursor-pointer p-1.5 hover:bg-gray-100 transition-colors'
 											aria-label='Tăng số lượng'
 										>
 											<Plus size={16} className='text-gray-600' />
@@ -152,7 +184,7 @@ function CartCard() {
 							type='button'
 							onClick={() => setShowCoupon(v => !v)}
 							aria-expanded={showCoupon}
-							className='inline-flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors'
+							className='cursor-pointer inline-flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors'
 						>
 							<svg
 								className='w-5 h-5'
@@ -196,7 +228,7 @@ function CartCard() {
 								/>
 								<button
 									type='submit'
-									className='bg-green-600 hover:bg-green-700 text-white px-6 whitespace-nowrap'
+									className='cursor-pointer bg-green-600 hover:bg-green-700 text-white px-6 whitespace-nowrap'
 								>
 									Áp dụng
 								</button>
@@ -310,11 +342,17 @@ function CartCard() {
 
 						<p className='text-sm text-gray-600'>
 							Bằng việc tiến hành đặt mua hàng, bạn đồng ý với{' '}
-							<a href='#' className='text-green-600 hover:underline'>
+							<a
+								href='#'
+								className='cursor-pointer text-green-600 hover:underline'
+							>
 								Điều khoản dịch vụ
 							</a>{' '}
 							và{' '}
-							<a href='#' className='text-green-600 hover:underline'>
+							<a
+								href='#'
+								className='cursor-pointer text-green-600 hover:underline'
+							>
 								Chính sách xử lý dữ liệu cá nhân
 							</a>{' '}
 							của Nhà thuốc Thần Thiện
@@ -322,7 +360,7 @@ function CartCard() {
 
 						{/* Place Order Button */}
 						<button
-							className='w-[50%] mx-auto block bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3.5 rounded-lg transition-colors'
+							className='cursor-pointer w-[50%] mx-auto block bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3.5 rounded-lg transition-colors'
 							onClick={handleCheckout}
 						>
 							Đặt hàng

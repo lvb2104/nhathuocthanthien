@@ -15,11 +15,17 @@ async function StorePageContent() {
 					{/* Featured products section */}
 					<section>
 						{/* Most sold products */}
-						<MostSoldProductsWidget initialProducts={products} />
+						<MostSoldProductsWidget
+							initialProducts={products}
+							title='🔥Sản phẩm bán chạy'
+						/>
 						{/* Categories */}
 						<div></div>
 						{/* Top search */}
-						<div></div>
+						<MostSoldProductsWidget
+							initialProducts={products}
+							title={'💊 ' + products[0].category?.name || 'Danh mục 1'}
+						/>
 						{/* Category 1 */}
 						<div></div>
 						{/* Category 2 */}

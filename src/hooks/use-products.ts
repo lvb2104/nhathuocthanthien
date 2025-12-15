@@ -6,6 +6,7 @@ export function useProducts(initialData?: GetProductsResponse) {
 	return useQuery({
 		queryKey: ['products'],
 		queryFn: () => getProducts(),
+		staleTime: 1000 * 60 * 5, // 5 minutes
 		initialData,
 	});
 }

@@ -5,8 +5,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import type { NextAuthOptions } from 'next-auth';
 import { serverRefreshToken, serverSignIn } from '@/services';
 import { routes } from '@/configs/routes';
-
-export const credentialsProviderId = 'credentials';
+import { cookies } from 'next/headers';
 
 type AuthenticatedUser = {
 	id: number;
@@ -21,32 +20,50 @@ type AuthenticatedUser = {
 async function authenticateWithCredentials(
 	credentials: SignInRequest,
 ): Promise<AuthenticatedUser> {
-	try {
-		// Call backend API /auth/sign-in
-		const response = await serverSignIn(credentials);
-		const decoded = getDecodedPayloadFromJwt(response.accessToken);
+	const response = await serverSignIn(credentials);
+	const decoded = getDecodedPayloadFromJwt(response.accessToken);
 
-		return {
-			id: decoded.id,
-			email: credentials.email,
-			fullName: decoded.fullName,
-			avatarUrl: decoded.avatarUrl,
-			role: decoded.role,
-			accessToken: response.accessToken,
-			accessTokenExpires: decoded.exp * 1000,
-		};
-	} catch (error) {
-		throw error;
+	if (!decoded) {
+		throw new Error('Invalid token received from server.');
+	}
+
+	return {
+		id: decoded.id,
+		email: credentials.email,
+		fullName: decoded.fullName,
+		avatarUrl: decoded.avatarUrl,
+		role: decoded.role,
+		accessToken: response.accessToken,
+		accessTokenExpires: decoded.exp * 1000,
+	};
+}
+
+async function getIncomingCookieHeader(): Promise<string | undefined> {
+	try {
+		const store = await cookies();
+		const all = store.getAll();
+		if (!all.length) return undefined;
+		return all
+			.map((c: { name: string; value: string }) => `${c.name}=${c.value}`)
+			.join('; ');
+	} catch {
+		return undefined;
 	}
 }
 
-async function refreshAccessToken() {
+async function refreshAccessToken(token?: any) {
 	try {
-		const response = await serverRefreshToken();
+		const cookieHeader = await getIncomingCookieHeader();
+		const response = await serverRefreshToken(cookieHeader);
 
 		const decoded = getDecodedPayloadFromJwt(response.accessToken);
 
+		if (!decoded) {
+			throw new Error('Invalid token received from server.');
+		}
+
 		return {
+			...(token || {}),
 			accessToken: response.accessToken,
 			accessTokenExpires: decoded.exp * 1000,
 			id: decoded.id,
@@ -55,17 +72,18 @@ async function refreshAccessToken() {
 			role: decoded.role,
 		};
 	} catch {
-		return { error: 'RefreshAccessTokenError' };
+		return { ...(token || {}), error: 'RefreshAccessTokenError' };
 	}
 }
 
 export const authOptions: NextAuthOptions = {
 	session: { strategy: 'jwt', maxAge: 30 * 24 * 60 * 60 },
 	pages: {
-		signIn: routes.auth.signIn, // Set custom sign-in url in localstorage
+		signIn: routes.auth.signIn,
 	},
 	providers: [
 		CredentialsProvider({
+			id: app.CREDENTIALSPROVIDERID,
 			name: 'Credentials',
 			credentials: {
 				email: { label: 'Email', type: 'email' },
@@ -111,7 +129,7 @@ export const authOptions: NextAuthOptions = {
 				return token;
 			}
 
-			return refreshAccessToken();
+			return refreshAccessToken(token);
 		},
 		async session({ session, token }) {
 			if (session.user) {
