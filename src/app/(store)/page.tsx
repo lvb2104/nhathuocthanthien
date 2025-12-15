@@ -24,7 +24,7 @@ async function StorePageContent() {
 						{/* Top search */}
 						<MostSoldProductsWidget
 							initialProducts={products}
-							title={'💊 ' + products[0].category?.name || 'Danh mục 1'}
+							title={'💊 ' + (products[0].category?.name || 'Danh mục 1')}
 						/>
 						{/* Category 1 */}
 						<div></div>
