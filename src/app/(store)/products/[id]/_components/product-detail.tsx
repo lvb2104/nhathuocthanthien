@@ -293,7 +293,7 @@ function ProductDetail({
 							{product?.detail?.targetUser && (
 								<div className='flex items-start gap-2'>
 									<span className='min-w-[80px] font-semibold text-neutral-700'>
-										Chi tiết:
+										Mô tả:
 									</span>
 									<span className='text-neutral-900'>
 										{product?.description || 'Đang cập nhật'}
