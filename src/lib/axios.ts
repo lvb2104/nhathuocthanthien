@@ -43,10 +43,7 @@ axiosInstance.interceptors.response.use(
 					isHandlingAuthExpiry = true;
 					toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
 					await signOut({ callbackUrl: routes.auth.signIn });
-					// Reset flag after a short delay to allow navigation to complete
-					setTimeout(() => {
-						isHandlingAuthExpiry = false;
-					}, 2000);
+					isHandlingAuthExpiry = false;
 				}
 			}
 		}
