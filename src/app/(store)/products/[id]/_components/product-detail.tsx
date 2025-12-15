@@ -116,7 +116,9 @@ function ProductDetail({
 					<Link
 						href={routes.home}
 						className='cursor-pointer text-neutral-600 transition-colors hover:text-green-600'
-					/>
+					>
+						{product?.category?.name}
+					</Link>
 
 					<svg
 						className='h-4 w-4 text-neutral-400'
