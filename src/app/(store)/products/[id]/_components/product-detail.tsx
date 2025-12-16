@@ -70,7 +70,6 @@ function ProductDetail({
 			const errorMessage =
 				error?.response?.data?.message || 'Không thể thêm vào giỏ hàng';
 			toast.error(errorMessage);
-			console.error('Failed to add item to cart:', error);
 		}
 	}
 

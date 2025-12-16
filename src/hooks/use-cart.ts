@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getCart } from '@/services/cart';
 import { useSession } from 'next-auth/react';
+import { UserRole } from '@/types';
 
 /**
  * Hook to fetch the user's cart from the backend
@@ -8,12 +9,12 @@ import { useSession } from 'next-auth/react';
  */
 export function useCart() {
 	const { data: session } = useSession();
-	const isAuthenticated = !!session?.user;
+	const isCustomer = session?.user?.role === UserRole.CUSTOMER;
 
 	return useQuery({
 		queryKey: ['cart'],
 		queryFn: getCart,
 		staleTime: 1000 * 60 * 5, // 5 minutes
-		enabled: isAuthenticated, // Only fetch when authenticated
+		enabled: !!session?.user && isCustomer, // Only fetch for authenticated customers
 	});
 }
