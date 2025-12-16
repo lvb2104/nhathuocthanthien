@@ -9,7 +9,7 @@ import {
 } from '@/hooks';
 import { useSession } from 'next-auth/react';
 import { useEffect, useCallback } from 'react';
-import { CartItem } from '@/types';
+import { CartItem, UserRole } from '@/types';
 
 /**
  * 🛒 Unified Cart Hook - The fucking smooth cart integration you need
@@ -17,7 +17,7 @@ import { CartItem } from '@/types';
  * This bad boy combines `use-shopping-cart` (for that buttery UX) with your backend API.
  *
  * **How it works:**
- * 1. **Unauthenticated users**: Cart lives in localStorage via `use-shopping-cart`. Fast as hell.
+ * 1. **Only authenticated customers can use the cart**: every action requires a logged-in customer.
  * 2. **Authenticated users**:
  *    - Cart syncs with backend on mount (loads server cart → local cart)
  *    - Every cart action (add/update/remove) hits backend AND updates local state
@@ -47,6 +47,8 @@ import { CartItem } from '@/types';
 export function useUnifiedCart() {
 	const { data: session } = useSession();
 	const isAuthenticated = !!session?.user;
+	const isCustomer = session?.user?.role === UserRole.CUSTOMER;
+	const canUseCart = isAuthenticated && isCustomer;
 
 	// Backend cart operations
 	const { data: backendCart, isLoading: isLoadingBackendCart } = useCart();
@@ -73,7 +75,7 @@ export function useUnifiedCart() {
 	 * Sync backend cart to local cart on mount (for authenticated users)
 	 */
 	useEffect(() => {
-		if (!isAuthenticated || !backendCart?.items) return;
+		if (!canUseCart || !backendCart?.items) return;
 
 		// Clear local cart first to avoid conflicts
 		clearLocalCart();
@@ -94,7 +96,15 @@ export function useUnifiedCart() {
 			);
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isAuthenticated, backendCart?.items]);
+	}, [canUseCart, backendCart?.items]);
+
+	const ensureCustomerCartAccess = useCallback(() => {
+		if (!canUseCart) {
+			throw new Error(
+				'Bạn cần đăng nhập bằng tài khoản khách hàng để sử dụng giỏ hàng.',
+			);
+		}
+	}, [canUseCart]);
 
 	/**
 	 * Add item to cart (with backend sync for authenticated users)
@@ -110,6 +120,7 @@ export function useUnifiedCart() {
 			},
 			quantity: number = 1,
 		) => {
+			ensureCustomerCartAccess();
 			// Always update local cart for immediate UI feedback
 			const currentQuantity = cartDetails?.[productId]?.quantity || 0;
 
@@ -130,7 +141,7 @@ export function useUnifiedCart() {
 			}
 
 			// Sync with backend if authenticated
-			if (isAuthenticated) {
+			if (canUseCart) {
 				try {
 					await addToCartMutation.mutateAsync({ productId, quantity });
 				} catch (error) {
@@ -145,13 +156,14 @@ export function useUnifiedCart() {
 			}
 		},
 		[
-			isAuthenticated,
+			canUseCart,
 			cartDetails,
 			addToCartMutation,
 			addItemToLocalCart,
 			incrementLocalItem,
 			decrementLocalItem,
 			removeLocalItem,
+			ensureCustomerCartAccess,
 		],
 	);
 
@@ -160,11 +172,12 @@ export function useUnifiedCart() {
 	 */
 	const updateItemQuantity = useCallback(
 		async (productId: number, quantity: number) => {
+			ensureCustomerCartAccess();
 			// Optimistic update
 			setLocalItemQuantity(productId.toString(), quantity);
 
 			// Sync with backend if authenticated
-			if (isAuthenticated) {
+			if (canUseCart) {
 				try {
 					await updateCartMutation.mutateAsync({ productId, quantity });
 				} catch (error) {
@@ -174,7 +187,12 @@ export function useUnifiedCart() {
 				}
 			}
 		},
-		[isAuthenticated, updateCartMutation, setLocalItemQuantity],
+		[
+			canUseCart,
+			updateCartMutation,
+			setLocalItemQuantity,
+			ensureCustomerCartAccess,
+		],
 	);
 
 	/**
@@ -182,10 +200,11 @@ export function useUnifiedCart() {
 	 */
 	const incrementItem = useCallback(
 		async (productId: number) => {
+			ensureCustomerCartAccess();
 			const currentQuantity = cartDetails?.[productId]?.quantity || 0;
 			await updateItemQuantity(productId, currentQuantity + 1);
 		},
-		[cartDetails, updateItemQuantity],
+		[cartDetails, updateItemQuantity, ensureCustomerCartAccess],
 	);
 
 	/**
@@ -193,12 +212,13 @@ export function useUnifiedCart() {
 	 */
 	const decrementItem = useCallback(
 		async (productId: number) => {
+			ensureCustomerCartAccess();
 			const currentQuantity = cartDetails?.[productId]?.quantity || 0;
 			if (currentQuantity > 1) {
 				await updateItemQuantity(productId, currentQuantity - 1);
 			}
 		},
-		[cartDetails, updateItemQuantity],
+		[cartDetails, updateItemQuantity, ensureCustomerCartAccess],
 	);
 
 	/**
@@ -206,11 +226,12 @@ export function useUnifiedCart() {
 	 */
 	const removeItem = useCallback(
 		async (productId: number) => {
+			ensureCustomerCartAccess();
 			// Optimistic update
 			removeLocalItem(productId.toString());
 
 			// Sync with backend if authenticated
-			if (isAuthenticated) {
+			if (canUseCart) {
 				try {
 					await removeFromCartMutation.mutateAsync(productId);
 				} catch (error) {
@@ -219,25 +240,31 @@ export function useUnifiedCart() {
 				}
 			}
 		},
-		[isAuthenticated, removeFromCartMutation, removeLocalItem],
+		[
+			canUseCart,
+			removeFromCartMutation,
+			removeLocalItem,
+			ensureCustomerCartAccess,
+		],
 	);
 
 	/**
 	 * Clear entire cart (with backend sync)
 	 */
 	const clearCart = useCallback(async () => {
+		ensureCustomerCartAccess();
 		// Optimistic update
 		clearLocalCart();
 
 		// Sync with backend if authenticated
-		if (isAuthenticated) {
+		if (canUseCart) {
 			try {
 				await clearCartMutation.mutateAsync();
 			} catch (error) {
 				throw error;
 			}
 		}
-	}, [isAuthenticated, clearCartMutation, clearLocalCart]);
+	}, [canUseCart, clearCartMutation, clearLocalCart, ensureCustomerCartAccess]);
 
 	return {
 		// Cart state
@@ -260,5 +287,6 @@ export function useUnifiedCart() {
 
 		// Auth state
 		isAuthenticated,
+		canUseCart,
 	};
 }

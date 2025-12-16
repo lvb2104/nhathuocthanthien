@@ -6,6 +6,7 @@ import Link from 'next/link';
 import ContentWrapper from './content-wrapper';
 import { useIsMobile, useSignOut, useUnifiedCart } from '@/hooks';
 import { toast } from 'react-toastify';
+import type { MouseEvent } from 'react';
 import {
 	NavigationMenu,
 	NavigationMenuContent,
@@ -25,6 +26,7 @@ function Header() {
 	const router = useRouter();
 	const { data: session } = useSession();
 	const user = session?.user;
+	const isCustomer = user?.role === UserRole.CUSTOMER;
 	const { cartCount } = useUnifiedCart();
 
 	function handleSignOut() {
@@ -43,6 +45,24 @@ function Header() {
 				success: 'Đăng xuất thành công!',
 			},
 		);
+	}
+
+	function handleCartClick(event: MouseEvent<HTMLAnchorElement>) {
+		if (isCustomer) return;
+
+		event.preventDefault();
+		toast.info(
+			user
+				? 'Chỉ tài khoản khách hàng mới có thể sử dụng giỏ hàng.'
+				: 'Vui lòng đăng nhập để sử dụng giỏ hàng.',
+		);
+
+		if (!user) {
+			router.push(routes.auth.signIn);
+			return;
+		}
+
+		router.push(routes.home);
 	}
 
 	return (
@@ -133,6 +153,7 @@ function Header() {
 						<Link
 							className='flex items-center cursor-pointer'
 							href={routes.user.cart}
+							onClick={handleCartClick}
 						>
 							<div className='p-2 rounded'>
 								<Image

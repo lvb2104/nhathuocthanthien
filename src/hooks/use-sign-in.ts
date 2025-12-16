@@ -4,6 +4,7 @@ import { handleAxiosError } from '@/lib/utils';
 import { SignInRequest } from '@/types';
 import { useMutation } from '@tanstack/react-query';
 import { getSession, signIn } from 'next-auth/react';
+import { toast } from 'react-toastify';
 
 export function useSignIn() {
 	return useMutation({
@@ -38,8 +39,11 @@ export function useSignIn() {
 					body: JSON.stringify(payload),
 					credentials: 'include',
 				});
-			} catch (err) {
-				console.error('Failed to sync backend auth cookies', err);
+			} catch (err: any) {
+				toast.warn(
+					err?.response?.data?.message ||
+						'Không thể thiết lập phiên đăng nhập đúng cách. Vui lòng làm mới trang sau khi đăng nhập.',
+				);
 			}
 
 			return session;
