@@ -24,7 +24,7 @@ async function authenticateWithCredentials(
 	const decoded = getDecodedPayloadFromJwt(response.accessToken);
 
 	if (!decoded) {
-		throw new Error('Invalid token received from server.');
+		throw new Error('Token không hợp lệ. Vui lòng thử lại.');
 	}
 
 	return {
@@ -52,14 +52,17 @@ async function getIncomingCookieHeader(): Promise<string | undefined> {
 }
 
 async function refreshAccessToken(token?: any) {
+	console.log('REFRESH ACCESS TOKEN CALLED', { token });
 	try {
 		const cookieHeader = await getIncomingCookieHeader();
+		console.log('cookieHeader', cookieHeader);
 		const response = await serverRefreshToken(cookieHeader);
+		console.log('response', response);
 
 		const decoded = getDecodedPayloadFromJwt(response.accessToken);
 
 		if (!decoded) {
-			throw new Error('Invalid token received from server.');
+			throw new Error('Token không hợp lệ. Vui lòng thử lại.');
 		}
 
 		return {
@@ -71,67 +74,83 @@ async function refreshAccessToken(token?: any) {
 			avatarUrl: decoded.avatarUrl,
 			role: decoded.role,
 		};
-	} catch {
+	} catch (err) {
+		console.error('REFRESH ACCESS TOKEN FAILED', err);
 		return { ...(token || {}), error: 'RefreshAccessTokenError' };
 	}
 }
 
 export const authOptions: NextAuthOptions = {
+	// use jwt strategy to store the session in cookies with the name "next-auth.session-token"
+	// sending the cookie to the server on every request to verify the session
+	// then it is "token" parameter in jwt() callback
 	session: { strategy: 'jwt', maxAge: 30 * 24 * 60 * 60 },
 	pages: {
 		signIn: routes.auth.signIn,
 	},
 	providers: [
 		CredentialsProvider({
-			id: app.CREDENTIALSPROVIDERID,
+			id: app.CREDENTIALS_PROVIDER_ID,
 			name: 'Credentials',
 			credentials: {
 				email: { label: 'Email', type: 'email' },
 				password: { label: 'Password', type: 'password' },
 			},
+			// starting point: log in with credentials including email and password, and then create a new simple token with the user object
 			async authorize(credentials) {
 				if (!credentials?.email || !credentials.password) {
 					return null;
 				}
 
-				return authenticateWithCredentials({
-					email: credentials.email,
-					password: credentials.password,
-				});
+				try {
+					const user = await authenticateWithCredentials({
+						email: credentials.email,
+						password: credentials.password,
+					});
+					return user;
+				} catch (error) {
+					console.error('Lỗi khi đăng nhập với tài khoản:', error);
+					return null;
+				}
 			},
 		}),
 	],
 	callbacks: {
+		// jwt() is called when calling getToken() or useSession() hook
+		// user is the user object returned from the authorize() callback (the first time user logs in)
 		async jwt({ token, user }) {
+			// if user is provided, return a new token with the user object
+			console.log('JWT CALLBACK RUNNING', {
+				hasUser: !!user,
+				accessToken: token?.accessToken,
+				accessTokenExpires: token?.accessTokenExpires,
+				error: token?.error,
+			});
 			if (user) {
-				const signedInUser = user as AuthenticatedUser;
 				return {
-					...token,
-					accessToken: signedInUser.accessToken,
-					accessTokenExpires: signedInUser.accessTokenExpires,
-					id: signedInUser.id,
-					fullName: signedInUser.fullName,
-					avatarUrl: signedInUser.avatarUrl,
-					role: signedInUser.role,
-					email: signedInUser.email,
+					...token, // keep the previous token created by the authorize() callback
+					...user, // add the user object to the token
 				};
 			}
 
-			if (
+			const isTokenValid =
 				token.accessToken &&
 				token.accessTokenExpires &&
-				Date.now() < token.accessTokenExpires - app.REFRESH_THRESHOLD_MS
-			) {
+				Date.now() < token.accessTokenExpires - app.REFRESH_THRESHOLD_MS;
+
+			console.log('isTokenValid', isTokenValid);
+
+			if (isTokenValid) {
 				return token;
 			}
 
-			if (!token.accessToken || !token.accessTokenExpires) {
-				return token;
-			}
-
+			console.log('Token expired, refreshing...');
 			return refreshAccessToken(token);
 		},
+		// session() is called when calling getSession() or useSession() hook
+		// session is the session object stored in cookies with the name "next-auth.session-token"
 		async session({ session, token }) {
+			// if user is exists, update the user with the token object
 			if (session.user) {
 				session.user.id = token.id as number;
 				session.user.fullName = token.fullName as string;
@@ -139,6 +158,7 @@ export const authOptions: NextAuthOptions = {
 				session.user.role = token.role as UserRole;
 				session.user.email = token.email as string;
 			} else {
+				// if user is not exists, create a new user with the token object
 				session.user = {
 					id: token.id as number,
 					fullName: token.fullName as string,
@@ -148,9 +168,9 @@ export const authOptions: NextAuthOptions = {
 				};
 			}
 
-			(session as any).accessToken = token.accessToken;
-			(session as any).accessTokenExpires = token.accessTokenExpires;
-			(session as any).error = token.error;
+			session.accessToken = token.accessToken;
+			session.accessTokenExpires = token.accessTokenExpires;
+			session.error = token.error;
 			return session;
 		},
 	},

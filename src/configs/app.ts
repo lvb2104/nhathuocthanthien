@@ -9,6 +9,6 @@ export const app = {
 		OTP_STORAGE: 'otp_cooldown_expires_at',
 	},
 	DEFAULT_IMAGE_URL:
-		'https://res.cloudinary.com/dh4vuuxwg/image/upload/v1763375954/products/gds5aglnl8u9izxym9hn.jpg',
-	CREDENTIALSPROVIDERID: 'credentials',
+		'https://ih1.redbubble.net/image.783694930.9447/bg,f8f8f8-flat,750x,075,f-pad,750x1000,f8f8f8.u3.webp',
+	CREDENTIALS_PROVIDER_ID: 'credentials',
 };

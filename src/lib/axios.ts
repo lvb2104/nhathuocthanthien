@@ -14,7 +14,7 @@ export const axiosInstance = axios.create({
 // Prevent duplicate logout/toast when multiple requests hit 401 simultaneously
 let isHandlingAuthExpiry = false;
 
-// Add a request interceptor to include the access token in headers of each request
+// request interceptor adds access token to the request before sending
 axiosInstance.interceptors.request.use(
 	// still need access token for backend APIs
 	async config => {
@@ -28,17 +28,33 @@ axiosInstance.interceptors.request.use(
 	error => Promise.reject(error),
 );
 
-// Add a response interceptor to handle auth errors
+// response interceptor handles auth errors before receiving
 axiosInstance.interceptors.response.use(
 	response => response,
 	async error => {
 		if (axios.isAxiosError(error) && error.response?.status === 401) {
 			const originalRequest = error.config;
-			// Avoid reacting to auth endpoints themselves to prevent loops
 			const url = (originalRequest?.url || '').toString();
 			const isAuthEndpoint = url.includes('/auth/') || url.includes('nextauth');
+
 			if (!isAuthEndpoint && originalRequest && !originalRequest._retry) {
 				originalRequest._retry = true;
+
+				try {
+					// This will call your NextAuth session endpoint.
+					// If the JWT is expired, jwt() -> refreshAccessToken() -> serverRefreshToken() will run.
+					const session = await getSession();
+					const accessToken = session?.accessToken;
+
+					if (accessToken) {
+						originalRequest.headers = originalRequest.headers || {};
+						originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+						return axiosInstance(originalRequest);
+					}
+				} catch {
+					// fall through to signOut
+				}
+
 				if (!isHandlingAuthExpiry) {
 					isHandlingAuthExpiry = true;
 					toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');

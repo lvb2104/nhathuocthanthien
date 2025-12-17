@@ -21,3 +21,6 @@
        ❌ No cookies attached
        (server doesn't know about browser cookies)
 ```
+
+- Sign-in flow: Browser → Next.js proxy → Backend → Proxy forwards cookies → Browser receives refreshToken cookie on Next.js domain
+- Refresh flow: NextAuth callback → getIncomingCookieHeader() → Now finds refreshToken cookie (same domain!) → Proxy forwards to backend → Success!
