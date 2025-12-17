@@ -18,11 +18,26 @@ import {
 	VerifyResetPasswordOtpResponse,
 } from '@/types';
 
-export async function signIn(
+export async function clientSignIn(
 	signInRequest: SignInRequest,
 ): Promise<SignInResponse> {
-	const res = await axiosInstance.post(apiEndpoints.auth.signIn, signInRequest);
-	return res.data;
+	// Use the proxy route so refreshToken cookie gets set on Next.js domain
+	// Use fetch instead of axiosInstance because axiosInstance points to backend,
+	// but we need to call the Next.js API route (same origin)
+	const response = await fetch('/api/auth/proxy-sign-in', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		credentials: 'include', // Important: include cookies
+		body: JSON.stringify(signInRequest),
+	});
+
+	if (!response.ok) {
+		throw new Error(`Sign in failed: ${response.statusText}`);
+	}
+
+	return response.json();
 }
 
 export async function serverSignIn(
@@ -35,19 +50,17 @@ export async function serverSignIn(
 	return res.data;
 }
 
-export async function refreshToken(): Promise<RefreshTokenResponse> {
-	const res = await axiosInstance.post(apiEndpoints.auth.refreshToken);
-	return res.data;
-}
-
 export async function serverRefreshToken(
 	cookieHeader?: string,
 ): Promise<RefreshTokenResponse> {
+	// Cookie is already on Next.js domain (set via proxy-sign-in), so we can call backend directly
 	const res = await serverAxios.post<RefreshTokenResponse>(
 		apiEndpoints.auth.refreshToken,
 		undefined,
 		{
-			headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+			headers: {
+				Cookie: cookieHeader,
+			},
 		},
 	);
 	return res.data;

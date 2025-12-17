@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
 				protocol: 'https',
 				hostname: 'res.cloudinary.com',
 			},
+			{
+				protocol: 'https',
+				hostname: 'ih1.redbubble.net',
+			},
 		],
 	},
 };

@@ -23,7 +23,7 @@ export default withAuth(
 			return NextResponse.redirect(new URL(routes.home, req.url));
 		}
 
-		if (pathname.startsWith('/user') && ![UserRole.CUSTOMER].includes(role)) {
+		if (pathname.startsWith('/user') && role !== UserRole.CUSTOMER) {
 			return NextResponse.redirect(new URL(routes.auth.signIn, req.url));
 		}
 
