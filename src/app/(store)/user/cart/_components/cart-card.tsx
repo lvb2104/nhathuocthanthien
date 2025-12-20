@@ -26,7 +26,6 @@ function CartCard() {
 		if (!coupon.trim()) return;
 		// TODO: wire to your coupon API / logic
 		// toast.success?.(`Áp dụng mã: ${coupon}`);
-		console.log('Apply coupon:', coupon);
 	};
 
 	const handleCheckout = () => {

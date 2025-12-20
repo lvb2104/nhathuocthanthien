@@ -31,13 +31,7 @@ function Header() {
 
 	function handleSignOut() {
 		toast.promise(
-			mutateAsync(undefined, {
-				onError: (error: any) => {
-					toast.error(
-						error?.message || 'Đăng xuất thất bại. Vui lòng thử lại!',
-					);
-				},
-			}).then(() => {
+			mutateAsync().then(() => {
 				router.replace(routes.home);
 			}),
 			{

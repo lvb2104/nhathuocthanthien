@@ -109,6 +109,17 @@ export async function resetPassword(
 }
 
 export async function signOut(): Promise<SignOutResponse> {
-	const res = await axiosInstance.post(apiEndpoints.auth.signOut);
-	return res.data;
+	const response = await fetch('/api/auth/proxy-sign-out', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		credentials: 'include',
+	});
+
+	if (!response.ok) {
+		throw new Error(`Sign out failed: ${response.statusText}`);
+	}
+
+	return response.json();
 }
