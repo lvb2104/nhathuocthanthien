@@ -52,12 +52,10 @@ async function getIncomingCookieHeader(): Promise<string | undefined> {
 }
 
 async function refreshAccessToken(token?: any) {
-	console.log('REFRESH ACCESS TOKEN CALLED', { token });
 	try {
 		const cookieHeader = await getIncomingCookieHeader();
-		console.log('cookieHeader', cookieHeader);
+		// we don't need to call from client to nextjs server proxy to refresh access token because what we all need is the new access token, not set refresh token again
 		const response = await serverRefreshToken(cookieHeader);
-		console.log('response', response);
 
 		const decoded = getDecodedPayloadFromJwt(response.accessToken);
 
@@ -74,8 +72,7 @@ async function refreshAccessToken(token?: any) {
 			avatarUrl: decoded.avatarUrl,
 			role: decoded.role,
 		};
-	} catch (err) {
-		console.error('REFRESH ACCESS TOKEN FAILED', err);
+	} catch {
 		return { ...(token || {}), error: 'RefreshAccessTokenError' };
 	}
 }
@@ -108,8 +105,7 @@ export const authOptions: NextAuthOptions = {
 						password: credentials.password,
 					});
 					return user;
-				} catch (error) {
-					console.error('Lỗi khi đăng nhập với tài khoản:', error);
+				} catch {
 					return null;
 				}
 			},
@@ -120,12 +116,6 @@ export const authOptions: NextAuthOptions = {
 		// user is the user object returned from the authorize() callback (the first time user logs in)
 		async jwt({ token, user }) {
 			// if user is provided, return a new token with the user object
-			console.log('JWT CALLBACK RUNNING', {
-				hasUser: !!user,
-				accessToken: token?.accessToken,
-				accessTokenExpires: token?.accessTokenExpires,
-				error: token?.error,
-			});
 			if (user) {
 				return {
 					...token, // keep the previous token created by the authorize() callback
@@ -138,13 +128,10 @@ export const authOptions: NextAuthOptions = {
 				token.accessTokenExpires &&
 				Date.now() < token.accessTokenExpires - app.REFRESH_THRESHOLD_MS;
 
-			console.log('isTokenValid', isTokenValid);
-
 			if (isTokenValid) {
 				return token;
 			}
 
-			console.log('Token expired, refreshing...');
 			return refreshAccessToken(token);
 		},
 		// session() is called when calling getSession() or useSession() hook

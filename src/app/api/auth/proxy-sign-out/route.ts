@@ -4,37 +4,35 @@ import { parse } from 'set-cookie-parser';
 
 export async function POST(request: NextRequest) {
 	try {
-		const body = await request.json();
-
-		// Call your backend
-		const backendUrl = `${process.env.NEXT_PUBLIC_BASE_URL}${apiEndpoints.auth.signIn}`;
+		// Call your backend to revoke the token
+		const backendUrl = `${process.env.NEXT_PUBLIC_BASE_URL}${apiEndpoints.auth.signOut}`;
 		const backendResponse = await fetch(backendUrl, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				// Forward the cookies (including refreshToken) from the browser to the backend
+				Cookie: request.headers.get('cookie') || '',
 			},
-			body: JSON.stringify(body),
 			credentials: 'include',
 		});
 
 		const data = await backendResponse.json();
 
-		// Create response with the JSON data
+		// Create response
 		const response = NextResponse.json(data, {
 			status: backendResponse.status,
 		});
 
-		// Forward Set-Cookie headers from backend to browser (now scoped to Next.js domain!)
+		// Forward those specialized "clear-cookie" headers from backend to browser
 		const setCookieHeaders = backendResponse.headers.getSetCookie();
 		if (setCookieHeaders.length > 0) {
 			const parsedCookies = parse(setCookieHeaders);
 
 			parsedCookies.forEach(cookie => {
-				// Next.js Response cookies.set expects specific options
 				response.cookies.set({
-					...cookie, // 1. Put everything in first
-					domain: undefined, // 2. OVERRIDE the domain (Crucial for the proxy!)
-					sameSite: cookie.sameSite as 'strict' | 'lax' | 'none' | undefined, // 3. Type cast sameSite
+					...cookie,
+					domain: undefined, // Strip backend domain to clear it from Next.js domain
+					sameSite: cookie.sameSite as 'strict' | 'lax' | 'none' | undefined,
 				});
 			});
 		}

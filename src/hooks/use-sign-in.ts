@@ -9,7 +9,7 @@ import { toast } from 'react-toastify';
 export function useSignIn() {
 	return useMutation({
 		mutationFn: async (payload: SignInRequest) => {
-			// trigger authorize() function in the server
+			// CLIENT: trigger authorize() (SERVER)
 			const result = await signIn(app.CREDENTIALS_PROVIDER_ID, {
 				...payload, // Pass email and password to credentials provider
 				redirect: false,
@@ -30,7 +30,7 @@ export function useSignIn() {
 				);
 			}
 
-			// second call: set refresh token cookies in the browser for sign-out/refresh expectations
+			// CLIENT: call from client to nextjs server proxy to set refresh token cookies
 			try {
 				await clientSignIn(payload);
 			} catch (err: any) {
