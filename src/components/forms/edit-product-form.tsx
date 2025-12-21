@@ -28,9 +28,8 @@ import {
 	FileUploaderItem,
 } from '@/components/ui/file-upload';
 import { toast } from 'react-toastify';
-import { Category, GetProductByIdResponse, UpdateProductSchema } from '@/types';
+import { Category, ProductWithoutDetail, UpdateProductSchema } from '@/types';
 import LoadingButton from '../custom/loading-button';
-import { useCategories } from '@/hooks/use-categories';
 import { useProduct, useUpdateProduct } from '@/hooks';
 import { useRouter } from 'next/navigation';
 import Loading from '@/app/loading';
@@ -39,53 +38,50 @@ export default function EditProductForm({
 	initialCategories,
 	initialProduct,
 	id,
+	onSuccess,
 }: {
 	initialCategories?: Category[];
-	initialProduct?: GetProductByIdResponse;
+	initialProduct?: ProductWithoutDetail;
 	id: string;
+	onSuccess?: () => void;
 }) {
-	const {
-		data,
-		isError,
-		isPending: isCategoriesPending,
-	} = useCategories(initialCategories);
 	const {
 		data: productData,
 		isError: isProductError,
 		isPending: isProductPending,
-	} = useProduct(Number(id), initialProduct);
+	} = useProduct(Number(id));
 	const [files, setFiles] = useState<File[]>([]);
 	const { mutateAsync, isPending } = useUpdateProduct();
 	const router = useRouter();
 
 	useEffect(() => {
-		if (isError) {
-			toast.error('Error fetching categories');
-		}
 		if (isProductError) {
 			toast.error('Error fetching product data');
 		}
-	}, [isError, isProductError]);
+	}, [isProductError]);
 
 	const dropZoneConfig = {
 		maxFiles: 5,
 		maxSize: 1024 * 1024 * 4,
 		multiple: true,
 	};
+
+	// Initialize form WITH the correct values from initialProduct from the start
+	// This ensures the Select component renders with the correct value immediately
 	const form = useForm<z.infer<typeof UpdateProductSchema>>({
 		resolver: zodResolver(UpdateProductSchema),
 		defaultValues: {
-			name: productData?.name || '',
-			description: productData?.description || '',
-			price: productData?.price?.toString() || '',
-			manufacturer: productData?.manufacturer || '',
-			categoryId: productData?.categoryId?.toString() || '',
+			name: initialProduct?.name || '',
+			description: initialProduct?.description || '',
+			price: initialProduct?.price?.toString() || '',
+			manufacturer: initialProduct?.manufacturer || '',
+			categoryId: initialProduct?.categoryId?.toString() || '',
 			detail: {
-				composition: productData?.detail?.composition || '',
-				usageText: productData?.detail?.usageText || '',
-				dosage: productData?.detail?.dosage || '',
-				targetUser: productData?.detail?.targetUser || '',
-				warning: productData?.detail?.warning || '',
+				composition: '',
+				usageText: '',
+				dosage: '',
+				targetUser: '',
+				warning: '',
 			},
 			images: [],
 		},
@@ -117,7 +113,11 @@ export default function EditProductForm({
 					},
 				},
 			).then(() => {
-				router.back();
+				if (onSuccess) {
+					onSuccess();
+				} else {
+					router.back();
+				}
 			}),
 			{
 				pending: 'Updating product...',
@@ -126,27 +126,18 @@ export default function EditProductForm({
 		);
 	}
 
-	// Populate form with existing product data
+	// Only update detail fields from productData (since initialProduct doesn't have them)
 	useEffect(() => {
-		if (productData) {
-			form.reset({
-				name: productData.name || '',
-				description: productData.description || '',
-				price: productData.price?.toString() || '',
-				manufacturer: productData.manufacturer || '',
-				categoryId: productData.categoryId?.toString() || '',
-				detail: {
-					composition: productData.detail?.composition || '',
-					usageText: productData.detail?.usageText || '',
-					dosage: productData.detail?.dosage || '',
-					targetUser: productData.detail?.targetUser || '',
-					warning: productData.detail?.warning || '',
-				},
-			});
+		if (productData?.detail) {
+			form.setValue('detail.composition', productData.detail.composition || '');
+			form.setValue('detail.usageText', productData.detail.usageText || '');
+			form.setValue('detail.dosage', productData.detail.dosage || '');
+			form.setValue('detail.targetUser', productData.detail.targetUser || '');
+			form.setValue('detail.warning', productData.detail.warning || '');
 		}
 	}, [productData, form]);
 
-	if (isCategoriesPending || isProductPending) {
+	if (isProductPending) {
 		return <Loading />;
 	}
 
@@ -241,7 +232,7 @@ export default function EditProductForm({
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
-									{data?.map((category: Category) => (
+									{initialCategories?.map((category: Category) => (
 										<SelectItem
 											key={category.id}
 											value={category.id.toString()}

@@ -63,7 +63,7 @@ export type CreateProductResponse = Product;
 
 export type UpdateProductResponse = Product;
 
-export type GetProductsResponse = Product[];
+export type GetProductsResponse = Products;
 
 export type GetProductByIdResponse = Product;
 
@@ -72,6 +72,9 @@ export type DeleteProductResponse = {
 };
 
 // Models
+export type ProductWithoutDetail = Omit<Product, 'detail'>;
+export type Products = ProductWithoutDetail[];
+
 export type Product = {
 	id: number;
 	categoryId: number;
