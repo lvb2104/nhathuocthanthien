@@ -35,8 +35,10 @@ import { useCreateProduct } from '@/hooks';
 
 export default function CreateProductForm({
 	initialCategories,
+	onSuccess,
 }: {
 	initialCategories?: Category[];
+	onSuccess?: () => void;
 }) {
 	const { mutateAsync, isPending } = useCreateProduct();
 	const { data, isError } = useCategories(initialCategories);
@@ -99,6 +101,9 @@ export default function CreateProductForm({
 			}).then(() => {
 				form.reset();
 				setFiles([]);
+				if (onSuccess) {
+					onSuccess();
+				}
 			}),
 			{
 				pending: 'Creating product...',

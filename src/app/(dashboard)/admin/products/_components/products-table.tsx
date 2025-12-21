@@ -58,22 +58,35 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from '@/components/ui/popover';
-import Link from 'next/link';
-import { routes } from '@/configs/routes';
 import { toast } from 'react-toastify';
-import { GetCategoriesResponse, GetProductsResponse, Product } from '@/types';
+import {
+	GetCategoriesResponse,
+	GetProductsResponse,
+	Products,
+	ProductWithoutDetail,
+} from '@/types';
 import { useEffect } from 'react';
 import { useDeleteProduct, useProducts } from '@/hooks';
 import { RefreshCcw } from 'lucide-react';
+import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle,
+} from '@/components/ui/sheet';
+import EditProductForm from '@/components/forms/edit-product-form';
+import CreateProductForm from '@/components/forms/create-product-form';
 
 // Main DataTable component
 export function ProductsTable({
+	initialCategories,
 	initialProducts,
 }: {
 	initialCategories?: GetCategoriesResponse;
 	initialProducts?: GetProductsResponse;
 }) {
-	const [data, setData] = React.useState<Product[]>([]);
+	const [data, setData] = React.useState<Products>([]);
 	const {
 		data: products,
 		isError: isProductsError,
@@ -81,6 +94,40 @@ export function ProductsTable({
 		isPending: isProductsPending,
 	} = useProducts(initialProducts);
 	const { mutateAsync } = useDeleteProduct();
+
+	const [formKey, setFormKey] = React.useState(0);
+
+	// Edit sheet state
+	const [isEditOpen, setIsEditOpen] = React.useState(false);
+	const [selectedProduct, setSelectedProduct] =
+		React.useState<ProductWithoutDetail | null>(null);
+
+	// Create sheet state
+	const [isCreateOpen, setIsCreateOpen] = React.useState(false);
+	const [createFormKey, setCreateFormKey] = React.useState(0);
+
+	const handleEdit = (product: ProductWithoutDetail) => {
+		setSelectedProduct(product);
+		setFormKey(Date.now()); // Generate unique key for each edit action
+		setIsEditOpen(true);
+	};
+
+	const handleEditSheetOpenChange = (open: boolean) => {
+		setIsEditOpen(open);
+		if (!open) {
+			// Reset selected product when sheet closes to ensure fresh state on next open
+			setSelectedProduct(null);
+		}
+	};
+
+	const handleCreate = () => {
+		setCreateFormKey(Date.now()); // Generate unique key for each create action
+		setIsCreateOpen(true);
+	};
+
+	const handleCreateSheetOpenChange = (open: boolean) => {
+		setIsCreateOpen(open);
+	};
 
 	useEffect(() => {
 		if (isProductsError) {
@@ -108,7 +155,7 @@ export function ProductsTable({
 	const [deletePopoverOpen, setDeletePopoverOpen] = React.useState(false);
 
 	// Define the columns for the table with header (what to show at the top of the column) and cell (how to render each cell in that column)
-	const columns: ColumnDef<Product>[] = [
+	const columns: ColumnDef<ProductWithoutDetail>[] = [
 		{
 			id: 'select',
 			header: ({ table }) => (
@@ -198,9 +245,9 @@ export function ProductsTable({
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align='end' className='w-32'>
-						<Link href={routes.admin.products.edit(row.original.id)}>
-							<DropdownMenuItem>Edit</DropdownMenuItem>
-						</Link>
+						<DropdownMenuItem onClick={() => handleEdit(row.original)}>
+							Edit
+						</DropdownMenuItem>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem
 							variant='destructive'
@@ -415,12 +462,15 @@ export function ProductsTable({
 						<RefreshCcw />
 						<span className='hidden lg:inline'>Refresh</span>
 					</Button>
-					<Link href={routes.admin.products.create}>
-						<Button variant='outline' size='sm' className='cursor-pointer'>
-							<IconPlus />
-							<span className='hidden lg:inline'>Add Product</span>
-						</Button>
-					</Link>
+					<Button
+						variant='outline'
+						size='sm'
+						className='cursor-pointer'
+						onClick={handleCreate}
+					>
+						<IconPlus />
+						<span className='hidden lg:inline'>Add Product</span>
+					</Button>
 				</div>
 			</div>
 
@@ -552,6 +602,50 @@ export function ProductsTable({
 					</div>
 				</div>
 			</div>
+
+			{/* Edit Product Sheet */}
+			<Sheet open={isEditOpen} onOpenChange={handleEditSheetOpenChange}>
+				<SheetContent className='overflow-y-auto w-full sm:max-w-2xl'>
+					<SheetHeader className='px-6'>
+						<SheetTitle>Edit Product</SheetTitle>
+						<SheetDescription>
+							Make changes to the product here. Click save when you&apos;re
+							done.
+						</SheetDescription>
+					</SheetHeader>
+					{selectedProduct && (
+						<EditProductForm
+							key={formKey}
+							initialCategories={initialCategories}
+							id={selectedProduct.id.toString()}
+							initialProduct={selectedProduct}
+							onSuccess={() => {
+								setIsEditOpen(false);
+							}}
+						/>
+					)}
+				</SheetContent>
+			</Sheet>
+
+			{/* Create Product Sheet */}
+			<Sheet open={isCreateOpen} onOpenChange={handleCreateSheetOpenChange}>
+				<SheetContent className='overflow-y-auto w-full sm:max-w-2xl'>
+					<SheetHeader className='px-6'>
+						<SheetTitle>Create Product</SheetTitle>
+						<SheetDescription>
+							Add a new product to your inventory.
+						</SheetDescription>
+					</SheetHeader>
+					<CreateProductForm
+						key={createFormKey}
+						initialCategories={initialCategories}
+						onSuccess={() => {
+							setIsCreateOpen(false);
+							refreshProducts();
+						}}
+					/>
+				</SheetContent>
+			</Sheet>
 		</div>
 	);
 }
