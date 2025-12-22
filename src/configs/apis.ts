@@ -19,7 +19,6 @@ export const apiEndpoints = {
 	},
 	categories: {
 		getAll: '/categories',
-		getById: (id: number) => `/categories/${id}`,
 		create: '/categories',
 		update: (id: number) => `/categories/${id}`,
 		delete: (id: number) => `/categories/${id}`,
