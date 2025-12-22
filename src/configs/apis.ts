@@ -23,6 +23,13 @@ export const apiEndpoints = {
 		update: (id: number) => `/categories/${id}`,
 		delete: (id: number) => `/categories/${id}`,
 	},
+	promotions: {
+		getAll: '/promotions',
+		getById: (id: number) => `/promotions/${id}`,
+		create: '/promotions',
+		update: (id: number) => `/promotions/${id}`,
+		delete: (id: number) => `/promotions/${id}`,
+	},
 	cart: {
 		get: '/cart',
 		addItem: (id: number) => `/cart/${id}`,

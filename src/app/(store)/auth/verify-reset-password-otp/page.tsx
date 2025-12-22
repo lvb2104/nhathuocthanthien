@@ -1,4 +1,4 @@
-import VerifyResetPasswordOtpForm from '@/components/forms/verify-reset-password-otp-form';
+import VerifyResetPasswordOtpForm from './_components/verify-reset-password-otp-form';
 
 function VerifyResetPasswordOtpPage() {
 	return (

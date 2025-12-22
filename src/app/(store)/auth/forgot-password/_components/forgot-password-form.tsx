@@ -18,7 +18,7 @@ import { routes } from '@/configs/routes';
 import LoadingButton from '@/components/custom/loading-button';
 import { useForgotPassword } from '@/hooks';
 import CustomInput from '@/components/custom/custom-input';
-import { ForgotPasswordFormSchema } from '@/types';
+import { ForgotPasswordFormSchema } from '@/schemas';
 
 function ForgotPasswordForm() {
 	const { mutateAsync, isPending } = useForgotPassword();
@@ -28,23 +28,20 @@ function ForgotPasswordForm() {
 		resolver: zodResolver(ForgotPasswordFormSchema),
 	});
 
-	function handleSubmit(values: z.infer<typeof ForgotPasswordFormSchema>) {
-		toast.promise(
-			mutateAsync(values, {
-				onError: (error: any) => {
-					toast.error(
-						error?.message || 'Đã xảy ra lỗi khi gửi email đặt lại mật khẩu',
-					);
-				},
-			}).then(() => {
-				router.replace(routes.auth.verifyResetPasswordOtp);
-			}),
-			{
-				pending: 'Đang gửi email đặt lại mật khẩu...',
-				success:
-					'Đã gửi email đặt lại mật khẩu! Vui lòng kiểm tra hộp thư đến.',
-			},
-		);
+	async function handleSubmit(
+		values: z.infer<typeof ForgotPasswordFormSchema>,
+	) {
+		try {
+			await mutateAsync(values);
+			toast.success(
+				'Đã gửi email đặt lại mật khẩu! Vui lòng kiểm tra hộp thư đến.',
+			);
+			router.replace(routes.auth.verifyResetPasswordOtp);
+		} catch (error: any) {
+			toast.error(
+				error?.message || 'Đã xảy ra lỗi khi gửi email đặt lại mật khẩu',
+			);
+		}
 	}
 	return (
 		<div className='max-w-md mx-auto'>

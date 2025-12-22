@@ -26,6 +26,11 @@ export const routes = {
 			create: '/admin/categories/create',
 			edit: (id: number) => `/admin/categories/edit/${id}`,
 		},
+		promotions: {
+			main: '/admin/promotions',
+			create: '/admin/promotions/create',
+			edit: (id: number) => `/admin/promotions/edit/${id}`,
+		},
 	},
 	pharmacist: {
 		overview: '/pharmacist/overview',

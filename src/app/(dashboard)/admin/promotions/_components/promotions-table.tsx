@@ -24,6 +24,7 @@ import {
 	VisibilityState,
 } from '@tanstack/react-table';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -56,9 +57,9 @@ import {
 	PopoverTrigger,
 } from '@/components/ui/popover';
 import { toast } from 'react-toastify';
-import { Category, GetCategoriesResponse } from '@/types';
+import { Promotion, GetPromotionsResponse } from '@/types';
 import { useEffect } from 'react';
-import { useCategories, useDeleteCategory } from '@/hooks';
+import { usePromotions, useDeletePromotion } from '@/hooks';
 import { RefreshCcw } from 'lucide-react';
 import {
 	Sheet,
@@ -67,35 +68,35 @@ import {
 	SheetHeader,
 	SheetTitle,
 } from '@/components/ui/sheet';
-import CreateCategoryForm from './create-category-form';
-import EditCategoryForm from './edit-category-form';
+import CreatePromotionForm from './create-promotion-form';
+import EditPromotionForm from './edit-promotion-form';
 
-export function CategoriesTable({
-	initialCategories,
+export function PromotionsTable({
+	initialPromotions,
 }: {
-	initialCategories?: GetCategoriesResponse;
+	initialPromotions?: GetPromotionsResponse;
 }) {
-	const [data, setData] = React.useState<Category[]>([]);
+	const [data, setData] = React.useState<Promotion[]>([]);
 	const {
-		data: categories,
-		isError: isCategoriesError,
-		refetch: refreshCategories,
-		isPending: isCategoriesPending,
-	} = useCategories(initialCategories);
-	const { mutateAsync } = useDeleteCategory();
+		data: promotions,
+		isError: isPromotionsError,
+		refetch: refreshPromotions,
+		isPending: isPromotionsPending,
+	} = usePromotions(initialPromotions);
+	const { mutateAsync } = useDeletePromotion();
 
 	// Edit sheet state
 	const [isEditOpen, setIsEditOpen] = React.useState(false);
-	const [selectedCategory, setSelectedCategory] =
-		React.useState<Category | null>(null);
+	const [selectedPromotion, setSelectedPromotion] =
+		React.useState<Promotion | null>(null);
 	const [editFormKey, setEditFormKey] = React.useState(0);
 
 	// Create sheet state
 	const [isCreateOpen, setIsCreateOpen] = React.useState(false);
 	const [createFormKey, setCreateFormKey] = React.useState(0);
 
-	const handleEdit = (category: Category) => {
-		setSelectedCategory(category);
+	const handleEdit = (promotion: Promotion) => {
+		setSelectedPromotion(promotion);
 		setEditFormKey(Date.now());
 		setIsEditOpen(true);
 	};
@@ -103,7 +104,7 @@ export function CategoriesTable({
 	const handleEditSheetOpenChange = (open: boolean) => {
 		setIsEditOpen(open);
 		if (!open) {
-			setSelectedCategory(null);
+			setSelectedPromotion(null);
 		}
 	};
 
@@ -117,16 +118,16 @@ export function CategoriesTable({
 	};
 
 	useEffect(() => {
-		if (isCategoriesError) {
-			toast.error('Error loading categories');
+		if (isPromotionsError) {
+			toast.error('Error loading promotions');
 		}
-	}, [isCategoriesError]);
+	}, [isPromotionsError]);
 
 	useEffect(() => {
-		if (categories) {
-			setData(categories);
+		if (promotions) {
+			setData(promotions);
 		}
-	}, [categories]);
+	}, [promotions]);
 
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] =
@@ -141,7 +142,30 @@ export function CategoriesTable({
 	});
 	const [deletePopoverOpen, setDeletePopoverOpen] = React.useState(false);
 
-	const columns: ColumnDef<Category>[] = [
+	const formatDate = (dateString: string) => {
+		const date = new Date(dateString);
+		return date.toLocaleDateString('en-US', {
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric',
+		});
+	};
+
+	const getStatusBadge = (promotion: Promotion) => {
+		const now = new Date();
+		const start = new Date(promotion.startDate);
+		const end = new Date(promotion.endDate);
+
+		if (now < start) {
+			return <Badge variant='secondary'>Upcoming</Badge>;
+		}
+		if (now > end) {
+			return <Badge variant='outline'>Expired</Badge>;
+		}
+		return <Badge variant='default'>Active</Badge>;
+	};
+
+	const columns: ColumnDef<Promotion>[] = [
 		{
 			id: 'select',
 			header: ({ table }) => (
@@ -169,13 +193,59 @@ export function CategoriesTable({
 			enableHiding: false,
 		},
 		{
-			accessorKey: 'name',
-			header: 'Category Name',
+			accessorKey: 'code',
+			header: 'Code',
 			cell: ({ row }) => {
-				return <div className='font-medium'>{row.getValue('name')}</div>;
+				return (
+					<div className='font-medium font-mono'>{row.getValue('code')}</div>
+				);
 			},
 			enableHiding: false,
-			size: 1000, // Make this column take up most of the space
+		},
+		{
+			accessorKey: 'description',
+			header: 'Description',
+			cell: ({ row }) => {
+				const description = row.getValue('description') as string;
+				return (
+					<div className='max-w-md truncate text-sm' title={description}>
+						{description}
+					</div>
+				);
+			},
+		},
+		{
+			accessorKey: 'discountPercent',
+			header: 'Discount',
+			cell: ({ row }) => {
+				const discount = row.getValue('discountPercent') as number;
+				return <div className='text-right font-semibold'>{discount}%</div>;
+			},
+		},
+		{
+			accessorKey: 'startDate',
+			header: 'Start Date',
+			cell: ({ row }) => {
+				return (
+					<div className='text-sm'>{formatDate(row.getValue('startDate'))}</div>
+				);
+			},
+		},
+		{
+			accessorKey: 'endDate',
+			header: 'End Date',
+			cell: ({ row }) => {
+				return (
+					<div className='text-sm'>{formatDate(row.getValue('endDate'))}</div>
+				);
+			},
+		},
+		{
+			id: 'status',
+			header: 'Status',
+			cell: ({ row }) => {
+				return getStatusBadge(row.original);
+			},
 		},
 		{
 			id: 'actions',
@@ -235,11 +305,11 @@ export function CategoriesTable({
 		mutateAsync(id, {
 			onSuccess: () => {
 				setData(prevData => prevData.filter(item => item.id !== id));
-				toast.success('Category deleted successfully');
+				toast.success('Promotion deleted successfully');
 			},
 			onError: (error: any) => {
 				toast.error(
-					error?.message || 'Error deleting category. Please try again.',
+					error?.message || 'Error deleting promotion. Please try again.',
 				);
 			},
 		});
@@ -257,7 +327,7 @@ export function CategoriesTable({
 					onError: (error: any) => {
 						toast.error(
 							error?.message ||
-								`Error deleting category ID ${id}. Please try again.`,
+								`Error deleting promotion ID ${id}. Please try again.`,
 						);
 					},
 				}),
@@ -269,17 +339,17 @@ export function CategoriesTable({
 				);
 				setRowSelection({});
 				setDeletePopoverOpen(false);
-				toast.success(`${selectedIds.length} categories deleted successfully`);
+				toast.success(`${selectedIds.length} promotions deleted successfully`);
 			})
 			.catch(() => {
-				toast.error('Error deleting categories. Please try again.');
+				toast.error('Error deleting promotions. Please try again.');
 			});
 	}
 
-	if (isCategoriesPending) {
+	if (isPromotionsPending) {
 		return (
 			<div className='flex h-48 w-full items-center justify-center'>
-				Loading categories...
+				Loading promotions...
 			</div>
 		);
 	}
@@ -308,17 +378,17 @@ export function CategoriesTable({
 								<div className='space-y-4'>
 									<div className='space-y-2'>
 										<h4 className='font-medium leading-none'>
-											Delete categories?
+											Delete promotions?
 										</h4>
 										<p className='text-sm text-muted-foreground'>
 											You are about to delete{' '}
 											{table.getFilteredSelectedRowModel().rows.length}{' '}
-											categories. This action cannot be undone.
+											promotions. This action cannot be undone.
 										</p>
 										<div className='max-h-32 overflow-y-auto rounded-md bg-muted p-2 text-xs'>
 											{table.getFilteredSelectedRowModel().rows.map(row => (
 												<div key={row.original.id} className='truncate py-1'>
-													• {row.original.name}
+													• {row.original.code}
 												</div>
 											))}
 										</div>
@@ -383,9 +453,9 @@ export function CategoriesTable({
 						size='sm'
 						className='cursor-pointer'
 						onClick={() => {
-							refreshCategories()
-								.then(() => toast.success('Categories refreshed'))
-								.catch(() => toast.error('Error refreshing categories'));
+							refreshPromotions()
+								.then(() => toast.success('Promotions refreshed'))
+								.catch(() => toast.error('Error refreshing promotions'));
 						}}
 					>
 						<RefreshCcw />
@@ -398,7 +468,7 @@ export function CategoriesTable({
 						onClick={handleCreate}
 					>
 						<IconPlus />
-						<span className='hidden lg:inline'>Add Category</span>
+						<span className='hidden lg:inline'>Add Promotion</span>
 					</Button>
 				</div>
 			</div>
@@ -410,13 +480,7 @@ export function CategoriesTable({
 							<TableRow key={headerGroup.id}>
 								{headerGroup.headers.map(header => {
 									return (
-										<TableHead
-											key={header.id}
-											colSpan={header.colSpan}
-											style={{
-												width: header.id === 'name' ? '100%' : undefined,
-											}}
-										>
+										<TableHead key={header.id} colSpan={header.colSpan}>
 											{header.isPlaceholder
 												? null
 												: flexRender(
@@ -538,42 +602,42 @@ export function CategoriesTable({
 				</div>
 			</div>
 
-			{/* Edit Category Sheet */}
+			{/* Edit Promotion Sheet */}
 			<Sheet open={isEditOpen} onOpenChange={handleEditSheetOpenChange}>
 				<SheetContent className='overflow-y-auto w-full sm:max-w-2xl'>
 					<SheetHeader className='px-6'>
-						<SheetTitle>Edit Category</SheetTitle>
+						<SheetTitle>Edit Promotion</SheetTitle>
 						<SheetDescription>
-							Make changes to the category here. Click update when done.
+							Make changes to the promotion here. Click update when done.
 						</SheetDescription>
 					</SheetHeader>
-					{selectedCategory && (
-						<EditCategoryForm
+					{selectedPromotion && (
+						<EditPromotionForm
 							key={editFormKey}
-							category={selectedCategory}
+							promotion={selectedPromotion}
 							onSuccess={() => {
 								setIsEditOpen(false);
-								refreshCategories();
+								refreshPromotions();
 							}}
 						/>
 					)}
 				</SheetContent>
 			</Sheet>
 
-			{/* Create Category Sheet */}
+			{/* Create Promotion Sheet */}
 			<Sheet open={isCreateOpen} onOpenChange={handleCreateSheetOpenChange}>
 				<SheetContent className='overflow-y-auto w-full sm:max-w-2xl'>
 					<SheetHeader className='px-6'>
-						<SheetTitle>Create New Category</SheetTitle>
+						<SheetTitle>Create New Promotion</SheetTitle>
 						<SheetDescription>
-							Add a new category to the system.
+							Add a new promotion to the system.
 						</SheetDescription>
 					</SheetHeader>
-					<CreateCategoryForm
+					<CreatePromotionForm
 						key={createFormKey}
 						onSuccess={() => {
 							setIsCreateOpen(false);
-							refreshCategories();
+							refreshPromotions();
 						}}
 					/>
 				</SheetContent>

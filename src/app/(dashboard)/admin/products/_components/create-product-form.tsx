@@ -28,54 +28,42 @@ import {
 	FileUploaderItem,
 } from '@/components/ui/file-upload';
 import { toast } from 'react-toastify';
-import { Category, ProductWithoutDetail, UpdateProductSchema } from '@/types';
-import LoadingButton from '../custom/loading-button';
-import { useProduct, useUpdateProduct } from '@/hooks';
-import { useRouter } from 'next/navigation';
-import Loading from '@/app/loading';
+import { Category } from '@/types';
+import { CreateProductSchema } from '@/schemas';
+import { useCategories } from '@/hooks';
+import { useCreateProduct } from '@/hooks';
+import LoadingButton from '@/components/custom/loading-button';
 
-export default function EditProductForm({
+export default function CreateProductForm({
 	initialCategories,
-	initialProduct,
-	id,
 	onSuccess,
 }: {
 	initialCategories?: Category[];
-	initialProduct?: ProductWithoutDetail;
-	id: string;
 	onSuccess?: () => void;
 }) {
-	const {
-		data: productData,
-		isError: isProductError,
-		isPending: isProductPending,
-	} = useProduct(Number(id));
+	const { mutateAsync, isPending } = useCreateProduct();
+	const { data, isError } = useCategories(initialCategories);
 	const [files, setFiles] = useState<File[]>([]);
-	const { mutateAsync, isPending } = useUpdateProduct();
-	const router = useRouter();
 
 	useEffect(() => {
-		if (isProductError) {
-			toast.error('Error fetching product data');
+		if (isError) {
+			toast.error('Error fetching categories');
 		}
-	}, [isProductError]);
+	}, [isError]);
 
 	const dropZoneConfig = {
 		maxFiles: 5,
 		maxSize: 1024 * 1024 * 4,
 		multiple: true,
 	};
-
-	// Initialize form WITH the correct values from initialProduct from the start
-	// This ensures the Select component renders with the correct value immediately
-	const form = useForm<z.infer<typeof UpdateProductSchema>>({
-		resolver: zodResolver(UpdateProductSchema),
+	const form = useForm<z.infer<typeof CreateProductSchema>>({
+		resolver: zodResolver(CreateProductSchema),
 		defaultValues: {
-			name: initialProduct?.name || '',
-			description: initialProduct?.description || '',
-			price: initialProduct?.price?.toString() || '',
-			manufacturer: initialProduct?.manufacturer || '',
-			categoryId: initialProduct?.categoryId?.toString() || '',
+			name: '',
+			description: '',
+			price: '',
+			manufacturer: '',
+			categoryId: '',
 			detail: {
 				composition: '',
 				usageText: '',
@@ -83,11 +71,11 @@ export default function EditProductForm({
 				targetUser: '',
 				warning: '',
 			},
-			images: [],
+			images: undefined,
 		},
 	});
 
-	function onSubmit(values: z.infer<typeof UpdateProductSchema>) {
+	function onSubmit(values: z.infer<typeof CreateProductSchema>) {
 		const fd = new FormData();
 		fd.append('name', values.name);
 		fd.append('description', values.description || '');
@@ -105,40 +93,24 @@ export default function EditProductForm({
 		});
 
 		toast.promise(
-			mutateAsync(
-				{ id: Number(id), request: fd },
-				{
-					onError: (error: any) => {
-						toast.error(error?.message || 'Error updating product');
-					},
+			mutateAsync(fd, {
+				onError: (error: any) => {
+					toast.error(
+						error?.message || 'Error creating product. Please try again.',
+					);
 				},
-			).then(() => {
+			}).then(() => {
+				form.reset();
+				setFiles([]);
 				if (onSuccess) {
 					onSuccess();
-				} else {
-					router.back();
 				}
 			}),
 			{
-				pending: 'Updating product...',
-				success: 'Product updated successfully',
+				pending: 'Creating product...',
+				success: 'Product created successfully',
 			},
 		);
-	}
-
-	// Only update detail fields from productData (since initialProduct doesn't have them)
-	useEffect(() => {
-		if (productData?.detail) {
-			form.setValue('detail.composition', productData.detail.composition || '');
-			form.setValue('detail.usageText', productData.detail.usageText || '');
-			form.setValue('detail.dosage', productData.detail.dosage || '');
-			form.setValue('detail.targetUser', productData.detail.targetUser || '');
-			form.setValue('detail.warning', productData.detail.warning || '');
-		}
-	}, [productData, form]);
-
-	if (isProductPending) {
-		return <Loading />;
 	}
 
 	return (
@@ -225,14 +197,14 @@ export default function EditProductForm({
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>Category</FormLabel>
-							<Select onValueChange={field.onChange} value={field.value}>
+							<Select onValueChange={field.onChange}>
 								<FormControl>
 									<SelectTrigger>
 										<SelectValue placeholder='Select a category to display' />
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
-									{initialCategories?.map((category: Category) => (
+									{data?.map((category: Category) => (
 										<SelectItem
 											key={category.id}
 											value={category.id.toString()}
@@ -390,7 +362,7 @@ export default function EditProductForm({
 					)}
 				/>
 				<LoadingButton
-					text='Update'
+					text='Add'
 					isLoading={isPending}
 					loadingText='Processing...'
 				/>

@@ -18,33 +18,31 @@ import { routes } from '@/configs/routes';
 import LoadingButton from '@/components/custom/loading-button';
 import { omit } from 'lodash';
 import Link from 'next/link';
-import { useSignUp } from '@/hooks';
-import CustomInput from '@/components/custom/custom-input';
+import { useResetPassword } from '@/hooks';
+import { useAuthStore } from '@/store';
 import CustomPasswordInput from '@/components/custom/custom-password-input';
-import { SignUpFormSchema } from '@/types';
+import { ResetPasswordFormSchema } from '@/schemas';
 
-function SignUpForm() {
-	const { mutateAsync, isPending } = useSignUp();
+function ResetPasswordForm() {
+	const { mutateAsync, isPending } = useResetPassword();
+	const { emailPendingVerification } = useAuthStore();
 	const router = useRouter();
 
-	const form = useForm<z.infer<typeof SignUpFormSchema>>({
-		resolver: zodResolver(SignUpFormSchema),
+	const form = useForm<z.infer<typeof ResetPasswordFormSchema>>({
+		resolver: zodResolver(ResetPasswordFormSchema),
+		defaultValues: {
+			email: emailPendingVerification,
+		},
 	});
 
-	function handleSubmit(values: z.infer<typeof SignUpFormSchema>) {
-		toast.promise(
-			mutateAsync(omit(values, ['confirmedPassword']), {
-				onError: (error: any) => {
-					toast.error(error?.message || 'Đăng ký thất bại. Vui lòng thử lại.');
-				},
-			}).then(() => {
-				router.replace(routes.auth.verifyEmail); // Redirect to email verification page
-			}),
-			{
-				pending: 'Đang đăng ký...',
-				success: 'Đăng ký thành công! Vui lòng xác nhận email.',
-			},
-		);
+	async function handleSubmit(values: z.infer<typeof ResetPasswordFormSchema>) {
+		try {
+			await mutateAsync(omit(values, ['confirmedPassword']));
+			toast.success('Đặt lại mật khẩu thành công! Vui lòng đăng nhập lại.');
+			router.replace(routes.auth.signIn); // Redirect to sign in page
+		} catch (error: any) {
+			toast.error(error?.message || 'Đã có lỗi xảy ra. Vui lòng thử lại.');
+		}
 	}
 	return (
 		<div className='max-w-md mx-auto'>
@@ -53,7 +51,7 @@ function SignUpForm() {
 					<div className='rounded-full flex items-center justify-center'>
 						<Image src='/icons/mail.png' alt='Mail' width={35} height={35} />
 					</div>
-					Đăng ký bằng Email
+					Đặt lại mật khẩu
 				</div>
 			</div>
 			<Form {...form}>
@@ -64,31 +62,13 @@ function SignUpForm() {
 					>
 						<FormField
 							control={form.control}
-							name='email'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Email</FormLabel>
-									<FormControl>
-										<CustomInput
-											placeholder='Nhập email'
-											autoFocus
-											{...field}
-										/>
-									</FormControl>
-									<FormDescription />
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name='password'
+							name='newPassword'
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Mật khẩu</FormLabel>
 									<FormControl>
 										<CustomPasswordInput
-											placeholder='Nhập mật khẩu'
+											placeholder='Nhập mật khẩu mới'
 											{...field}
 										/>
 									</FormControl>
@@ -114,20 +94,6 @@ function SignUpForm() {
 								</FormItem>
 							)}
 						/>
-						<FormField
-							control={form.control}
-							name='fullName'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Họ và tên</FormLabel>
-									<FormControl>
-										<CustomInput placeholder='Nhập họ và tên' {...field} />
-									</FormControl>
-									<FormDescription />
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
 						<div className='text-sm flex justify-between'>
 							<div>
 								Đã có tài khoản?{' '}
@@ -139,7 +105,7 @@ function SignUpForm() {
 						<LoadingButton
 							isLoading={isPending}
 							loadingText='Đang xử lý...'
-							text='Đăng ký'
+							text='Đặt lại mật khẩu'
 						/>
 					</form>
 				</div>
@@ -148,4 +114,4 @@ function SignUpForm() {
 	);
 }
 
-export default SignUpForm;
+export default ResetPasswordForm;
