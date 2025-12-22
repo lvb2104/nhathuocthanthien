@@ -4,6 +4,8 @@
 
 - Only check conditions in the 'layout.tsx' files, not in individual 'page.tsx' files.
 - Only handle logic in hooks, render toasts in components
+- Use server axios to call API in server side to boost performance
+- Use client axios to call API in client side to make data fresh compared to server fetched data
 
 ## Visual
 
@@ -24,3 +26,5 @@
 
 - Sign-in flow: Browser → Next.js proxy → Backend → Proxy forwards cookies → Browser receives refreshToken cookie on Next.js domain
 - Refresh flow: NextAuth callback → getIncomingCookieHeader() → Now finds refreshToken cookie (same domain!) → Proxy forwards to backend → Success!
+
+---

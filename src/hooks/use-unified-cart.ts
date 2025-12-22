@@ -98,6 +98,9 @@ export function useUnifiedCart() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [canUseCart, backendCart?.items]);
 
+	/**
+	 * Ensure customer cart access
+	 */
 	const ensureCustomerCartAccess = useCallback(() => {
 		if (!canUseCart) {
 			throw new Error(
