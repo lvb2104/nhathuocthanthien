@@ -21,7 +21,7 @@ import { useAuthStore } from '@/store';
 import { useForgotPassword, useVerifyResetPasswordOtp } from '@/hooks';
 import CustomInputOTPSlot from '@/components/custom/custom-input-otp-slot';
 import ResendOtpButton from '@/components/custom/resend-otp-button';
-import { VerifyResetPasswordOtpFormSchema } from '@/types';
+import { VerifyResetPasswordOtpFormSchema } from '@/schemas';
 
 function VerifyResetPasswordOtpForm() {
 	const { emailPendingVerification } = useAuthStore();
@@ -38,49 +38,35 @@ function VerifyResetPasswordOtpForm() {
 		},
 	});
 
-	function handleSubmit(
+	async function handleSubmit(
 		values: z.infer<typeof VerifyResetPasswordOtpFormSchema>,
 	) {
 		if (!values.email) return;
-		toast.promise(
-			mutateAsyncVerifyReset(values, {
-				onError: (error: any) => {
-					toast.error(
-						error?.message ||
-							'Mã OTP không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.',
-					);
-				},
-			}).then(() => {
-				router.replace(routes.auth.resetPassword);
-			}),
-			{
-				pending: 'Đang xác minh mã OTP...',
-				success: 'Xác minh mã OTP thành công! Vui lòng nhập mật khẩu mới.',
-			},
-		);
+		try {
+			await mutateAsyncVerifyReset(values);
+			toast.success('Xác minh mã OTP thành công! Vui lòng nhập mật khẩu mới.');
+			router.replace(routes.auth.resetPassword);
+		} catch (error: any) {
+			toast.error(
+				error?.message ||
+					'Mã OTP không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.',
+			);
+		}
 	}
 
-	function handleResendOtp() {
+	async function handleResendOtp() {
 		if (!emailPendingVerification) return;
 		form.setValue('otp', '');
-		toast.promise(
-			mutateAsyncForgotPassword(
-				{
-					email: emailPendingVerification,
-				},
-				{
-					onError: (error: any) => {
-						toast.error(
-							error?.message || 'Gửi lại mã OTP thất bại! Vui lòng thử lại.',
-						);
-					},
-				},
-			),
-			{
-				pending: 'Đang gửi lại mã OTP...',
-				success: 'Gửi lại mã OTP thành công! Vui lòng kiểm tra email.',
-			},
-		);
+		try {
+			await mutateAsyncForgotPassword({
+				email: emailPendingVerification,
+			});
+			toast.success('Gửi lại mã OTP thành công! Vui lòng kiểm tra email.');
+		} catch (error: any) {
+			toast.error(
+				error?.message || 'Gửi lại mã OTP thất bại! Vui lòng thử lại.',
+			);
+		}
 	}
 
 	return (

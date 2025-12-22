@@ -21,3 +21,7 @@ export * from './use-update-cart-item';
 export * from './use-remove-from-cart';
 export * from './use-clear-cart';
 export * from './use-unified-cart';
+export * from './use-promotions';
+export * from './use-create-promotion';
+export * from './use-update-promotion';
+export * from './use-delete-promotion';

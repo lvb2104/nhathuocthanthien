@@ -20,7 +20,7 @@ import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { useAuthStore } from '@/store';
 import { useVerifyEmail } from '@/hooks';
 import CustomInputOTPSlot from '@/components/custom/custom-input-otp-slot';
-import { VerifyEmailFormSchema } from '@/types';
+import { VerifyEmailFormSchema } from '@/schemas';
 
 function VerifyEmailForm() {
 	const { emailPendingVerification } = useAuthStore();
@@ -34,24 +34,18 @@ function VerifyEmailForm() {
 		},
 	});
 
-	function handleSubmit(values: z.infer<typeof VerifyEmailFormSchema>) {
+	async function handleSubmit(values: z.infer<typeof VerifyEmailFormSchema>) {
 		if (!values.email) return;
-		toast.promise(
-			mutateAsync(values, {
-				onError: (error: any) => {
-					toast.error(
-						error?.message ||
-							'Mã OTP không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.',
-					);
-				},
-			}).then(() => {
-				router.replace(routes.auth.signIn);
-			}),
-			{
-				pending: 'Đang xác minh email...',
-				success: 'Xác minh email thành công! Vui lòng đăng nhập lại.',
-			},
-		);
+		try {
+			await mutateAsync(values);
+			toast.success('Xác minh email thành công! Vui lòng đăng nhập lại.');
+			router.replace(routes.auth.signIn);
+		} catch (error: any) {
+			toast.error(
+				error?.message ||
+					'Mã OTP không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.',
+			);
+		}
 	}
 	return (
 		<div className='max-w-md mx-auto'>

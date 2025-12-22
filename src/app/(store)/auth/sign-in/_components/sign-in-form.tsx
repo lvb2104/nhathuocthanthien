@@ -20,7 +20,7 @@ import Link from 'next/link';
 import { useSignIn } from '@/hooks';
 import CustomPasswordInput from '@/components/custom/custom-password-input';
 import CustomInput from '@/components/custom/custom-input';
-import { SignInFormSchema } from '@/types';
+import { SignInFormSchema } from '@/schemas';
 
 function SignInForm() {
 	const { mutateAsync, isPending } = useSignIn();
@@ -30,22 +30,14 @@ function SignInForm() {
 		resolver: zodResolver(SignInFormSchema),
 	});
 
-	function handleSubmit(values: z.infer<typeof SignInFormSchema>) {
-		toast.promise(
-			mutateAsync(values, {
-				onError: (error: any) => {
-					toast.error(
-						error?.message || 'Đăng nhập thất bại. Vui lòng thử lại.',
-					);
-				},
-			}).then(() => {
-				router.replace(routes.home);
-			}),
-			{
-				pending: 'Đang đăng nhập...',
-				success: 'Đăng nhập thành công!',
-			},
-		);
+	async function handleSubmit(values: z.infer<typeof SignInFormSchema>) {
+		try {
+			await mutateAsync(values);
+			toast.success('Đăng nhập thành công!');
+			router.replace(routes.home);
+		} catch (error: any) {
+			toast.error(error?.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
+		}
 	}
 	return (
 		<div className='max-w-md mx-auto'>

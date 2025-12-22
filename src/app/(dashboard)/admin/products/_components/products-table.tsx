@@ -75,8 +75,8 @@ import {
 	SheetHeader,
 	SheetTitle,
 } from '@/components/ui/sheet';
-import EditProductForm from '@/components/forms/edit-product-form';
-import CreateProductForm from '@/components/forms/create-product-form';
+import CreateProductForm from './create-product-form';
+import EditProductForm from './edit-product-form';
 
 // Main DataTable component
 export function ProductsTable({

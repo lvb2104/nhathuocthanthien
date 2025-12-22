@@ -3,9 +3,9 @@ import { getDecodedPayloadFromJwt } from '@/lib/utils';
 import { SignInRequest, UserRole } from '@/types';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import type { NextAuthOptions } from 'next-auth';
+import { getServerSession } from 'next-auth';
 import { serverRefreshToken, serverSignIn } from '@/services';
 import { routes } from '@/configs/routes';
-import { cookies } from 'next/headers';
 
 type AuthenticatedUser = {
 	id: number;
@@ -40,6 +40,8 @@ async function authenticateWithCredentials(
 
 async function getIncomingCookieHeader(): Promise<string | undefined> {
 	try {
+		// Lazy import cookies to avoid issues when auth.ts is imported in non-server contexts
+		const { cookies } = await import('next/headers');
 		const store = await cookies();
 		const all = store.getAll();
 		if (!all.length) return undefined;
@@ -163,3 +165,12 @@ export const authOptions: NextAuthOptions = {
 	},
 	secret: process.env.NEXTAUTH_SECRET || 'default_secret',
 };
+
+/**
+ * Get server session with authOptions.
+ * Use this in Server Components instead of importing authOptions directly
+ * to avoid issues with next/headers imports.
+ */
+export async function getServerSessionWithAuth() {
+	return getServerSession(authOptions);
+}
