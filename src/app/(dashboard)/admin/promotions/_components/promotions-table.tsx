@@ -453,9 +453,16 @@ export function PromotionsTable({
 						size='sm'
 						className='cursor-pointer'
 						onClick={() => {
-							refreshPromotions()
-								.then(() => toast.success('Promotions refreshed'))
-								.catch(() => toast.error('Error refreshing promotions'));
+							toast.promise(
+								async () => {
+									return await refreshPromotions();
+								},
+								{
+									pending: 'Refreshing promotions...',
+									success: 'Promotions refreshed',
+									error: 'Error refreshing promotions',
+								},
+							);
 						}}
 					>
 						<RefreshCcw />
