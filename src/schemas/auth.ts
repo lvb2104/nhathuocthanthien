@@ -51,11 +51,3 @@ export const VerifyResetPasswordOtpFormSchema = z.object({
 	email: z.string().email({ message: 'Email không hợp lệ' }),
 	otp: z.string().min(6, { message: 'Mã OTP phải có 6 chữ số' }),
 });
-
-export const SignUpRequestSchema = SignUpFormSchema.omit({
-	confirmedPassword: true,
-});
-
-export const ResetPasswordRequestSchema = ResetPasswordFormSchema.omit({
-	confirmedPassword: true,
-});

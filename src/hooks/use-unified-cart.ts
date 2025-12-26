@@ -8,8 +8,8 @@ import {
 	useUpdateCartItem,
 } from '@/hooks';
 import { useSession } from 'next-auth/react';
-import { useEffect, useCallback } from 'react';
-import { CartItem, UserRole } from '@/types';
+import { useEffect, useCallback, useState, useMemo } from 'react';
+import { CartItem, UserRole, Promotion } from '@/types';
 
 /**
  * 🛒 Unified Cart Hook - The fucking smooth cart integration you need
@@ -50,6 +50,11 @@ export function useUnifiedCart() {
 	const isCustomer = session?.user?.role === UserRole.CUSTOMER;
 	const canUseCart = isAuthenticated && isCustomer;
 
+	// Promotion state
+	const [appliedPromotion, setAppliedPromotion] = useState<Promotion | null>(
+		null,
+	);
+
 	// Backend cart operations
 	const { data: backendCart, isLoading: isLoadingBackendCart } = useCart();
 	const addToCartMutation = useAddToCart();
@@ -89,7 +94,7 @@ export function useUnifiedCart() {
 					name: product.name,
 					price: Number(product.price),
 					currency: 'VND',
-					description: product.description,
+					manufacturer: product.manufacturer,
 					image: product.images?.[0]?.imageUrl,
 				},
 				{ count: item.quantity },
@@ -269,12 +274,68 @@ export function useUnifiedCart() {
 		}
 	}, [canUseCart, clearCartMutation, clearLocalCart, ensureCustomerCartAccess]);
 
+	/**
+	 * Apply a promotion to the cart
+	 */
+	const applyPromotion = useCallback((promotion: Promotion) => {
+		setAppliedPromotion(promotion);
+	}, []);
+
+	/**
+	 * Remove the applied promotion
+	 */
+	const removePromotion = useCallback(() => {
+		setAppliedPromotion(null);
+	}, []);
+
+	/**
+	 * Calculate discount amount
+	 */
+	const discountAmount = useMemo(() => {
+		if (!appliedPromotion) return 0;
+		const subtotal = Object.values(cartDetails || {}).reduce(
+			(sum, item) => sum + item.price * item.quantity,
+			0,
+		);
+		return (subtotal * appliedPromotion.discountPercent) / 100;
+	}, [appliedPromotion, cartDetails]);
+
+	/**
+	 * Final total after discount
+	 */
+	const finalTotalPrice = useMemo(() => {
+		const subtotal = Object.values(cartDetails || {}).reduce(
+			(sum, item) => sum + item.price * item.quantity,
+			0,
+		);
+		return Math.max(0, subtotal - discountAmount);
+	}, [cartDetails, discountAmount]);
+
+	/**
+	 * Formatted discount amount
+	 */
+	const formattedDiscountAmount = useMemo(() => {
+		return new Intl.NumberFormat('vi-VN', {
+			style: 'currency',
+			currency: 'VND',
+		}).format(discountAmount);
+	}, [discountAmount]);
+
+	/**
+	 * Formatted final total
+	 */
+	const formattedFinalTotalPrice = useMemo(() => {
+		return new Intl.NumberFormat('vi-VN', {
+			style: 'currency',
+			currency: 'VND',
+		}).format(finalTotalPrice);
+	}, [finalTotalPrice]);
+
 	return {
 		// Cart state
 		cartDetails,
 		cartCount,
 		formattedTotalPrice,
-		backendTotalPrice: backendCart?.totalPrice,
 		isLoading: isLoadingBackendCart,
 
 		// Cart operations
@@ -284,6 +345,17 @@ export function useUnifiedCart() {
 		updateItemQuantity,
 		removeItem,
 		clearCart,
+
+		// Promotion state
+		appliedPromotion,
+		discountAmount,
+		finalTotalPrice,
+		formattedDiscountAmount,
+		formattedFinalTotalPrice,
+
+		// Promotion operations
+		applyPromotion,
+		removePromotion,
 
 		// Checkout
 		redirectToCheckout,

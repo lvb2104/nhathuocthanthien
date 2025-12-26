@@ -383,9 +383,16 @@ export function CategoriesTable({
 						size='sm'
 						className='cursor-pointer'
 						onClick={() => {
-							refreshCategories()
-								.then(() => toast.success('Categories refreshed'))
-								.catch(() => toast.error('Error refreshing categories'));
+							toast.promise(
+								async () => {
+									return await refreshCategories();
+								},
+								{
+									pending: 'Refreshing categories...',
+									success: 'Categories refreshed',
+									error: 'Error refreshing categories',
+								},
+							);
 						}}
 					>
 						<RefreshCcw />

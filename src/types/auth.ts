@@ -1,57 +1,69 @@
-import z from 'zod';
-import {
-	SignInFormSchema,
-	VerifyEmailFormSchema,
-	ForgotPasswordFormSchema,
-	VerifyResetPasswordOtpFormSchema,
-	SignUpRequestSchema,
-	ResetPasswordRequestSchema,
-} from '@/schemas/auth';
+// Sign In
+export type SignInRequest = {
+	email: string;
+	password: string;
+};
 
-// Requests
-export type SignInRequest = z.infer<typeof SignInFormSchema>;
-
-export type SignUpRequest = z.infer<typeof SignUpRequestSchema>;
-
-export type VerifyEmailRequest = z.infer<typeof VerifyEmailFormSchema>;
-
-export type ForgotPasswordRequest = z.infer<typeof ForgotPasswordFormSchema>;
-
-export type VerifyResetPasswordOtpRequest = z.infer<
-	typeof VerifyResetPasswordOtpFormSchema
->;
-
-export type ResetPasswordRequest = z.infer<typeof ResetPasswordRequestSchema>;
-
-// Responses
 export type SignInResponse = {
 	accessToken: string;
 };
 
-export type RefreshTokenResponse = {
-	accessToken: string;
+// Sign Up
+export type SignUpRequest = {
+	email: string;
+	fullName: string;
+	password: string;
 };
 
 export type SignUpResponse = {
 	message: string;
 };
 
+// Verify Email
+export type VerifyEmailRequest = {
+	email: string;
+	otp: string;
+};
+
 export type VerifyEmailResponse = {
 	message: string;
+};
+
+// Forgot Password
+export type ForgotPasswordRequest = {
+	email: string;
 };
 
 export type ForgotPasswordResponse = {
 	message: string;
 };
 
+// Verify Reset Password OTP
+export type VerifyResetPasswordOtpRequest = {
+	email: string;
+	otp: string;
+};
+
 export type VerifyResetPasswordOtpResponse = {
 	message: string;
+};
+
+// Reset Password
+export type ResetPasswordRequest = {
+	email: string;
+	newPassword: string;
 };
 
 export type ResetPasswordResponse = {
 	message: string;
 };
 
+// Refresh Token
+export type RefreshTokenResponse = {
+	accessToken: string;
+};
+
+// Sign Out
 export type SignOutResponse = {
 	message: string;
 };
@@ -66,7 +78,7 @@ export type JwtPayload = {
 	exp: number;
 };
 
-export enum UserRole {
+enum UserRole {
 	CUSTOMER = 'customer',
 	ADMIN = 'admin',
 	PHARMACIST = 'pharmacist',

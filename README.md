@@ -6,6 +6,9 @@
 - Only handle logic in hooks, render toasts in components
 - Use server axios to call API in server side to boost performance
 - Use client axios to call API in client side to make data fresh compared to server fetched data
+- Use stale time to prevent refetching data too often
+- Use initial data to prevent refetching data too often
+- Use query client to invalidate queries after mutation
 
 ## Visual
 

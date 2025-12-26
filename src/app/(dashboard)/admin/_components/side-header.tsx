@@ -3,7 +3,7 @@ import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { usePathname } from 'next/navigation';
 
-export function SiteHeader() {
+export function SideHeader() {
 	const pathname = usePathname();
 	const pathName = pathname.split('/').pop() || '';
 	const capitalizedPathName =

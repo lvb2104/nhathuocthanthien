@@ -1,5 +1,3 @@
-import { Category } from '.';
-
 // Requests
 export type CreateProductRequest = FormData;
 export type UpdateProductRequest = FormData;
@@ -48,4 +46,9 @@ export type ProductDetail = {
 	dosage: string | null;
 	targetUser: string | null;
 	warning: string | null;
+};
+
+type Category = {
+	id: number;
+	name: string;
 };

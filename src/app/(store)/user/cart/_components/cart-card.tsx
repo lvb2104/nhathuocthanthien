@@ -1,14 +1,39 @@
 'use client';
-import { useUnifiedCart } from '@/hooks';
+import {
+	useUnifiedCart,
+	usePromotions,
+	useShippingAddresses,
+	useCreateShippingAddress,
+} from '@/hooks';
 import { toast } from 'react-toastify';
 import Image from 'next/image';
 import { app } from '@/configs/app';
-import { X, Minus, Plus } from 'lucide-react';
+import { X, Minus, Plus, Tag, Check, ChevronDown, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { routes } from '@/configs/routes';
-import { FormEvent, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { ShippingAddressSchema } from '@/schemas';
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { GetPromotionsResponse, GetShippingAddressesResponse } from '@/types';
 
-function CartCard() {
+function CartCard({
+	initialPromotions,
+	initialShippingAddresses,
+}: {
+	initialPromotions?: GetPromotionsResponse;
+	initialShippingAddresses?: GetShippingAddressesResponse;
+}) {
 	const {
 		cartDetails,
 		removeItem,
@@ -17,19 +42,122 @@ function CartCard() {
 		formattedTotalPrice,
 		cartCount,
 		redirectToCheckout,
+		appliedPromotion,
+		applyPromotion,
+		removePromotion,
+		formattedDiscountAmount,
+		formattedFinalTotalPrice,
 	} = useUnifiedCart();
 	const [showCoupon, setShowCoupon] = useState(false);
-	const [coupon, setCoupon] = useState('');
+	const [selectedPromotionId, setSelectedPromotionId] = useState<string>('');
 
-	const handleApplyCoupon = (e: FormEvent) => {
-		e.preventDefault();
-		if (!coupon.trim()) return;
-		// TODO: wire to your coupon API / logic
-		// toast.success?.(`Áp dụng mã: ${coupon}`);
+	// Address selection state
+	const [addressMode, setAddressMode] = useState<'select' | 'create'>('select');
+	const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
+		null,
+	);
+
+	// Fetch shipping addresses with initial data from server
+	const { data: shippingAddressesResponse, isLoading: isLoadingAddresses } =
+		useShippingAddresses(initialShippingAddresses);
+	const shippingAddresses = shippingAddressesResponse || [];
+
+	// Create shipping address mutation
+	const createAddressMutation = useCreateShippingAddress();
+
+	// React Hook Form for new address creation
+	const form = useForm<z.infer<typeof ShippingAddressSchema>>({
+		resolver: zodResolver(ShippingAddressSchema),
+		defaultValues: {
+			fullName: '',
+			phone: '',
+			addressLine: '',
+			ward: '',
+			district: '',
+			province: '',
+			note: '',
+			isDefault: false,
+		},
+	});
+
+	// Fetch all promotions with initial data from server
+	const { data: promotions = [], isLoading: isLoadingPromotions } =
+		usePromotions(initialPromotions);
+
+	// Filter active promotions
+	const activePromotions = promotions.filter(promo => {
+		const now = new Date();
+		const startDate = new Date(promo.startDate);
+		const endDate = new Date(promo.endDate);
+		return now >= startDate && now <= endDate;
+	});
+
+	// Auto-switch to create mode if no addresses exist
+	useEffect(() => {
+		if (!isLoadingAddresses && shippingAddresses.length === 0) {
+			setAddressMode('create');
+		}
+	}, [isLoadingAddresses, shippingAddresses.length]);
+
+	const handleApplyPromotion = () => {
+		if (!selectedPromotionId) {
+			toast.error('Vui lòng chọn mã giảm giá');
+			return;
+		}
+
+		const promotion = activePromotions.find(
+			p => p.id.toString() === selectedPromotionId,
+		);
+
+		if (!promotion) {
+			toast.error('Mã giảm giá không hợp lệ');
+			return;
+		}
+
+		applyPromotion(promotion);
+		toast.success(
+			`Áp dụng mã giảm giá ${promotion.discountPercent}% thành công!`,
+		);
+		setSelectedPromotionId('');
+		setShowCoupon(false);
 	};
 
-	const handleCheckout = () => {
-		redirectToCheckout();
+	const handleRemovePromotion = () => {
+		removePromotion();
+		toast.info('Đã gỡ mã giảm giá');
+	};
+
+	const handleCheckout = async () => {
+		// Validate address selection
+		if (addressMode === 'select') {
+			if (!selectedAddressId) {
+				toast.error('Vui lòng chọn địa chỉ giao hàng');
+				return;
+			}
+			// If we have a selected address, proceed to checkout
+			redirectToCheckout();
+		} else {
+			// addressMode === 'create'
+			// Trigger form validation and submission
+			form.handleSubmit(onSubmitNewAddress)();
+		}
+	};
+
+	const onSubmitNewAddress = async (
+		values: z.infer<typeof ShippingAddressSchema>,
+	) => {
+		try {
+			await createAddressMutation.mutateAsync(values);
+			toast.success('Đã tạo địa chỉ mới thành công');
+			// Reset form after success
+			form.reset();
+			// Proceed to checkout after creating address
+			redirectToCheckout(); // TODO: fix this
+		} catch (error: any) {
+			const message =
+				error?.response?.data?.message || 'Không thể tạo địa chỉ mới';
+			toast.error(message);
+		}
 	};
 
 	const handleIncrement = async (productId: number) => {
@@ -177,61 +305,97 @@ function CartCard() {
 						))}
 					</div>
 
-					{/* Discount Code Section (toggle) */}
+					{/* Voucher Section */}
 					<div className='space-y-3'>
-						<button
-							type='button'
-							onClick={() => setShowCoupon(v => !v)}
-							aria-expanded={showCoupon}
-							className='cursor-pointer inline-flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors'
-						>
-							<svg
-								className='w-5 h-5'
-								fill='none'
-								viewBox='0 0 24 24'
-								stroke='currentColor'
-							>
-								<path
-									strokeLinecap='round'
-									strokeLinejoin='round'
-									strokeWidth={2}
-									d='M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z'
-								/>
-							</svg>
-							<span className='font-medium'>Sử dụng mã giảm giá</span>
-							<svg
-								className={`w-4 h-4 transition-transform ${showCoupon ? 'rotate-180' : ''}`}
-								fill='none'
-								viewBox='0 0 24 24'
-								stroke='currentColor'
-							>
-								<path
-									strokeLinecap='round'
-									strokeLinejoin='round'
-									strokeWidth={2}
-									d='M19 9l-7 7-7-7'
-								/>
-							</svg>
-						</button>
-
-						{showCoupon && (
-							<form
-								onSubmit={handleApplyCoupon}
-								className='flex overflow-hidden rounded-md border border-gray-300'
-							>
-								<input
-									value={coupon}
-									onChange={e => setCoupon(e.target.value)}
-									placeholder='Mã ưu đãi'
-									className='flex-1 px-4 py-2.5 outline-none'
-								/>
+						{/* Applied Promotion Badge */}
+						{appliedPromotion && (
+							<div className='flex items-center justify-between gap-4 p-3 bg-green-50 border border-green-200 rounded-lg'>
+								<div className='flex items-center gap-2 flex-1'>
+									<div className='p-1.5 bg-green-100 rounded'>
+										<Check size={16} className='text-green-600' />
+									</div>
+									<div className='flex-1 min-w-0'>
+										<p className='text-sm font-semibold text-green-700 truncate'>
+											{appliedPromotion.code}
+										</p>
+										<p className='text-xs text-green-600'>
+											Giảm {appliedPromotion.discountPercent}%
+										</p>
+									</div>
+								</div>
 								<button
-									type='submit'
-									className='cursor-pointer bg-green-600 hover:bg-green-700 text-white px-6 whitespace-nowrap'
+									onClick={handleRemovePromotion}
+									className='cursor-pointer text-green-600 hover:text-green-700 text-sm font-medium'
 								>
-									Áp dụng
+									Gỡ
 								</button>
-							</form>
+							</div>
+						)}
+
+						{/* Dropdown Selector */}
+						{!appliedPromotion && (
+							<>
+								<button
+									type='button'
+									onClick={() => setShowCoupon(v => !v)}
+									aria-expanded={showCoupon}
+									className='cursor-pointer inline-flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors'
+								>
+									<Tag size={20} />
+									<span className='font-medium'>Sử dụng mã giảm giá</span>
+									<svg
+										className={`w-4 h-4 transition-transform ${showCoupon ? 'rotate-180' : ''}`}
+										fill='none'
+										viewBox='0 0 24 24'
+										stroke='currentColor'
+									>
+										<path
+											strokeLinecap='round'
+											strokeLinejoin='round'
+											strokeWidth={2}
+											d='M19 9l-7 7-7-7'
+										/>
+									</svg>
+								</button>
+
+								{showCoupon && (
+									<div className='space-y-3'>
+										<div className='relative'>
+											<select
+												value={selectedPromotionId}
+												onChange={e => setSelectedPromotionId(e.target.value)}
+												disabled={isLoadingPromotions}
+												className='w-full px-4 py-2.5 pr-10 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none bg-white disabled:opacity-50'
+											>
+												<option value=''>
+													{isLoadingPromotions
+														? 'Đang tải...'
+														: activePromotions.length === 0
+															? 'Không có mã giảm giá'
+															: 'Chọn mã giảm giá'}
+												</option>
+												{activePromotions.map(promo => (
+													<option key={promo.id} value={promo.id}>
+														{promo.code} - Giảm {promo.discountPercent}% -{' '}
+														{promo.description}
+													</option>
+												))}
+											</select>
+											<ChevronDown
+												size={20}
+												className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'
+											/>
+										</div>
+										<button
+											onClick={handleApplyPromotion}
+											disabled={!selectedPromotionId || isLoadingPromotions}
+											className='cursor-pointer w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+										>
+											Áp dụng mã giảm giá
+										</button>
+									</div>
+								)}
+							</>
 						)}
 					</div>
 
@@ -241,31 +405,244 @@ function CartCard() {
 							<span>Tạm tính ({cartCount} sản phẩm):</span>
 							<span>{formattedTotalPrice}</span>
 						</div>
+						{appliedPromotion && (
+							<div className='flex justify-between text-green-600'>
+								<span>Giảm giá ({appliedPromotion.discountPercent}%):</span>
+								<span>-{formattedDiscountAmount}</span>
+							</div>
+						)}
 						<div className='flex justify-between text-lg font-bold text-red-600'>
 							<span>Tổng tiền:</span>
-							<span>{formattedTotalPrice}</span>
+							<span>
+								{appliedPromotion
+									? formattedFinalTotalPrice
+									: formattedTotalPrice}
+							</span>
 						</div>
 					</div>
 
-					{/* Warning Notice */}
-					<div className='bg-red-50 border border-red-200 rounded-lg p-4'>
-						<ul className='space-y-1 text-sm text-red-800'>
-							<li>
-								• <strong>Mục Tên của bạn *</strong> là mục bắt buộc.
-							</li>
-							<li>
-								• <strong>Mục Số điện thoại *</strong> là mục bắt buộc.
-							</li>
-							<li>
-								• <strong>Mục Quận/Huyện *</strong> là mục bắt buộc.
-							</li>
-							<li>
-								• <strong>Mục Xã/Phường *</strong> là mục bắt buộc.
-							</li>
-							<li>
-								• <strong>Mục Địa chỉ cụ thể *</strong> là mục bắt buộc.
-							</li>
-						</ul>
+					{/* Address Selection Section */}
+					<div className='space-y-4'>
+						<div className='flex items-center gap-2'>
+							<MapPin size={20} className='text-gray-700' />
+							<h3 className='text-lg font-semibold text-gray-900'>
+								Địa chỉ giao hàng
+							</h3>
+						</div>
+
+						{/* Address Mode Toggle */}
+						<div className='flex gap-2'>
+							<button
+								type='button'
+								onClick={() => setAddressMode('select')}
+								className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+									addressMode === 'select'
+										? 'bg-green-600 text-white'
+										: 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+								}`}
+							>
+								Chọn địa chỉ có sẵn
+							</button>
+							<button
+								type='button'
+								onClick={() => setAddressMode('create')}
+								className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+									addressMode === 'create'
+										? 'bg-green-600 text-white'
+										: 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+								}`}
+							>
+								Tạo địa chỉ mới
+							</button>
+						</div>
+
+						{/* Select Existing Address Mode */}
+						{addressMode === 'select' && (
+							<div className='space-y-3'>
+								{isLoadingAddresses ? (
+									<p className='text-gray-500 text-center py-4'>
+										Đang tải địa chỉ...
+									</p>
+								) : shippingAddresses.length === 0 ? (
+									<div className='bg-yellow-50 border border-yellow-200 rounded-lg p-4'>
+										<p className='text-sm text-yellow-800'>
+											Bạn chưa có địa chỉ nào. Vui lòng tạo địa chỉ mới.
+										</p>
+									</div>
+								) : (
+									<>
+										<div className='relative'>
+											<select
+												value={selectedAddressId || ''}
+												onChange={e =>
+													setSelectedAddressId(Number(e.target.value))
+												}
+												className='w-full px-4 py-2.5 pr-10 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none bg-white'
+											>
+												<option value=''>Chọn địa chỉ giao hàng</option>
+												{shippingAddresses.map(address => (
+													<option key={address.id} value={address.id}>
+														{address.fullName} - {address.phone} -{' '}
+														{address.addressLine}, {address.ward},{' '}
+														{address.district}, {address.province}
+														{address.isDefault ? ' (Mặc định)' : ''}
+													</option>
+												))}
+											</select>
+											<ChevronDown
+												size={20}
+												className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'
+											/>
+										</div>
+
+										{/* Display selected address details */}
+										{selectedAddressId &&
+											(() => {
+												const selectedAddress = shippingAddresses.find(
+													a => a.id === selectedAddressId,
+												);
+												return selectedAddress ? (
+													<div className='bg-green-50 border border-green-200 rounded-lg p-4'>
+														<div className='space-y-1 text-sm'>
+															<p className='font-semibold text-green-900'>
+																{selectedAddress.fullName}
+															</p>
+															<p className='text-green-800'>
+																Số điện thoại: {selectedAddress.phone}
+															</p>
+															<p className='text-green-800'>
+																Địa chỉ: {selectedAddress.addressLine},{' '}
+																{selectedAddress.ward},{' '}
+																{selectedAddress.district},{' '}
+																{selectedAddress.province}
+															</p>
+															{selectedAddress.note && (
+																<p className='text-green-700'>
+																	Ghi chú: {selectedAddress.note}
+																</p>
+															)}
+														</div>
+													</div>
+												) : null;
+											})()}
+									</>
+								)}
+							</div>
+						)}
+
+						{/* Create New Address Mode */}
+						{addressMode === 'create' && (
+							<Form {...form}>
+								<div className='space-y-4'>
+									{/* Name & Phone */}
+									<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+										<FormField
+											control={form.control}
+											name='fullName'
+											render={({ field }) => (
+												<FormItem>
+													<FormControl>
+														<Input placeholder='Tên của bạn *' {...field} />
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<FormField
+											control={form.control}
+											name='phone'
+											render={({ field }) => (
+												<FormItem>
+													<FormControl>
+														<Input
+															type='tel'
+															placeholder='Số điện thoại *'
+															{...field}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+									</div>
+
+									{/* Province & District */}
+									<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+										<FormField
+											control={form.control}
+											name='province'
+											render={({ field }) => (
+												<FormItem>
+													<FormControl>
+														<Input placeholder='Tỉnh/Thành phố *' {...field} />
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<FormField
+											control={form.control}
+											name='district'
+											render={({ field }) => (
+												<FormItem>
+													<FormControl>
+														<Input placeholder='Quận/Huyện *' {...field} />
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+									</div>
+
+									{/* Ward */}
+									<FormField
+										control={form.control}
+										name='ward'
+										render={({ field }) => (
+											<FormItem>
+												<FormControl>
+													<Input placeholder='Xã/Phường *' {...field} />
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+
+									{/* Address Line */}
+									<FormField
+										control={form.control}
+										name='addressLine'
+										render={({ field }) => (
+											<FormItem>
+												<FormControl>
+													<Input placeholder='Địa chỉ cụ thể *' {...field} />
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+
+									{/* Note */}
+									<FormField
+										control={form.control}
+										name='note'
+										render={({ field }) => (
+											<FormItem>
+												<FormControl>
+													<Textarea
+														placeholder='Ghi chú (tuỳ chọn)'
+														rows={3}
+														className='resize-none'
+														{...field}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								</div>
+							</Form>
+						)}
 					</div>
 
 					{/* Checkout Form */}
@@ -273,42 +650,6 @@ function CartCard() {
 						<h3 className='text-lg font-semibold text-gray-900'>
 							Thông tin thanh toán
 						</h3>
-
-						{/* Name & Phone */}
-						<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-							<input
-								type='text'
-								placeholder='Tên của bạn *'
-								className='w-full px-4 py-2.5 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none'
-							/>
-							<input
-								type='tel'
-								placeholder='Số điện thoại *'
-								className='w-full px-4 py-2.5 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none'
-							/>
-						</div>
-
-						{/* City & District */}
-						<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-							<select className='w-full px-4 py-2.5 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-gray-600'>
-								<option>Tỉnh/Thành phố *</option>
-							</select>
-							<select className='w-full px-4 py-2.5 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-gray-600'>
-								<option>Quận/Huyện *</option>
-							</select>
-						</div>
-
-						{/* Ward */}
-						<select className='w-full px-4 py-2.5 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-gray-600'>
-							<option>Xã/Phường *</option>
-						</select>
-
-						{/* Address */}
-						<input
-							type='text'
-							placeholder='Địa chỉ cụ thể *'
-							className='w-full px-4 py-2.5 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none'
-						/>
 
 						{/* Order Notes */}
 						<div>
@@ -328,9 +669,19 @@ function CartCard() {
 								<span>Tạm tính ({cartCount} sản phẩm):</span>
 								<span>{formattedTotalPrice}</span>
 							</div>
+							{appliedPromotion && (
+								<div className='flex justify-between text-green-600'>
+									<span>Giảm giá ({appliedPromotion.discountPercent}%):</span>
+									<span>-{formattedDiscountAmount}</span>
+								</div>
+							)}
 							<div className='flex justify-between text-lg font-bold text-red-600'>
 								<span>Tổng tiền:</span>
-								<span>{formattedTotalPrice}</span>
+								<span>
+									{appliedPromotion
+										? formattedFinalTotalPrice
+										: formattedTotalPrice}
+								</span>
 							</div>
 						</div>
 
@@ -359,10 +710,11 @@ function CartCard() {
 
 						{/* Place Order Button */}
 						<button
-							className='cursor-pointer w-[50%] mx-auto block bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3.5 rounded-lg transition-colors'
+							disabled={createAddressMutation.isPending}
+							className='cursor-pointer w-[50%] mx-auto block bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
 							onClick={handleCheckout}
 						>
-							Đặt hàng
+							{createAddressMutation.isPending ? 'Đang xử lý...' : 'Đặt hàng'}
 						</button>
 					</div>
 				</div>
