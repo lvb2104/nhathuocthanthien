@@ -17,7 +17,6 @@ import {
 	flexRender,
 	getCoreRowModel,
 	getFilteredRowModel,
-	getPaginationRowModel,
 	getSortedRowModel,
 	SortingState,
 	useReactTable,
@@ -59,7 +58,7 @@ import { toast } from 'react-toastify';
 import { Category, GetCategoriesResponse } from '@/types';
 import { useEffect } from 'react';
 import { useCategories, useDeleteCategory } from '@/hooks';
-import { RefreshCcw } from 'lucide-react';
+import { RefreshCcw, Search, X } from 'lucide-react';
 import {
 	Sheet,
 	SheetContent,
@@ -67,6 +66,7 @@ import {
 	SheetHeader,
 	SheetTitle,
 } from '@/components/ui/sheet';
+import { Input } from '@/components/ui/input';
 import CreateCategoryForm from './create-category-form';
 import EditCategoryForm from './edit-category-form';
 
@@ -75,13 +75,23 @@ export function CategoriesTable({
 }: {
 	initialCategories?: GetCategoriesResponse;
 }) {
+	// API Filter params state
+	const [apiParams, setApiParams] = React.useState({
+		page: 1,
+		limit: 10,
+		keyword: '',
+	});
+
+	// Local filter inputs (for debouncing)
+	const [searchInput, setSearchInput] = React.useState('');
+
 	const [data, setData] = React.useState<Category[]>([]);
 	const {
-		data: categories,
+		data: response,
 		isError: isCategoriesError,
 		refetch: refreshCategories,
 		isPending: isCategoriesPending,
-	} = useCategories(initialCategories);
+	} = useCategories(apiParams, initialCategories);
 	const { mutateAsync } = useDeleteCategory();
 
 	// Edit sheet state
@@ -116,6 +126,14 @@ export function CategoriesTable({
 		setIsCreateOpen(open);
 	};
 
+	// Debounced search
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			setApiParams(prev => ({ ...prev, keyword: searchInput, page: 1 }));
+		}, 500);
+		return () => clearTimeout(timeout);
+	}, [searchInput]);
+
 	useEffect(() => {
 		if (isCategoriesError) {
 			toast.error('Error loading categories');
@@ -123,10 +141,19 @@ export function CategoriesTable({
 	}, [isCategoriesError]);
 
 	useEffect(() => {
-		if (categories) {
-			setData(categories);
+		if (response?.data) {
+			setData(response.data);
 		}
-	}, [categories]);
+	}, [response]);
+
+	const clearFilters = () => {
+		setSearchInput('');
+		setApiParams({
+			page: 1,
+			limit: 10,
+			keyword: '',
+		});
+	};
 
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] =
@@ -135,10 +162,6 @@ export function CategoriesTable({
 		[],
 	);
 	const [sorting, setSorting] = React.useState<SortingState>([]);
-	const [pagination, setPagination] = React.useState({
-		pageIndex: 0,
-		pageSize: 10,
-	});
 	const [deletePopoverOpen, setDeletePopoverOpen] = React.useState(false);
 
 	const columns: ColumnDef<Category>[] = [
@@ -216,7 +239,6 @@ export function CategoriesTable({
 			columnVisibility,
 			rowSelection,
 			columnFilters,
-			pagination,
 		},
 		getRowId: row => row.id.toString(),
 		enableRowSelection: true,
@@ -224,11 +246,11 @@ export function CategoriesTable({
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
 		onColumnVisibilityChange: setColumnVisibility,
-		onPaginationChange: setPagination,
 		getCoreRowModel: getCoreRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
 		getSortedRowModel: getSortedRowModel(),
+		manualPagination: true, // Server-side pagination
+		pageCount: response?.pagination?.totalPages ?? 0,
 	});
 
 	function handleDelete(id: number) {
@@ -286,6 +308,33 @@ export function CategoriesTable({
 
 	return (
 		<div className='w-full flex-col justify-start gap-6 flex'>
+			{/* Filter Bar */}
+			<div className='space-y-4 px-4 lg:px-6'>
+				<div className='flex items-center gap-4'>
+					{/* Search */}
+					<div className='relative flex-1'>
+						<Search className='absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
+						<Input
+							placeholder='Search categories...'
+							value={searchInput}
+							onChange={e => setSearchInput(e.target.value)}
+							className='pl-9'
+						/>
+					</div>
+
+					<Button
+						variant='outline'
+						size='sm'
+						onClick={clearFilters}
+						className='ml-auto'
+					>
+						<X className='size-4' />
+						Clear Filters
+					</Button>
+				</div>
+			</div>
+
+			{/* Toolbar */}
 			<div className='flex items-center justify-between px-4 lg:px-6'>
 				<div className='flex items-center gap-2'>
 					{table.getFilteredSelectedRowModel().rows.length > 0 && (
@@ -469,24 +518,27 @@ export function CategoriesTable({
 
 			<div className='flex items-center justify-between px-4 lg:px-6'>
 				<div className='text-muted-foreground hidden flex-1 text-sm lg:flex'>
-					{table.getFilteredSelectedRowModel().rows.length} /{' '}
-					{table.getFilteredRowModel().rows.length} row(s) selected.
+					{table.getFilteredSelectedRowModel().rows.length} of{' '}
+					{response?.pagination?.totalItems ?? 0} row(s) selected.
 				</div>
 				<div className='flex w-full items-center gap-8 lg:w-fit'>
+					{/* Page size selector */}
 					<div className='hidden items-center gap-2 lg:flex'>
 						<Label htmlFor='rows-per-page' className='text-sm font-medium'>
 							Rows per page
 						</Label>
 						<Select
-							value={`${table.getState().pagination.pageSize}`}
+							value={`${apiParams.limit}`}
 							onValueChange={value => {
-								table.setPageSize(Number(value));
+								setApiParams(prev => ({
+									...prev,
+									limit: Number(value),
+									page: 1,
+								}));
 							}}
 						>
 							<SelectTrigger size='sm' className='w-20' id='rows-per-page'>
-								<SelectValue
-									placeholder={table.getState().pagination.pageSize}
-								/>
+								<SelectValue placeholder={apiParams.limit} />
 							</SelectTrigger>
 							<SelectContent side='top'>
 								{[10, 20, 30, 40, 50].map(pageSize => (
@@ -497,16 +549,21 @@ export function CategoriesTable({
 							</SelectContent>
 						</Select>
 					</div>
+
+					{/* Page info */}
 					<div className='flex w-fit items-center justify-center text-sm font-medium'>
-						Page {table.getState().pagination.pageIndex + 1} of{' '}
-						{table.getPageCount()}
+						Page {response?.pagination?.page ?? 1} of{' '}
+						{response?.pagination?.totalPages ?? 1} • Total:{' '}
+						{response?.pagination?.totalItems ?? 0}
 					</div>
+
+					{/* Navigation buttons */}
 					<div className='ml-auto flex items-center gap-2 lg:ml-0'>
 						<Button
 							variant='outline'
 							className='hidden h-8 w-8 p-0 lg:flex'
-							onClick={() => table.setPageIndex(0)}
-							disabled={!table.getCanPreviousPage()}
+							onClick={() => setApiParams(prev => ({ ...prev, page: 1 }))}
+							disabled={apiParams.page === 1}
 						>
 							<span className='sr-only'>Go to first page</span>
 							<IconChevronsLeft />
@@ -515,8 +572,13 @@ export function CategoriesTable({
 							variant='outline'
 							className='size-8'
 							size='icon'
-							onClick={() => table.previousPage()}
-							disabled={!table.getCanPreviousPage()}
+							onClick={() =>
+								setApiParams(prev => ({
+									...prev,
+									page: Math.max(1, prev.page - 1),
+								}))
+							}
+							disabled={apiParams.page === 1}
 						>
 							<span className='sr-only'>Go to previous page</span>
 							<IconChevronLeft />
@@ -525,8 +587,12 @@ export function CategoriesTable({
 							variant='outline'
 							className='size-8'
 							size='icon'
-							onClick={() => table.nextPage()}
-							disabled={!table.getCanNextPage()}
+							onClick={() =>
+								setApiParams(prev => ({ ...prev, page: prev.page + 1 }))
+							}
+							disabled={
+								apiParams.page >= (response?.pagination?.totalPages ?? 1)
+							}
 						>
 							<span className='sr-only'>Go to next page</span>
 							<IconChevronRight />
@@ -535,8 +601,15 @@ export function CategoriesTable({
 							variant='outline'
 							className='hidden size-8 lg:flex'
 							size='icon'
-							onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-							disabled={!table.getCanNextPage()}
+							onClick={() =>
+								setApiParams(prev => ({
+									...prev,
+									page: response?.pagination?.totalPages ?? 1,
+								}))
+							}
+							disabled={
+								apiParams.page >= (response?.pagination?.totalPages ?? 1)
+							}
 						>
 							<span className='sr-only'>Go to last page</span>
 							<IconChevronsRight />

@@ -1,7 +1,9 @@
+import { PaginatedResponse } from '.';
+
 // ============================================================================
 // GET PRODUCTS
 // ============================================================================
-export type GetProductsResponse = Products;
+export type GetProductsResponse = PaginatedResponse<ProductWithoutDetail>;
 
 // ============================================================================
 // GET PRODUCT BY ID

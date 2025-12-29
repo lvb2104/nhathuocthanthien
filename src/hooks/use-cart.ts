@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getCart } from '@/services/cart';
+import { getCart } from '@/services';
 import { useSession } from 'next-auth/react';
 import { UserRole } from '@/types';
 

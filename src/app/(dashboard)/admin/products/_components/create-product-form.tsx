@@ -20,7 +20,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { CloudUpload, Paperclip } from 'lucide-react';
+import { CloudUpload, Paperclip, X } from 'lucide-react';
 import {
 	FileInput,
 	FileUploader,
@@ -33,6 +33,7 @@ import { CreateProductSchema } from '@/schemas';
 import { useCategories } from '@/hooks';
 import { useCreateProduct } from '@/hooks';
 import LoadingButton from '@/components/custom/loading-button';
+import Image from 'next/image';
 
 export default function CreateProductForm({
 	initialCategories,
@@ -42,14 +43,33 @@ export default function CreateProductForm({
 	onSuccess?: () => void;
 }) {
 	const { mutateAsync, isPending } = useCreateProduct();
-	const { data, isError } = useCategories(initialCategories);
+	const { data: response, isError } = useCategories();
 	const [files, setFiles] = useState<File[]>([]);
+	const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+
+	const categories = response?.data || initialCategories || [];
 
 	useEffect(() => {
 		if (isError) {
 			toast.error('Error fetching categories');
 		}
 	}, [isError]);
+
+	// Create preview URLs when files change
+	useEffect(() => {
+		// Revoke old URLs to prevent memory leaks
+		previewUrls.forEach(url => URL.revokeObjectURL(url));
+
+		// Create new preview URLs
+		const newPreviewUrls = files.map(file => URL.createObjectURL(file));
+		setPreviewUrls(newPreviewUrls);
+
+		// Cleanup function to revoke URLs when unmounting
+		return () => {
+			newPreviewUrls.forEach(url => URL.revokeObjectURL(url));
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [files]);
 
 	const dropZoneConfig = {
 		maxFiles: 5,
@@ -102,6 +122,7 @@ export default function CreateProductForm({
 			}).then(() => {
 				form.reset();
 				setFiles([]);
+				setPreviewUrls([]);
 				if (onSuccess) {
 					onSuccess();
 				}
@@ -204,7 +225,7 @@ export default function CreateProductForm({
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
-									{data?.map((category: Category) => (
+									{categories?.map((category: Category) => (
 										<SelectItem
 											key={category.id}
 											value={category.id.toString()}
@@ -323,38 +344,71 @@ export default function CreateProductForm({
 						<FormItem>
 							<FormLabel>Images</FormLabel>
 							<FormControl>
-								<FileUploader
-									value={files}
-									onValueChange={setFiles}
-									dropzoneOptions={dropZoneConfig}
-									className='relative bg-background rounded-lg p-2'
-								>
-									<FileInput
-										id='fileInput'
-										className='outline-dashed outline-1 outline-slate-500'
-									>
-										<div className='flex items-center justify-center flex-col p-8 w-full '>
-											<CloudUpload className='text-gray-500 w-10 h-10' />
-											<p className='mb-1 text-sm text-gray-500 dark:text-gray-400'>
-												<span className='font-semibold'>Click to upload</span>
-												&nbsp; or drag and drop
-											</p>
-											<p className='text-xs text-gray-500 dark:text-gray-400'>
-												SVG, PNG, JPG or GIF
-											</p>
-										</div>
-									</FileInput>
-									<FileUploaderContent>
-										{files &&
-											files.length > 0 &&
-											files.map((file, i) => (
-												<FileUploaderItem key={i} index={i}>
-													<Paperclip className='h-4 w-4 stroke-current' />
-													<span>{file.name}</span>
-												</FileUploaderItem>
+								<div className='space-y-4'>
+									{/* Image Preview Grid */}
+									{previewUrls.length > 0 && (
+										<div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
+											{previewUrls.map((url, index) => (
+												<div
+													key={index}
+													className='relative aspect-square rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 group'
+												>
+													<Image
+														src={url}
+														alt={`Preview ${index + 1}`}
+														fill
+														className='object-cover'
+													/>
+													<button
+														type='button'
+														onClick={() => {
+															const newFiles = files.filter(
+																(_, i) => i !== index,
+															);
+															setFiles(newFiles);
+														}}
+														className='absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity'
+													>
+														<X className='h-4 w-4' />
+													</button>
+												</div>
 											))}
-									</FileUploaderContent>
-								</FileUploader>
+										</div>
+									)}
+
+									<FileUploader
+										value={files}
+										onValueChange={setFiles}
+										dropzoneOptions={dropZoneConfig}
+										className='relative bg-background rounded-lg p-2'
+									>
+										<FileInput
+											id='fileInput'
+											className='outline-dashed outline-1 outline-slate-500'
+										>
+											<div className='flex items-center justify-center flex-col p-8 w-full '>
+												<CloudUpload className='text-gray-500 w-10 h-10' />
+												<p className='mb-1 text-sm text-gray-500 dark:text-gray-400'>
+													<span className='font-semibold'>Click to upload</span>
+													&nbsp; or drag and drop
+												</p>
+												<p className='text-xs text-gray-500 dark:text-gray-400'>
+													SVG, PNG, JPG or GIF
+												</p>
+											</div>
+										</FileInput>
+										<FileUploaderContent>
+											{files &&
+												files.length > 0 &&
+												files.map((file, i) => (
+													<FileUploaderItem key={i} index={i}>
+														<Paperclip className='h-4 w-4 stroke-current' />
+														<span>{file.name}</span>
+													</FileUploaderItem>
+												))}
+										</FileUploaderContent>
+									</FileUploader>
+								</div>
 							</FormControl>
 
 							<FormMessage />

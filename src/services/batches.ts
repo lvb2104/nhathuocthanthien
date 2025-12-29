@@ -19,8 +19,15 @@ export async function createBatch(
 	return res.data;
 }
 
-export async function getAllBatches(): Promise<GetAllBatchesResponse> {
-	const res = await axiosInstance.get(apiEndpoints.batches.getAll);
+export async function getAllBatches(params?: {
+	page?: number;
+	limit?: number;
+	productId?: number;
+	status?: string;
+	expired?: boolean;
+	keyword?: string;
+}): Promise<GetAllBatchesResponse> {
+	const res = await axiosInstance.get(apiEndpoints.batches.getAll, { params });
 	return res.data;
 }
 

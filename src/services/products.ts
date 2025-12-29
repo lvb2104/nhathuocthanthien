@@ -18,13 +18,29 @@ export async function createProduct(
 	return res.data;
 }
 
-export async function getProducts(): Promise<GetProductsResponse> {
-	const res = await axiosInstance.get(apiEndpoints.products.getAll);
+export async function getProducts(params?: {
+	page?: number;
+	limit?: number;
+	categoryId?: number;
+	onlyDeleted?: boolean;
+	keyword?: string;
+	priceFrom?: number;
+	priceTo?: number;
+}): Promise<GetProductsResponse> {
+	const res = await axiosInstance.get(apiEndpoints.products.getAll, { params });
 	return res.data;
 }
 
-export async function serverGetProducts(): Promise<GetProductsResponse> {
-	const res = await serverAxios.get(apiEndpoints.products.getAll);
+export async function serverGetProducts(params?: {
+	page?: number;
+	limit?: number;
+	categoryId?: number;
+	onlyDeleted?: boolean;
+	keyword?: string;
+	priceFrom?: number;
+	priceTo?: number;
+}): Promise<GetProductsResponse> {
+	const res = await serverAxios.get(apiEndpoints.products.getAll, { params });
 	return res.data;
 }
 
