@@ -1,4 +1,51 @@
-// Models
+// ============================================================================
+// GET ALL REVIEWS
+// ============================================================================
+export type GetAllReviewsResponse = Review[];
+
+// ============================================================================
+// GET REVIEW BY ID
+// ============================================================================
+export type GetReviewByIdResponse = Review;
+
+// ============================================================================
+// GET REVIEWS BY PRODUCT
+// ============================================================================
+export type GetReviewsByProductResponse = Review[];
+
+// ============================================================================
+// GET MY REVIEWS
+// ============================================================================
+export type GetMyReviewsResponse = Review[];
+
+// ============================================================================
+// CREATE REVIEW
+// ============================================================================
+export type CreateReviewRequest = {
+	rating: number; // 1-5
+	comment?: string;
+};
+
+export type CreateReviewResponse = Review;
+
+// ============================================================================
+// UPDATE REVIEW
+// ============================================================================
+export type UpdateReviewRequest = {
+	rating?: number;
+	comment?: string;
+};
+
+export type UpdateReviewResponse = Review;
+
+// ============================================================================
+// DELETE REVIEW
+// ============================================================================
+export type DeleteReviewResponse = { message: string };
+
+// ============================================================================
+// MODELS
+// ============================================================================
 export type Review = {
 	id: number;
 	userId: number;
@@ -12,23 +59,3 @@ export type Review = {
 	createdAt: string;
 	updatedAt: string;
 };
-
-// Request Types
-export type CreateReviewRequest = {
-	rating: number; // 1-5
-	comment?: string;
-};
-
-export type UpdateReviewRequest = {
-	rating?: number;
-	comment?: string;
-};
-
-// Response Types
-export type GetAllReviewsResponse = Review[];
-export type GetReviewByIdResponse = Review;
-export type GetReviewsByProductResponse = Review[];
-export type GetMyReviewsResponse = Review[];
-export type CreateReviewResponse = Review;
-export type UpdateReviewResponse = Review;
-export type DeleteReviewResponse = { message: string };

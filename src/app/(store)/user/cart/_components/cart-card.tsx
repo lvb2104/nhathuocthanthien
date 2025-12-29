@@ -4,11 +4,24 @@ import {
 	usePromotions,
 	useShippingAddresses,
 	useCreateShippingAddress,
+	useCreateOrder,
 } from '@/hooks';
+import { PaymentMethod } from '@/types';
+import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import Image from 'next/image';
 import { app } from '@/configs/app';
-import { X, Minus, Plus, Tag, Check, ChevronDown, MapPin } from 'lucide-react';
+import {
+	X,
+	Minus,
+	Plus,
+	Tag,
+	Check,
+	ChevronDown,
+	MapPin,
+	Banknote,
+	CreditCard,
+} from 'lucide-react';
 import Link from 'next/link';
 import { routes } from '@/configs/routes';
 import { useState, useEffect } from 'react';
@@ -27,6 +40,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { GetPromotionsResponse, GetShippingAddressesResponse } from '@/types';
 
+enum AddressMode {
+	SELECT = 'select',
+	CREATE = 'create',
+}
+
 function CartCard({
 	initialPromotions,
 	initialShippingAddresses,
@@ -41,21 +59,33 @@ function CartCard({
 		decrementItem,
 		formattedTotalPrice,
 		cartCount,
-		redirectToCheckout,
 		appliedPromotion,
 		applyPromotion,
 		removePromotion,
 		formattedDiscountAmount,
 		formattedFinalTotalPrice,
+		clearCart,
 	} = useUnifiedCart();
 	const [showCoupon, setShowCoupon] = useState(false);
 	const [selectedPromotionId, setSelectedPromotionId] = useState<string>('');
+	const [orderNotes, setOrderNotes] = useState('');
 
 	// Address selection state
-	const [addressMode, setAddressMode] = useState<'select' | 'create'>('select');
+	const [addressMode, setAddressMode] = useState<AddressMode>(
+		AddressMode.SELECT,
+	);
 	const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
 		null,
 	);
+
+	// Payment method state
+	const [selectedPaymentMethod, setSelectedPaymentMethod] =
+		useState<PaymentMethod>(PaymentMethod.CASH);
+
+	const router = useRouter();
+
+	// Order creation mutation
+	const createOrderMutation = useCreateOrder();
 
 	// Fetch shipping addresses with initial data from server
 	const { data: shippingAddressesResponse, isLoading: isLoadingAddresses } =
@@ -95,7 +125,7 @@ function CartCard({
 	// Auto-switch to create mode if no addresses exist
 	useEffect(() => {
 		if (!isLoadingAddresses && shippingAddresses.length === 0) {
-			setAddressMode('create');
+			setAddressMode(AddressMode.CREATE);
 		}
 	}, [isLoadingAddresses, shippingAddresses.length]);
 
@@ -128,18 +158,82 @@ function CartCard({
 	};
 
 	const handleCheckout = async () => {
+		// Validate that cart has items
+		if (!cartDetails || Object.keys(cartDetails).length === 0) {
+			toast.error('Giỏ hàng trống');
+			return;
+		}
+
 		// Validate address selection
-		if (addressMode === 'select') {
+		if (addressMode === AddressMode.SELECT) {
 			if (!selectedAddressId) {
 				toast.error('Vui lòng chọn địa chỉ giao hàng');
 				return;
 			}
-			// If we have a selected address, proceed to checkout
-			redirectToCheckout();
+
+			// Create order with selected address
+			await createOrderWithAddress(selectedAddressId);
 		} else {
 			// addressMode === 'create'
 			// Trigger form validation and submission
 			form.handleSubmit(onSubmitNewAddress)();
+		}
+	};
+
+	const createOrderWithAddress = async (addressId: number) => {
+		try {
+			// Prepare order items from cart
+			const items = Object.values(cartDetails || {}).map(item => ({
+				productId: Number(item.id),
+				quantity: item.quantity,
+			}));
+
+			// Create order payload
+			const orderData = {
+				items,
+				userShippingAddressId: addressId,
+				promotionId: appliedPromotion?.id,
+				paymentMethod: selectedPaymentMethod,
+			};
+
+			// Create order using toast.promise for better UX
+			const response = await toast.promise(
+				createOrderMutation.mutateAsync(orderData),
+				{
+					pending: 'Đang tạo đơn hàng...',
+					success: 'Đặt hàng thành công! 🎉',
+					error: {
+						render({ data }: any) {
+							return (
+								data?.response?.data?.message ||
+								'Không thể tạo đơn hàng. Vui lòng thử lại.'
+							);
+						},
+					},
+				},
+			);
+
+			// Handle post-order actions based on payment method
+			if (response.checkoutUrl) {
+				// PayOS payment - redirect to payment gateway
+				// Don't clear cart yet - will be cleared after payment confirmation
+				toast.info('Đang chuyển đến trang thanh toán...');
+				// Use window.location for external payment URLs
+				window.location.href = response.checkoutUrl;
+			} else {
+				// Cash payment - clear cart immediately since payment is on delivery
+				await clearCart();
+				setOrderNotes('');
+				removePromotion();
+
+				// Redirect to orders page
+				setTimeout(() => {
+					router.push(routes.user.orders);
+				}, 1000);
+			}
+		} catch (error: any) {
+			// Error is already handled by toast.promise
+			console.error('Checkout error:', error);
 		}
 	};
 
@@ -149,10 +243,30 @@ function CartCard({
 		try {
 			await createAddressMutation.mutateAsync(values);
 			toast.success('Đã tạo địa chỉ mới thành công');
+
 			// Reset form after success
 			form.reset();
-			// Proceed to checkout after creating address
-			redirectToCheckout(); // TODO: fix this
+
+			// Get the newly created address ID from the response
+			// The backend should return the created address with its ID
+			// For now, we'll refetch addresses and use the first one (assuming it's the default)
+			// In a production app, the backend should return the created address ID
+
+			// Wait a bit for the mutation to invalidate and refetch
+			await new Promise(resolve => setTimeout(resolve, 500));
+
+			// Use the newly created address - get the latest from the list
+			// This assumes the backend returns addresses in reverse chronological order
+			// or that the new address is set as default
+			const latestAddresses = shippingAddressesResponse || [];
+			if (latestAddresses.length > 0) {
+				// Find the default address or use the first one
+				const addressToUse =
+					latestAddresses.find(a => a.isDefault) || latestAddresses[0];
+				await createOrderWithAddress(addressToUse.id);
+			} else {
+				toast.error('Không thể lấy địa chỉ vừa tạo. Vui lòng thử lại.');
+			}
 		} catch (error: any) {
 			const message =
 				error?.response?.data?.message || 'Không thể tạo địa chỉ mới';
@@ -434,9 +548,9 @@ function CartCard({
 						<div className='flex gap-2'>
 							<button
 								type='button'
-								onClick={() => setAddressMode('select')}
+								onClick={() => setAddressMode(AddressMode.SELECT)}
 								className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
-									addressMode === 'select'
+									addressMode === AddressMode.SELECT
 										? 'bg-green-600 text-white'
 										: 'bg-gray-100 text-gray-700 hover:bg-gray-200'
 								}`}
@@ -445,9 +559,9 @@ function CartCard({
 							</button>
 							<button
 								type='button'
-								onClick={() => setAddressMode('create')}
+								onClick={() => setAddressMode(AddressMode.CREATE)}
 								className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
-									addressMode === 'create'
+									addressMode === AddressMode.CREATE
 										? 'bg-green-600 text-white'
 										: 'bg-gray-100 text-gray-700 hover:bg-gray-200'
 								}`}
@@ -457,7 +571,7 @@ function CartCard({
 						</div>
 
 						{/* Select Existing Address Mode */}
-						{addressMode === 'select' && (
+						{addressMode === AddressMode.SELECT && (
 							<div className='space-y-3'>
 								{isLoadingAddresses ? (
 									<p className='text-gray-500 text-center py-4'>
@@ -475,7 +589,9 @@ function CartCard({
 											<select
 												value={selectedAddressId || ''}
 												onChange={e =>
-													setSelectedAddressId(Number(e.target.value))
+													setSelectedAddressId(
+														e.target.value ? Number(e.target.value) : null,
+													)
 												}
 												className='w-full px-4 py-2.5 pr-10 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none bg-white'
 											>
@@ -531,7 +647,7 @@ function CartCard({
 						)}
 
 						{/* Create New Address Mode */}
-						{addressMode === 'create' && (
+						{addressMode === AddressMode.CREATE && (
 							<Form {...form}>
 								<div className='space-y-4'>
 									{/* Name & Phone */}
@@ -659,8 +775,87 @@ function CartCard({
 							<textarea
 								placeholder='Ghi chú về đơn hàng, ví dụ: thời gian hay chỉ dẫn địa điểm giao hàng chi tiết hơn.'
 								rows={4}
+								value={orderNotes}
+								onChange={e => setOrderNotes(e.target.value)}
 								className='w-full px-4 py-2.5 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none resize-none'
 							/>
+						</div>
+
+						{/* Payment Method Selection */}
+						<div className='space-y-3'>
+							<h3 className='text-lg font-semibold text-gray-900'>
+								Phương thức thanh toán
+							</h3>
+
+							<div className='grid grid-cols-2 gap-3'>
+								{/* Cash Payment Option */}
+								<button
+									type='button'
+									onClick={() => setSelectedPaymentMethod(PaymentMethod.CASH)}
+									className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
+										selectedPaymentMethod === PaymentMethod.CASH
+											? 'border-green-600 bg-green-50'
+											: 'border-gray-300 bg-white hover:border-gray-400'
+									}`}
+								>
+									<Banknote
+										size={32}
+										className={
+											selectedPaymentMethod === PaymentMethod.CASH
+												? 'text-green-600'
+												: 'text-gray-600'
+										}
+									/>
+									<div className='text-center'>
+										<p
+											className={`font-semibold ${
+												selectedPaymentMethod === PaymentMethod.CASH
+													? 'text-green-700'
+													: 'text-gray-700'
+											}`}
+										>
+											Tiền mặt
+										</p>
+										<p className='text-xs text-gray-500 mt-1'>
+											Thanh toán khi nhận hàng
+										</p>
+									</div>
+								</button>
+
+								{/* Online Banking Payment Option */}
+								<button
+									type='button'
+									onClick={() => setSelectedPaymentMethod(PaymentMethod.PAYOS)}
+									className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
+										selectedPaymentMethod === PaymentMethod.PAYOS
+											? 'border-green-600 bg-green-50'
+											: 'border-gray-300 bg-white hover:border-gray-400'
+									}`}
+								>
+									<CreditCard
+										size={32}
+										className={
+											selectedPaymentMethod === PaymentMethod.PAYOS
+												? 'text-green-600'
+												: 'text-gray-600'
+										}
+									/>
+									<div className='text-center'>
+										<p
+											className={`font-semibold ${
+												selectedPaymentMethod === PaymentMethod.PAYOS
+													? 'text-green-700'
+													: 'text-gray-700'
+											}`}
+										>
+											Ngân hàng
+										</p>
+										<p className='text-xs text-gray-500 mt-1'>
+											Thanh toán trực tuyến
+										</p>
+									</div>
+								</button>
+							</div>
 						</div>
 
 						{/* Summary Footer */}

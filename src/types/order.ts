@@ -1,14 +1,56 @@
-// Enums
-export enum OrderStatus {
-	PENDING = 'pending',
-	CONFIRMED = 'confirmed',
-	DELIVERING = 'delivering',
-	COMPLETED = 'completed',
-	CANCELLED = 'cancelled',
-	FAILED = 'failed',
-}
+// ============================================================================
+// GET ALL ORDERS
+// ============================================================================
+export type GetAllOrdersResponse = Order[];
 
-// Models
+// ============================================================================
+// GET ORDER BY ID
+// ============================================================================
+export type GetOrderByIdResponse = Order;
+
+// ============================================================================
+// CREATE ORDER
+// ============================================================================
+export type OrderItemRequest = {
+	productId: number;
+	quantity: number;
+};
+
+export type CreateOrderRequest = {
+	items: OrderItemRequest[];
+	paymentMethod?: PaymentMethod;
+	userShippingAddressId: number;
+	promotionId?: number;
+};
+
+export type CreateOrderResponse = {
+	message: string;
+	orderId: number;
+	checkoutUrl?: string;
+};
+
+// ============================================================================
+// UPDATE ORDER STATUS
+// ============================================================================
+export type UpdateOrderStatusRequest = {
+	status: OrderStatus;
+};
+
+export type UpdateOrderStatusResponse = { message: string };
+
+// ============================================================================
+// CANCEL ORDER
+// ============================================================================
+export type CancelOrderResponse = { message: string };
+
+// ============================================================================
+// DELETE ORDER
+// ============================================================================
+export type DeleteOrderResponse = { message: string };
+
+// ============================================================================
+// MODELS
+// ============================================================================
 export type Order = {
 	id: number;
 	userId: number;
@@ -73,31 +115,26 @@ export type OrderShipping = {
 	note?: string;
 };
 
-// Request Types
-export type OrderItemRequest = {
-	productId: number;
-	quantity: number;
-};
+// ============================================================================
+// ENUMS
+// ============================================================================
+export enum OrderStatus {
+	PENDING = 'pending',
+	CONFIRMED = 'confirmed',
+	DELIVERING = 'delivering',
+	COMPLETED = 'completed',
+	CANCELLED = 'cancelled',
+	FAILED = 'failed',
+}
 
-export type CreateOrderRequest = {
-	items: OrderItemRequest[];
-	paymentMethod?: string;
-	userShippingAddressId: number;
-	promotionId?: number;
-};
+export enum PaymentMethod {
+	CASH = 'cash',
+	PAYOS = 'payos',
+}
 
-export type UpdateOrderStatusRequest = {
-	status: OrderStatus;
-};
-
-// Response Types
-export type GetAllOrdersResponse = Order[];
-export type GetOrderByIdResponse = Order;
-export type CreateOrderResponse = {
-	message: string;
-	orderId: number;
-	checkoutUrl?: string;
-};
-export type UpdateOrderStatusResponse = { message: string };
-export type CancelOrderResponse = { message: string };
-export type DeleteOrderResponse = { message: string };
+export enum PaymentStatus {
+	PENDING = 'pending',
+	PAID = 'paid',
+	FAILED = 'failed',
+	CANCELLED = 'cancelled',
+}

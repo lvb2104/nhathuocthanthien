@@ -13,6 +13,10 @@ export const routes = {
 		profile: '/user/profile',
 		orders: '/user/orders',
 		cart: '/user/cart',
+		payment: {
+			success: '/user/payment/success',
+			cancel: '/user/payment/cancel',
+		},
 	},
 	admin: {
 		overview: '/admin/overview',
