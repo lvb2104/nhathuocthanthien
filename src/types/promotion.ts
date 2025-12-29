@@ -1,14 +1,16 @@
-// Models
-export type Promotion = {
-	id: number;
-	code: string;
-	description: string;
-	discountPercent: number;
-	startDate: string;
-	endDate: string;
-};
+// ============================================================================
+// GET PROMOTIONS
+// ============================================================================
+export type GetPromotionsResponse = Promotion[];
 
-// Requests
+// ============================================================================
+// GET PROMOTION BY ID
+// ============================================================================
+export type GetPromotionByIdResponse = Promotion;
+
+// ============================================================================
+// CREATE PROMOTION
+// ============================================================================
 export type CreatePromotionRequest = {
 	code: string;
 	description: string;
@@ -17,21 +19,34 @@ export type CreatePromotionRequest = {
 	endDate: string;
 };
 
-export type UpdatePromotionRequest = Partial<CreatePromotionRequest>;
-
-// Responses
-export type GetPromotionsResponse = Promotion[];
-
-export type GetPromotionByIdResponse = Promotion;
-
 export type CreatePromotionResponse = {
 	message: string;
 };
+
+// ============================================================================
+// UPDATE PROMOTION
+// ============================================================================
+export type UpdatePromotionRequest = Partial<CreatePromotionRequest>;
 
 export type UpdatePromotionResponse = {
 	message: string;
 };
 
+// ============================================================================
+// DELETE PROMOTION
+// ============================================================================
 export type DeletePromotionResponse = {
 	message: string;
+};
+
+// ============================================================================
+// MODELS
+// ============================================================================
+export type Promotion = {
+	id: number;
+	code: string;
+	description: string;
+	discountPercent: number;
+	startDate: string;
+	endDate: string;
 };

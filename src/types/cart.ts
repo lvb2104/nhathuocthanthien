@@ -1,11 +1,15 @@
-// Get Cart
+// ============================================================================
+// GET CART
+// ============================================================================
 export type GetCartResponse = {
 	id: number;
 	userId: number;
 	items: CartItem[];
 };
 
-// Add Item to Cart
+// ============================================================================
+// ADD ITEM TO CART
+// ============================================================================
 export type AddItemToCartRequest = {
 	quantity: number;
 };
@@ -14,7 +18,9 @@ export type AddItemToCartResponse = {
 	message: string;
 };
 
-// Update Quantity
+// ============================================================================
+// UPDATE QUANTITY
+// ============================================================================
 export type UpdateQuantityRequest = {
 	quantity: number;
 };
@@ -23,17 +29,23 @@ export type UpdateQuantityResponse = {
 	message: string;
 };
 
-// Delete Item from Cart
+// ============================================================================
+// DELETE ITEM FROM CART
+// ============================================================================
 export type DeleteItemFromCartResponse = {
 	message: string;
 };
 
-// Clear Cart
+// ============================================================================
+// CLEAR CART
+// ============================================================================
 export type ClearCartResponse = {
 	message: string;
 };
 
-// Models
+// ============================================================================
+// MODELS
+// ============================================================================
 export type CartItem = {
 	id: number;
 	productId: number;

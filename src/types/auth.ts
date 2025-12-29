@@ -1,4 +1,6 @@
-// Sign In
+// ============================================================================
+// SIGN IN
+// ============================================================================
 export type SignInRequest = {
 	email: string;
 	password: string;
@@ -8,7 +10,9 @@ export type SignInResponse = {
 	accessToken: string;
 };
 
-// Sign Up
+// ============================================================================
+// SIGN UP
+// ============================================================================
 export type SignUpRequest = {
 	email: string;
 	fullName: string;
@@ -19,7 +23,9 @@ export type SignUpResponse = {
 	message: string;
 };
 
-// Verify Email
+// ============================================================================
+// VERIFY EMAIL
+// ============================================================================
 export type VerifyEmailRequest = {
 	email: string;
 	otp: string;
@@ -29,7 +35,9 @@ export type VerifyEmailResponse = {
 	message: string;
 };
 
-// Forgot Password
+// ============================================================================
+// FORGOT PASSWORD
+// ============================================================================
 export type ForgotPasswordRequest = {
 	email: string;
 };
@@ -38,7 +46,9 @@ export type ForgotPasswordResponse = {
 	message: string;
 };
 
-// Verify Reset Password OTP
+// ============================================================================
+// VERIFY RESET PASSWORD OTP
+// ============================================================================
 export type VerifyResetPasswordOtpRequest = {
 	email: string;
 	otp: string;
@@ -48,7 +58,9 @@ export type VerifyResetPasswordOtpResponse = {
 	message: string;
 };
 
-// Reset Password
+// ============================================================================
+// RESET PASSWORD
+// ============================================================================
 export type ResetPasswordRequest = {
 	email: string;
 	newPassword: string;
@@ -58,17 +70,23 @@ export type ResetPasswordResponse = {
 	message: string;
 };
 
-// Refresh Token
+// ============================================================================
+// REFRESH TOKEN
+// ============================================================================
 export type RefreshTokenResponse = {
 	accessToken: string;
 };
 
-// Sign Out
+// ============================================================================
+// SIGN OUT
+// ============================================================================
 export type SignOutResponse = {
 	message: string;
 };
 
-// Models
+// ============================================================================
+// MODELS
+// ============================================================================
 export type JwtPayload = {
 	id: number;
 	fullName: string;
@@ -78,12 +96,6 @@ export type JwtPayload = {
 	exp: number;
 };
 
-enum UserRole {
-	CUSTOMER = 'customer',
-	ADMIN = 'admin',
-	PHARMACIST = 'pharmacist',
-}
-
 export type User = {
 	id: number;
 	email: string;
@@ -91,3 +103,12 @@ export type User = {
 	avatarUrl: string;
 	role: UserRole;
 };
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+enum UserRole {
+	CUSTOMER = 'customer',
+	ADMIN = 'admin',
+	PHARMACIST = 'pharmacist',
+}

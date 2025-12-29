@@ -1,20 +1,30 @@
-// Get User Profile
+// ============================================================================
+// GET USER PROFILE
+// ============================================================================
 export type GetUserProfileResponse = UserInfo;
 
-// Update User Profile
+// ============================================================================
+// UPDATE USER PROFILE
+// ============================================================================
 export type UpdateUserProfileRequest = FormData;
 
 export type UpdateUserProfileResponse = {
 	message: string;
 };
 
-// Get Shipping Addresses
+// ============================================================================
+// GET SHIPPING ADDRESSES
+// ============================================================================
 export type GetShippingAddressesResponse = ShippingAddress[];
 
-// Get Shipping Address By ID
+// ============================================================================
+// GET SHIPPING ADDRESS BY ID
+// ============================================================================
 export type GetShippingAddressByIdResponse = ShippingAddress;
 
-// Create Shipping Address
+// ============================================================================
+// CREATE SHIPPING ADDRESS
+// ============================================================================
 export type CreateShippingAddressRequest = {
 	fullName: string;
 	phone: string;
@@ -30,7 +40,9 @@ export type CreateShippingAddressResponse = {
 	message: string;
 };
 
-// Update Shipping Address
+// ============================================================================
+// UPDATE SHIPPING ADDRESS
+// ============================================================================
 export type UpdateShippingAddressRequest =
 	Partial<CreateShippingAddressRequest>;
 
@@ -38,12 +50,16 @@ export type UpdateShippingAddressResponse = {
 	message: string;
 };
 
-// Delete Shipping Address
+// ============================================================================
+// DELETE SHIPPING ADDRESS
+// ============================================================================
 export type DeleteShippingAddressResponse = {
 	message: string;
 };
 
-// Change Password
+// ============================================================================
+// CHANGE PASSWORD
+// ============================================================================
 export type ChangePasswordRequest = {
 	currentPassword: string;
 	newPassword: string;
@@ -53,7 +69,9 @@ export type ChangePasswordResponse = {
 	message: string;
 };
 
-// Assign Account
+// ============================================================================
+// ASSIGN ACCOUNT
+// ============================================================================
 export type AssignAccountRequest = {
 	fullName: string;
 	email: string;
@@ -69,7 +87,9 @@ export type AssignAccountResponse = {
 	role: UserRole;
 };
 
-// Models
+// ============================================================================
+// MODELS
+// ============================================================================
 export type UserInfo = {
 	id: number;
 	email: string;
@@ -96,6 +116,9 @@ export type ShippingAddress = {
 	isDefault: boolean;
 };
 
+// ============================================================================
+// ENUMS
+// ============================================================================
 export enum UserRole {
 	CUSTOMER = 'customer',
 	ADMIN = 'admin',

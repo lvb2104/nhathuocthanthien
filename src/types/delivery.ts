@@ -1,13 +1,40 @@
-// Enums
-export enum DeliveryStatus {
-	PENDING = 'pending',
-	PICKED_UP = 'picked_up',
-	IN_TRANSIT = 'in_transit',
-	DELIVERED = 'delivered',
-	FAILED = 'failed',
-}
+// ============================================================================
+// GET ALL DELIVERIES
+// ============================================================================
+export type GetAllDeliveriesResponse = Delivery[];
 
-// Models
+// ============================================================================
+// GET DELIVERIES BY EMPLOYEE
+// ============================================================================
+export type GetDeliveriesByEmployeeResponse = Delivery[];
+
+// ============================================================================
+// CREATE DELIVERY
+// ============================================================================
+export type CreateDeliveryRequest = {
+	orderId: number;
+	employeeId: number;
+};
+
+export type CreateDeliveryResponse = Delivery;
+
+// ============================================================================
+// UPDATE DELIVERY STATUS
+// ============================================================================
+export type UpdateDeliveryStatusRequest = {
+	status: DeliveryStatus;
+};
+
+export type UpdateDeliveryResponse = Delivery;
+
+// ============================================================================
+// UPDATE DELIVERY (PARTIAL)
+// ============================================================================
+export type UpdateDeliveryPartialRequest = Partial<Delivery>;
+
+// ============================================================================
+// MODELS
+// ============================================================================
 export type Delivery = {
 	id: number;
 	orderId: number;
@@ -21,20 +48,13 @@ export type Delivery = {
 	};
 };
 
-// Request Types
-export type CreateDeliveryRequest = {
-	orderId: number;
-	employeeId: number;
-};
-
-export type UpdateDeliveryStatusRequest = {
-	status: DeliveryStatus;
-};
-
-export type UpdateDeliveryPartialRequest = Partial<Delivery>;
-
-// Response Types
-export type GetAllDeliveriesResponse = Delivery[];
-export type GetDeliveriesByEmployeeResponse = Delivery[];
-export type CreateDeliveryResponse = Delivery;
-export type UpdateDeliveryResponse = Delivery;
+// ============================================================================
+// ENUMS
+// ============================================================================
+export enum DeliveryStatus {
+	PENDING = 'pending',
+	PICKED_UP = 'picked_up',
+	IN_TRANSIT = 'in_transit',
+	DELIVERED = 'delivered',
+	FAILED = 'failed',
+}

@@ -1,28 +1,40 @@
-// Requests
+// ============================================================================
+// GET CATEGORIES
+// ============================================================================
+export type GetCategoriesResponse = Category[];
+
+// ============================================================================
+// CREATE CATEGORY
+// ============================================================================
 export type CreateCategoryRequest = {
 	name: string;
 };
 
-export type UpdateCategoryRequest = {
-	name: string;
-};
-
-// Responses
 export type CreateCategoryResponse = {
 	message: string;
 };
 
-export type GetCategoriesResponse = Category[];
+// ============================================================================
+// UPDATE CATEGORY
+// ============================================================================
+export type UpdateCategoryRequest = {
+	name: string;
+};
 
 export type UpdateCategoryResponse = {
 	message: string;
 };
 
+// ============================================================================
+// DELETE CATEGORY
+// ============================================================================
 export type DeleteCategoryResponse = {
 	message: string;
 };
 
-// Models
+// ============================================================================
+// MODELS
+// ============================================================================
 export type Category = {
 	id: number;
 	name: string;
