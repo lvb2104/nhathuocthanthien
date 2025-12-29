@@ -6,6 +6,7 @@ export * from './use-sign-out';
 export * from './use-verify-reset-password-otp';
 export * from './use-reset-password';
 export * from './use-mobile';
+export * from './use-debounce';
 export * from './use-categories';
 export * from './use-create-category';
 export * from './use-update-category';

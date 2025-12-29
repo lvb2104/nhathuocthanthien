@@ -19,7 +19,6 @@ import {
 	getFacetedRowModel,
 	getFacetedUniqueValues,
 	getFilteredRowModel,
-	getPaginationRowModel,
 	getSortedRowModel,
 	SortingState,
 	useReactTable,
@@ -67,7 +66,7 @@ import {
 } from '@/types';
 import { useEffect } from 'react';
 import { useDeleteProduct, useProducts } from '@/hooks';
-import { RefreshCcw } from 'lucide-react';
+import { RefreshCcw, Search, X } from 'lucide-react';
 import {
 	Sheet,
 	SheetContent,
@@ -75,6 +74,7 @@ import {
 	SheetHeader,
 	SheetTitle,
 } from '@/components/ui/sheet';
+import { Input } from '@/components/ui/input';
 import CreateProductForm from './create-product-form';
 import EditProductForm from './edit-product-form';
 
@@ -86,13 +86,29 @@ export function ProductsTable({
 	initialCategories?: GetCategoriesResponse;
 	initialProducts?: GetProductsResponse;
 }) {
+	// API Filter params state
+	const [apiParams, setApiParams] = React.useState({
+		page: 1,
+		limit: 10,
+		categoryId: undefined as number | undefined,
+		keyword: '',
+		priceFrom: undefined as number | undefined,
+		priceTo: undefined as number | undefined,
+		onlyDeleted: false,
+	});
+
+	// Local filter inputs (for debouncing)
+	const [searchInput, setSearchInput] = React.useState('');
+	const [priceFromInput, setPriceFromInput] = React.useState('');
+	const [priceToInput, setPriceToInput] = React.useState('');
+
 	const [data, setData] = React.useState<Products>([]);
 	const {
-		data: products,
+		data: response,
 		isError: isProductsError,
 		refetch: refreshProducts,
 		isPending: isProductsPending,
-	} = useProducts(initialProducts);
+	} = useProducts(apiParams, initialProducts);
 	const { mutateAsync } = useDeleteProduct();
 
 	const [formKey, setFormKey] = React.useState(0);
@@ -108,26 +124,46 @@ export function ProductsTable({
 
 	const handleEdit = (product: ProductWithoutDetail) => {
 		setSelectedProduct(product);
-		setFormKey(Date.now()); // Generate unique key for each edit action
+		setFormKey(Date.now());
 		setIsEditOpen(true);
 	};
 
 	const handleEditSheetOpenChange = (open: boolean) => {
 		setIsEditOpen(open);
 		if (!open) {
-			// Reset selected product when sheet closes to ensure fresh state on next open
 			setSelectedProduct(null);
 		}
 	};
 
 	const handleCreate = () => {
-		setCreateFormKey(Date.now()); // Generate unique key for each create action
+		setCreateFormKey(Date.now());
 		setIsCreateOpen(true);
 	};
 
 	const handleCreateSheetOpenChange = (open: boolean) => {
 		setIsCreateOpen(open);
 	};
+
+	// Debounced search
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			setApiParams(prev => ({ ...prev, keyword: searchInput, page: 1 }));
+		}, 500);
+		return () => clearTimeout(timeout);
+	}, [searchInput]);
+
+	// Debounced price filters
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			setApiParams(prev => ({
+				...prev,
+				priceFrom: priceFromInput ? Number(priceFromInput) : undefined,
+				priceTo: priceToInput ? Number(priceToInput) : undefined,
+				page: 1,
+			}));
+		}, 500);
+		return () => clearTimeout(timeout);
+	}, [priceFromInput, priceToInput]);
 
 	useEffect(() => {
 		if (isProductsError) {
@@ -136,10 +172,10 @@ export function ProductsTable({
 	}, [isProductsError]);
 
 	useEffect(() => {
-		if (products) {
-			setData(products);
+		if (response?.data) {
+			setData(response.data);
 		}
-	}, [products]);
+	}, [response]);
 
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] =
@@ -148,11 +184,22 @@ export function ProductsTable({
 		[],
 	);
 	const [sorting, setSorting] = React.useState<SortingState>([]);
-	const [pagination, setPagination] = React.useState({
-		pageIndex: 0,
-		pageSize: 10,
-	});
 	const [deletePopoverOpen, setDeletePopoverOpen] = React.useState(false);
+
+	const clearFilters = () => {
+		setSearchInput('');
+		setPriceFromInput('');
+		setPriceToInput('');
+		setApiParams({
+			page: 1,
+			limit: 10,
+			categoryId: undefined,
+			keyword: '',
+			priceFrom: undefined,
+			priceTo: undefined,
+			onlyDeleted: false,
+		});
+	};
 
 	// Define the columns for the table with header (what to show at the top of the column) and cell (how to render each cell in that column)
 	const columns: ColumnDef<ProductWithoutDetail>[] = [
@@ -269,7 +316,6 @@ export function ProductsTable({
 			columnVisibility,
 			rowSelection,
 			columnFilters,
-			pagination,
 		},
 		getRowId: row => row.id.toString(),
 		enableRowSelection: true,
@@ -277,13 +323,13 @@ export function ProductsTable({
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
 		onColumnVisibilityChange: setColumnVisibility,
-		onPaginationChange: setPagination,
 		getCoreRowModel: getCoreRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getFacetedRowModel: getFacetedRowModel(),
 		getFacetedUniqueValues: getFacetedUniqueValues(),
+		manualPagination: true, // Server-side pagination
+		pageCount: response?.pagination?.totalPages ?? 0,
 	});
 
 	function handleDelete(id: number) {
@@ -347,6 +393,96 @@ export function ProductsTable({
 
 	return (
 		<div className='w-full flex-col justify-start gap-6 flex'>
+			{/* Filter Bar */}
+			<div className='space-y-4 px-4 lg:px-6'>
+				<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+					{/* Search */}
+					<div className='relative'>
+						<Search className='absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
+						<Input
+							placeholder='Search products...'
+							value={searchInput}
+							onChange={e => setSearchInput(e.target.value)}
+							className='pl-9'
+						/>
+					</div>
+
+					{/* Category Filter */}
+					<Select
+						value={apiParams.categoryId?.toString() || 'all'}
+						onValueChange={value => {
+							setApiParams(prev => ({
+								...prev,
+								categoryId: value === 'all' ? undefined : Number(value),
+								page: 1,
+							}));
+						}}
+					>
+						<SelectTrigger>
+							<SelectValue placeholder='All Categories' />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value='all'>All Categories</SelectItem>
+							{(initialCategories?.data || []).map(cat => (
+								<SelectItem key={cat.id} value={cat.id.toString()}>
+									{cat.name}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+
+					{/* Price From */}
+					<Input
+						type='number'
+						placeholder='Min price'
+						value={priceFromInput}
+						onChange={e => setPriceFromInput(e.target.value)}
+					/>
+
+					{/* Price To */}
+					<Input
+						type='number'
+						placeholder='Max price'
+						value={priceToInput}
+						onChange={e => setPriceToInput(e.target.value)}
+					/>
+				</div>
+
+				{/* Second row - Deleted toggle and clear button */}
+				<div className='flex items-center gap-4'>
+					<div className='flex items-center gap-2'>
+						<Checkbox
+							id='show-deleted'
+							checked={apiParams.onlyDeleted}
+							onCheckedChange={checked => {
+								setApiParams(prev => ({
+									...prev,
+									onlyDeleted: checked as boolean,
+									page: 1,
+								}));
+							}}
+						/>
+						<Label
+							htmlFor='show-deleted'
+							className='text-sm font-medium cursor-pointer'
+						>
+							Show deleted products
+						</Label>
+					</div>
+
+					<Button
+						variant='outline'
+						size='sm'
+						onClick={clearFilters}
+						className='ml-auto'
+					>
+						<X className='size-4' />
+						Clear Filters
+					</Button>
+				</div>
+			</div>
+
+			{/* Toolbar */}
 			<div className='flex items-center justify-between px-4 lg:px-6'>
 				<div className='flex items-center gap-2'>
 					{table.getFilteredSelectedRowModel().rows.length > 0 && (
@@ -528,23 +664,26 @@ export function ProductsTable({
 			<div className='flex items-center justify-between px-4 lg:px-6'>
 				<div className='text-muted-foreground hidden flex-1 text-sm lg:flex'>
 					{table.getFilteredSelectedRowModel().rows.length} of{' '}
-					{table.getFilteredRowModel().rows.length} row(s) selected.
+					{response?.pagination?.totalItems ?? 0} row(s) selected.
 				</div>
 				<div className='flex w-full items-center gap-8 lg:w-fit'>
+					{/* Page size selector */}
 					<div className='hidden items-center gap-2 lg:flex'>
 						<Label htmlFor='rows-per-page' className='text-sm font-medium'>
 							Rows per page
 						</Label>
 						<Select
-							value={`${table.getState().pagination.pageSize}`}
+							value={`${apiParams.limit}`}
 							onValueChange={value => {
-								table.setPageSize(Number(value));
+								setApiParams(prev => ({
+									...prev,
+									limit: Number(value),
+									page: 1,
+								}));
 							}}
 						>
 							<SelectTrigger size='sm' className='w-20' id='rows-per-page'>
-								<SelectValue
-									placeholder={table.getState().pagination.pageSize}
-								/>
+								<SelectValue placeholder={apiParams.limit} />
 							</SelectTrigger>
 							<SelectContent side='top'>
 								{[10, 20, 30, 40, 50].map(pageSize => (
@@ -555,16 +694,21 @@ export function ProductsTable({
 							</SelectContent>
 						</Select>
 					</div>
+
+					{/* Page info */}
 					<div className='flex w-fit items-center justify-center text-sm font-medium'>
-						Page {table.getState().pagination.pageIndex + 1} of{' '}
-						{table.getPageCount()}
+						Page {response?.pagination?.page ?? 1} of{' '}
+						{response?.pagination?.totalPages ?? 1} • Total:{' '}
+						{response?.pagination?.totalItems ?? 0}
 					</div>
+
+					{/* Navigation buttons */}
 					<div className='ml-auto flex items-center gap-2 lg:ml-0'>
 						<Button
 							variant='outline'
 							className='hidden h-8 w-8 p-0 lg:flex'
-							onClick={() => table.setPageIndex(0)}
-							disabled={!table.getCanPreviousPage()}
+							onClick={() => setApiParams(prev => ({ ...prev, page: 1 }))}
+							disabled={apiParams.page === 1}
 						>
 							<span className='sr-only'>Go to first page</span>
 							<IconChevronsLeft />
@@ -573,8 +717,13 @@ export function ProductsTable({
 							variant='outline'
 							className='size-8'
 							size='icon'
-							onClick={() => table.previousPage()}
-							disabled={!table.getCanPreviousPage()}
+							onClick={() =>
+								setApiParams(prev => ({
+									...prev,
+									page: Math.max(1, prev.page - 1),
+								}))
+							}
+							disabled={apiParams.page === 1}
 						>
 							<span className='sr-only'>Go to previous page</span>
 							<IconChevronLeft />
@@ -583,8 +732,12 @@ export function ProductsTable({
 							variant='outline'
 							className='size-8'
 							size='icon'
-							onClick={() => table.nextPage()}
-							disabled={!table.getCanNextPage()}
+							onClick={() =>
+								setApiParams(prev => ({ ...prev, page: prev.page + 1 }))
+							}
+							disabled={
+								apiParams.page >= (response?.pagination?.totalPages ?? 1)
+							}
 						>
 							<span className='sr-only'>Go to next page</span>
 							<IconChevronRight />
@@ -593,8 +746,15 @@ export function ProductsTable({
 							variant='outline'
 							className='hidden size-8 lg:flex'
 							size='icon'
-							onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-							disabled={!table.getCanNextPage()}
+							onClick={() =>
+								setApiParams(prev => ({
+									...prev,
+									page: response?.pagination?.totalPages ?? 1,
+								}))
+							}
+							disabled={
+								apiParams.page >= (response?.pagination?.totalPages ?? 1)
+							}
 						>
 							<span className='sr-only'>Go to last page</span>
 							<IconChevronsRight />
@@ -616,7 +776,7 @@ export function ProductsTable({
 					{selectedProduct && (
 						<EditProductForm
 							key={formKey}
-							initialCategories={initialCategories}
+							initialCategories={initialCategories?.data}
 							id={selectedProduct.id.toString()}
 							initialProduct={selectedProduct}
 							onSuccess={() => {
@@ -638,7 +798,7 @@ export function ProductsTable({
 					</SheetHeader>
 					<CreateProductForm
 						key={createFormKey}
-						initialCategories={initialCategories}
+						initialCategories={initialCategories?.data}
 						onSuccess={() => {
 							setIsCreateOpen(false);
 							refreshProducts();

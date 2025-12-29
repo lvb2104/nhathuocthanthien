@@ -9,3 +9,4 @@ export * from './batch';
 export * from './prescription';
 export * from './product';
 export * from './user';
+export * from './paginated-response';

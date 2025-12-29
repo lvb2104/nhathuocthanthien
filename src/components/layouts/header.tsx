@@ -1,9 +1,9 @@
 'use client';
 import { routes } from '@/configs/routes';
-import { Search } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import ContentWrapper from './content-wrapper';
+import SearchBar from './search-bar';
 import { useIsMobile, useSignOut, useUnifiedCart } from '@/hooks';
 import { toast } from 'react-toastify';
 import type { MouseEvent } from 'react';
@@ -95,18 +95,7 @@ function Header() {
 						</div>
 					</Link>
 					{/* Search Bar */}
-					<div className='flex-1 max-w-xl'>
-						<div className='relative'>
-							<input
-								type='text'
-								placeholder='Tìm sản phẩm...'
-								className='w-full h-10 px-4 py-3 rounded-full pr-12 text-gray-700 bg-white border-none outline-none'
-							/>
-							<button className='absolute right-2 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full'>
-								<Search className='w-5 h-5 text-gray-600' />
-							</button>
-						</div>
-					</div>
+					<SearchBar />
 					{/* Cart and Order Tracking */}
 					<div className='flex items-center gap-4'>
 						<Link

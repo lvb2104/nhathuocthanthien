@@ -7,15 +7,29 @@ import { toast } from 'react-toastify';
 import { GetProductsResponse } from '@/types';
 import { app } from '@/configs/app';
 
-function MostSoldProductsWidget({
+function ProductsWidget({
 	initialProducts,
 	title,
+	params,
 }: {
 	initialProducts: GetProductsResponse;
 	title: string;
+	params?: {
+		page?: number;
+		limit?: number;
+		categoryId?: number;
+		onlyDeleted?: boolean;
+		keyword?: string;
+		priceFrom?: number;
+		priceTo?: number;
+	};
 }) {
-	const { data: products, isError: isProductsError } =
-		useProducts(initialProducts);
+	const { data: response, isError: isProductsError } = useProducts(
+		params,
+		initialProducts,
+	);
+
+	const products = response?.data || [];
 
 	useEffect(() => {
 		if (isProductsError) {
@@ -86,4 +100,4 @@ function MostSoldProductsWidget({
 	);
 }
 
-export default MostSoldProductsWidget;
+export default ProductsWidget;

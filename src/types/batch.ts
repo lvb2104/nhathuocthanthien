@@ -1,7 +1,9 @@
+import { PaginatedResponse } from '.';
+
 // ============================================================================
 // GET ALL BATCHES
 // ============================================================================
-export type GetAllBatchesResponse = Batch[];
+export type GetAllBatchesResponse = PaginatedResponse<Batch>;
 
 // ============================================================================
 // GET BATCH BY ID

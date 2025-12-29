@@ -4,11 +4,11 @@ import { serverGetCategories, serverGetProducts } from '@/services';
 async function ProductsPage() {
 	try {
 		const categories = await serverGetCategories();
-		const products = await serverGetProducts();
+		const response = await serverGetProducts();
 		return (
 			<ProductsTable
 				initialCategories={categories}
-				initialProducts={products}
+				initialProducts={response}
 			/>
 		);
 	} catch (error) {

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { updateQuantity } from '@/services/cart';
+import { updateQuantity } from '@/services';
 import { handleAxiosError } from '@/lib/utils';
 
 /**

@@ -1,7 +1,10 @@
+import { PaginatedResponse } from '.';
+
 // ============================================================================
 // GET CATEGORIES
 // ============================================================================
-export type GetCategoriesResponse = Category[];
+
+export type GetCategoriesResponse = PaginatedResponse<Category>;
 
 // ============================================================================
 // CREATE CATEGORY
