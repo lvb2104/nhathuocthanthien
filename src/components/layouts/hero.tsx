@@ -6,7 +6,7 @@ import {
 	CarouselNext,
 	CarouselPrevious,
 } from '@/components/ui/carousel';
-import { Slider, sliders } from '@/lib/placeholder-data';
+import { Slider, sliders } from '@/configs/placeholder-data';
 import Image from 'next/image';
 import Autoplay from 'embla-carousel-autoplay';
 import Link from 'next/link';
