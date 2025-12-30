@@ -1,7 +1,20 @@
+import { PaginatedResponse } from '.';
+
 // ============================================================================
 // GET ALL ORDERS
 // ============================================================================
-export type GetAllOrdersResponse = Order[];
+export type GetAllOrdersResponse = PaginatedResponse<Order>;
+
+export type OrderFilterParams = {
+	page?: number;
+	limit?: number;
+	status?: OrderStatus;
+	userId?: number;
+	paymentStatus?: PaymentStatus;
+	fromDate?: string;
+	toDate?: string;
+	keyword?: string;
+};
 
 // ============================================================================
 // GET ORDER BY ID
@@ -59,6 +72,7 @@ export type Order = {
 	promotionId?: number;
 	discountAmount?: string;
 	finalAmount: string;
+	orderDate: string;
 	user?: {
 		id: number;
 		fullName: string;
@@ -69,12 +83,10 @@ export type Order = {
 	promotion?: {
 		id: number;
 		code: string;
-		description: string;
-		discountPercent: string;
+		description?: string;
+		discountPercent: number;
 	};
 	shipping?: OrderShipping;
-	createdAt: string;
-	updatedAt: string;
 };
 
 export type OrderItem = {
@@ -85,9 +97,14 @@ export type OrderItem = {
 	price: string;
 	product?: {
 		id: number;
+		categoryId: number;
 		name: string;
+		description: string | null;
 		price: string;
-		images: { id: number; imageUrl: string }[];
+		manufacturer: string | null;
+		createdAt: string;
+		updatedAt: string;
+		deletedAt: string | null;
 	};
 };
 

@@ -1,5 +1,6 @@
 import { apiEndpoints } from '@/configs/apis';
 import { axiosInstance } from '@/lib/axios';
+import { serverAxios } from '@/lib/server-axios';
 import {
 	CreateOrderRequest,
 	CreateOrderResponse,
@@ -9,6 +10,7 @@ import {
 	UpdateOrderStatusResponse,
 	CancelOrderResponse,
 	DeleteOrderResponse,
+	OrderFilterParams,
 } from '@/types';
 
 export async function createOrder(
@@ -18,8 +20,17 @@ export async function createOrder(
 	return res.data;
 }
 
-export async function getAllOrders(): Promise<GetAllOrdersResponse> {
-	const res = await axiosInstance.get(apiEndpoints.orders.getAll);
+export async function getAllOrders(
+	params?: OrderFilterParams,
+): Promise<GetAllOrdersResponse> {
+	const res = await axiosInstance.get(apiEndpoints.orders.getAll, { params });
+	return res.data;
+}
+
+export async function serverGetOrders(
+	params?: OrderFilterParams,
+): Promise<GetAllOrdersResponse> {
+	const res = await serverAxios.get(apiEndpoints.orders.getAll, { params });
 	return res.data;
 }
 
@@ -40,7 +51,7 @@ export async function updateOrderStatus(
 }
 
 export async function cancelOrder(id: number): Promise<CancelOrderResponse> {
-	const res = await axiosInstance.post(apiEndpoints.orders.cancel(id));
+	const res = await axiosInstance.patch(apiEndpoints.orders.cancel(id));
 	return res.data;
 }
 
