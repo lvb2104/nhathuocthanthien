@@ -4,18 +4,19 @@ import Image from 'next/image';
 import Link from 'next/link';
 import ContentWrapper from './content-wrapper';
 import SearchBar from './search-bar';
-import { useIsMobile, useSignOut, useUnifiedCart } from '@/hooks';
+import {
+	useIsMobile,
+	useSignOut,
+	useUnifiedCart,
+	useCategories,
+} from '@/hooks';
 import { toast } from 'react-toastify';
 import type { MouseEvent } from 'react';
 import {
 	NavigationMenu,
-	NavigationMenuContent,
 	NavigationMenuItem,
-	NavigationMenuLink,
 	NavigationMenuList,
-	NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
-import { NavItem, navItems } from '@/lib/placeholder-data';
 import { useRouter } from 'next/navigation';
 import { UserRole } from '@/types';
 import { useSession } from 'next-auth/react';
@@ -28,6 +29,11 @@ function Header() {
 	const user = session?.user;
 	const isCustomer = user?.role === UserRole.CUSTOMER;
 	const { cartCount } = useUnifiedCart();
+	const { data: categoriesResponse, isLoading: isCategoriesLoading } =
+		useCategories({
+			limit: 8,
+		});
+	const categories = categoriesResponse?.data || [];
 
 	function handleSignOut() {
 		toast.promise(
@@ -161,27 +167,17 @@ function Header() {
 				{/* Navigation */}
 				<NavigationMenu viewport={isMobile ? true : false}>
 					<NavigationMenuList className='flex-wrap'>
-						{navItems.map((item: NavItem) => (
-							<NavigationMenuItem key={item.label}>
-								<NavigationMenuTrigger className='bg-(--primary-color) cursor-pointer'>
-									{item.label}
-								</NavigationMenuTrigger>
-								{item.textLinks ? (
-									<NavigationMenuContent className='z-50'>
-										{item.textLinks
-											? item.textLinks.map(textLink => (
-													<NavigationMenuLink
-														key={textLink.label || textLink.href}
-														href={textLink.href}
-													>
-														{textLink.label}
-													</NavigationMenuLink>
-												))
-											: null}
-									</NavigationMenuContent>
-								) : null}
-							</NavigationMenuItem>
-						))}
+						{!isCategoriesLoading &&
+							categories.map(category => (
+								<NavigationMenuItem key={category.id}>
+									<Link
+										href={routes.category(category.id)}
+										className='inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 bg-(--primary-color) cursor-pointer'
+									>
+										{category.name}
+									</Link>
+								</NavigationMenuItem>
+							))}
 					</NavigationMenuList>
 				</NavigationMenu>
 			</ContentWrapper>

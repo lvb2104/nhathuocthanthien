@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { app } from '@/configs/app';
+import { routes } from '@/configs/routes';
 
 function SearchBar() {
 	const [searchTerm, setSearchTerm] = useState('');
@@ -96,9 +97,15 @@ function SearchBar() {
 	}
 
 	function handleSearch() {
-		if (!searchTerm.trim()) return;
 		setIsOpen(false);
 		setSelectedIndex(-1);
+
+		// If search is empty, go back to homepage
+		if (!searchTerm.trim()) {
+			router.push(routes.home);
+			return;
+		}
+
 		router.push(`/?search=${encodeURIComponent(searchTerm.trim())}`);
 	}
 
