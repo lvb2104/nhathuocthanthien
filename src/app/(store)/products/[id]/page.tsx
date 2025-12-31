@@ -23,7 +23,7 @@ async function ProductDetailPage({
 			try {
 				similarProducts = await serverGetProducts({
 					categoryId: product.category.id,
-					limit: 12,
+					limit: 6,
 				});
 			} catch (error) {
 				// Silently fail if similar products can't be fetched
@@ -40,7 +40,7 @@ async function ProductDetailPage({
 						initialProducts={similarProducts}
 						params={{
 							categoryId: product.category.id,
-							limit: 12,
+							limit: 6,
 						}}
 					/>
 				)}

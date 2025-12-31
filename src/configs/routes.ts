@@ -39,5 +39,5 @@ export const routes = {
 	pharmacist: {
 		overview: '/pharmacist/overview',
 	},
-	category: (id: number) => `/category/${id}`,
+	category: (id: number) => `/categories/${id}`,
 };
