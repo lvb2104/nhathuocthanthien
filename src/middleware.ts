@@ -12,7 +12,10 @@ export default withAuth(
 		const role = getDecodedPayloadFromJwt(token?.accessToken || '')?.role;
 
 		if (!role) {
-			return NextResponse.redirect(new URL(routes.auth.signIn, req.url));
+			// Redirect to sign-in with callback URL preserved
+			const signInUrl = new URL(routes.auth.signIn, req.url);
+			signInUrl.searchParams.set('callbackUrl', req.url);
+			return NextResponse.redirect(signInUrl);
 		}
 
 		if (pathname.startsWith('/admin') && role !== UserRole.ADMIN) {
@@ -24,7 +27,10 @@ export default withAuth(
 		}
 
 		if (pathname.startsWith('/user') && role !== UserRole.CUSTOMER) {
-			return NextResponse.redirect(new URL(routes.auth.signIn, req.url));
+			// Redirect to sign-in with callback URL preserved
+			const signInUrl = new URL(routes.auth.signIn, req.url);
+			signInUrl.searchParams.set('callbackUrl', req.url);
+			return NextResponse.redirect(signInUrl);
 		}
 
 		return NextResponse.next();

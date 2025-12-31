@@ -13,7 +13,7 @@ import * as z from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
-import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { routes } from '@/configs/routes';
 import LoadingButton from '@/components/custom/loading-button';
 import Link from 'next/link';
@@ -21,10 +21,12 @@ import { useSignIn } from '@/hooks';
 import CustomPasswordInput from '@/components/custom/custom-password-input';
 import CustomInput from '@/components/custom/custom-input';
 import { SignInFormSchema } from '@/schemas';
+import { useSession } from 'next-auth/react';
 
 function SignInForm() {
 	const { mutateAsync, isPending } = useSignIn();
-	const router = useRouter();
+	const searchParams = useSearchParams();
+	const { update } = useSession();
 
 	const form = useForm<z.infer<typeof SignInFormSchema>>({
 		resolver: zodResolver(SignInFormSchema),
@@ -33,8 +35,20 @@ function SignInForm() {
 	async function handleSubmit(values: z.infer<typeof SignInFormSchema>) {
 		try {
 			await mutateAsync(values);
+
+			// Force session update to ensure middleware recognizes the new session
+			await update();
+
+			// Small delay to ensure session cookie is propagated
+			await new Promise(resolve => setTimeout(resolve, 100));
+
 			toast.success('Đăng nhập thành công!');
-			router.replace(routes.home);
+
+			// Get the callback URL from search params, default to home if not present
+			const callbackUrl = searchParams.get('callbackUrl') || routes.home;
+
+			// Use window.location for a hard navigation to ensure session is recognized
+			window.location.href = callbackUrl;
 		} catch (error: any) {
 			toast.error(error?.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
 		}
