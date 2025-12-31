@@ -1,7 +1,18 @@
+import { PaginatedResponse } from '.';
+
 // ============================================================================
 // GET ALL REVIEWS
 // ============================================================================
-export type GetAllReviewsResponse = Review[];
+export type GetAllReviewsResponse = PaginatedResponse<Review>;
+
+export type ReviewFilterParams = {
+	page?: number;
+	limit?: number;
+	rating?: number;
+	productId?: number;
+	userId?: number;
+	keyword?: string;
+};
 
 // ============================================================================
 // GET REVIEW BY ID
@@ -11,12 +22,23 @@ export type GetReviewByIdResponse = Review;
 // ============================================================================
 // GET REVIEWS BY PRODUCT
 // ============================================================================
-export type GetReviewsByProductResponse = Review[];
+export type GetReviewsByProductResponse = PaginatedResponse<Review>;
+
+export type ProductReviewFilterParams = {
+	page?: number;
+	limit?: number;
+	rating?: number;
+};
 
 // ============================================================================
 // GET MY REVIEWS
 // ============================================================================
-export type GetMyReviewsResponse = Review[];
+export type GetMyReviewsResponse = PaginatedResponse<Review>;
+
+export type MyReviewsFilterParams = {
+	page?: number;
+	limit?: number;
+};
 
 // ============================================================================
 // CREATE REVIEW

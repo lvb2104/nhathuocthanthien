@@ -47,7 +47,7 @@ async function CategoryPageContent({
 		// Breadcrumbs items
 		const breadcrumbItems = [
 			{ label: 'Trang chủ', href: routes.home },
-			{ label: category.name, href: `/category/${id}` },
+			{ label: category.name, href: `/categories/${id}` },
 		];
 
 		return (

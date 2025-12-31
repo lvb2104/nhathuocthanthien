@@ -1,6 +1,6 @@
 'use client';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import ContentWrapper from '../../../../../components/layouts/content-wrapper';
 import { routes } from '@/configs/routes';
 import { Product } from '@/types';
@@ -12,6 +12,35 @@ import { toast } from 'react-toastify';
 import Loading from '@/app/loading';
 import { app } from '@/configs/app';
 import Breadcrumbs from '@/components/breadcrumbs';
+import { ProductReviewsSection } from './product-reviews-section';
+
+// Certifications data
+const certifications = [
+	{
+		id: 1,
+		imageUrl:
+			'https://nhathuocthanthien.com.vn/wp-content/uploads/2024/01/dgm_nttt_gmp-logo.jpg',
+		title: 'Chứng nhận GMP',
+		description:
+			'Chứng nhận cơ sở sản xuất đạt tiêu chuẩn theo quy định của Nhà nước, đảm bảo luôn tạo ra sản phẩm đạt chất lượng đăng ký và an toàn cho người sử dụng',
+	},
+	{
+		id: 2,
+		imageUrl:
+			'https://nhathuocthanthien.com.vn/wp-content/uploads/2024/01/dgm_nttt_giay-phep-quang-cao-thuoc.jpg',
+		title: 'Giấy phép quảng cáo thuốc',
+		description:
+			'Do Cục quản lý Dược – Bộ Y tế xác nhận nội dung quảng cáo thuốc theo đúng quy định của pháp luật và nội dung, tài liệu đã được đăng ký trước đó',
+	},
+	{
+		id: 3,
+		imageUrl:
+			'https://nhathuocthanthien.com.vn/wp-content/uploads/2024/01/dgm_nttt_ngoi-sao-thuoc-viet.jpg',
+		title: 'Ngôi sao thuốc việt',
+		description:
+			'Giải thưởng uy tín, lần đầu tiên được Cục Quản lý Dược Việt Nam tổ chức bình chọn và trao tặng cho các sản phẩm thuốc sản xuất trong nước',
+	},
+];
 
 function ProductDetail({
 	initialProduct,
@@ -36,6 +65,19 @@ function ProductDetail({
 	const [lightboxIndex, setLightboxIndex] = useState(0);
 	const [selectedImage, setSelectedImage] = useState<string | null>(null);
 	const { addItem } = useUnifiedCart();
+
+	// Certifications carousel state
+	const [currentSlide, setCurrentSlide] = useState(0);
+	const carouselRef = useRef<HTMLDivElement>(null);
+
+	// Auto-scroll certifications carousel
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setCurrentSlide(prev => (prev + 1) % certifications.length);
+		}, 5000); // Change slide every 5 seconds
+
+		return () => clearInterval(interval);
+	}, []);
 
 	// Fetch most-sold products for sidebar widget
 	const { data: mostSoldResponse, isPending: isMostSoldPending } = useProducts({
@@ -314,6 +356,12 @@ function ProductDetail({
 						<div className='mb-6 space-y-3 rounded-lg bg-neutral-50 p-4 text-sm'>
 							<div className='flex items-start gap-2'>
 								<span className='min-w-[80px] font-semibold text-neutral-700'>
+									Xuất xứ:
+								</span>
+								<span className='text-neutral-900'>Việt Nam</span>
+							</div>
+							<div className='flex items-start gap-2'>
+								<span className='min-w-[80px] font-semibold text-neutral-700'>
 									Nhãn hiệu:
 								</span>
 								<span className='text-neutral-900'>
@@ -391,6 +439,113 @@ function ProductDetail({
 				<div className='mt-8 grid gap-6 lg:grid-cols-[1fr_320px]'>
 					{/* Main Content - Product Details */}
 					<section className='rounded-xl border border-neutral-200 bg-white shadow-sm'>
+						{/* Certifications Carousel */}
+						<div className='border-b border-neutral-200 bg-gradient-to-br from-green-50 to-emerald-50 p-6'>
+							<h2 className='mb-4 text-lg font-bold text-neutral-900'>
+								Chứng nhận sản phẩm
+							</h2>
+
+							<div className='relative overflow-hidden rounded-lg'>
+								{/* Carousel Container */}
+								<div
+									ref={carouselRef}
+									className='flex transition-transform duration-500 ease-in-out'
+									style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+								>
+									{certifications.map(cert => (
+										<div key={cert.id} className='w-full flex-shrink-0'>
+											<div className='flex items-center gap-4 rounded-lg bg-white shadow-sm p-10'>
+												{/* Certificate Image */}
+												<div className='relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-neutral-100'>
+													<Image
+														src={cert.imageUrl}
+														alt={cert.title}
+														fill
+														className='object-contain p-2'
+													/>
+												</div>
+
+												{/* Certificate Info */}
+												<div className='flex-1 min-w-0'>
+													<h3 className='mb-1 font-semibold text-neutral-900'>
+														{cert.title}
+													</h3>
+													<p className='text-xs leading-relaxed text-neutral-600 line-clamp-2'>
+														{cert.description}
+													</p>
+												</div>
+											</div>
+										</div>
+									))}
+								</div>
+
+								{/* Navigation Dots */}
+								<div className='mt-3 flex items-center justify-center gap-2'>
+									{certifications.map((_, index) => (
+										<button
+											key={index}
+											onClick={() => setCurrentSlide(index)}
+											className={`h-2 rounded-full transition-all duration-300 ${
+												index === currentSlide
+													? 'w-6 bg-green-600'
+													: 'w-2 bg-neutral-300 hover:bg-neutral-400'
+											}`}
+											aria-label={`Go to slide ${index + 1}`}
+										/>
+									))}
+								</div>
+
+								{/* Navigation Arrows */}
+								<button
+									onClick={() =>
+										setCurrentSlide(
+											prev =>
+												(prev - 1 + certifications.length) %
+												certifications.length,
+										)
+									}
+									className='absolute left-0 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-neutral-700 shadow-md transition-all hover:bg-white hover:scale-110 active:scale-95'
+									aria-label='Previous slide'
+								>
+									<svg
+										className='h-5 w-5'
+										fill='none'
+										viewBox='0 0 24 24'
+										stroke='currentColor'
+									>
+										<path
+											strokeLinecap='round'
+											strokeLinejoin='round'
+											strokeWidth={2}
+											d='M15 19l-7-7 7-7'
+										/>
+									</svg>
+								</button>
+
+								<button
+									onClick={() =>
+										setCurrentSlide(prev => (prev + 1) % certifications.length)
+									}
+									className='absolute right-0 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-neutral-700 shadow-md transition-all hover:bg-white hover:scale-110 active:scale-95'
+									aria-label='Next slide'
+								>
+									<svg
+										className='h-5 w-5'
+										fill='none'
+										viewBox='0 0 24 24'
+										stroke='currentColor'
+									>
+										<path
+											strokeLinecap='round'
+											strokeLinejoin='round'
+											strokeWidth={2}
+											d='M9 5l7 7-7 7'
+										/>
+									</svg>
+								</button>
+							</div>
+						</div>
+
 						{/* Tab Header */}
 						<div className='border-b border-neutral-200 bg-neutral-50'>
 							<button className='inline-flex items-center gap-2 border-b-2 border-green-600 px-6 py-3.5 text-sm font-semibold text-green-600'>
@@ -772,6 +927,9 @@ function ProductDetail({
 						</div>
 					</aside>
 				</div>
+
+				{/* Reviews Section */}
+				<ProductReviewsSection productId={Number(id)} />
 			</ContentWrapper>
 		</main>
 	);

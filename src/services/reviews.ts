@@ -10,6 +10,9 @@ import {
 	GetReviewsByProductResponse,
 	GetMyReviewsResponse,
 	DeleteReviewResponse,
+	ReviewFilterParams,
+	ProductReviewFilterParams,
+	MyReviewsFilterParams,
 } from '@/types';
 
 export async function createReview(
@@ -23,8 +26,10 @@ export async function createReview(
 	return res.data;
 }
 
-export async function getAllReviews(): Promise<GetAllReviewsResponse> {
-	const res = await axiosInstance.get(apiEndpoints.reviews.getAll);
+export async function getAllReviews(
+	params?: ReviewFilterParams,
+): Promise<GetAllReviewsResponse> {
+	const res = await axiosInstance.get(apiEndpoints.reviews.getAll, { params });
 	return res.data;
 }
 
@@ -37,15 +42,19 @@ export async function getReviewById(
 
 export async function getReviewsByProduct(
 	productId: number,
+	params?: ProductReviewFilterParams,
 ): Promise<GetReviewsByProductResponse> {
 	const res = await axiosInstance.get(
 		apiEndpoints.reviews.getByProduct(productId),
+		{ params },
 	);
 	return res.data;
 }
 
-export async function getMyReviews(): Promise<GetMyReviewsResponse> {
-	const res = await axiosInstance.get(apiEndpoints.reviews.getMy);
+export async function getMyReviews(
+	params?: MyReviewsFilterParams,
+): Promise<GetMyReviewsResponse> {
+	const res = await axiosInstance.get(apiEndpoints.reviews.getMy, { params });
 	return res.data;
 }
 

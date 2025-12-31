@@ -63,7 +63,7 @@ export const apiEndpoints = {
 		getById: (id: number) => `/reviews/${id}`,
 		getByProduct: (productId: number) => `/reviews/product/${productId}`,
 		getMy: '/reviews/my',
-		create: (productId: number) => `/reviews/product/${productId}`,
+		create: (productId: number) => `/reviews/${productId}`,
 		update: (id: number) => `/reviews/${id}`,
 		delete: (id: number) => `/reviews/${id}`,
 	},
