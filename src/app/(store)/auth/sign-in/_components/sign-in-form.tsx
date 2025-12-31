@@ -13,7 +13,7 @@ import * as z from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { routes } from '@/configs/routes';
 import LoadingButton from '@/components/custom/loading-button';
 import Link from 'next/link';
@@ -25,6 +25,7 @@ import { SignInFormSchema } from '@/schemas';
 function SignInForm() {
 	const { mutateAsync, isPending } = useSignIn();
 	const router = useRouter();
+	const searchParams = useSearchParams();
 
 	const form = useForm<z.infer<typeof SignInFormSchema>>({
 		resolver: zodResolver(SignInFormSchema),
@@ -34,7 +35,10 @@ function SignInForm() {
 		try {
 			await mutateAsync(values);
 			toast.success('Đăng nhập thành công!');
-			router.replace(routes.home);
+
+			// Get the callback URL from search params, default to home if not present
+			const callbackUrl = searchParams.get('callbackUrl') || routes.home;
+			router.replace(callbackUrl);
 		} catch (error: any) {
 			toast.error(error?.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
 		}

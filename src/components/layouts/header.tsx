@@ -58,7 +58,10 @@ function Header() {
 		);
 
 		if (!user) {
-			router.push(routes.auth.signIn);
+			// Redirect to sign-in with callback URL to return to cart after login
+			router.push(
+				`${routes.auth.signIn}?callbackUrl=${encodeURIComponent(routes.user.cart)}`,
+			);
 			return;
 		}
 
