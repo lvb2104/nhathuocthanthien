@@ -9,7 +9,7 @@ export default function AppProvider({
 }: {
 	children: React.ReactNode;
 }) {
-	const [queryClient] = useState(() => new QueryClient(queryClientConfig));
+	const [queryClient] = useState(() => new QueryClient(queryClientConfig)); // not really sure 100% not re-render when using useMemo
 	return (
 		<SessionProvider refetchOnWindowFocus={false}>
 			<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>

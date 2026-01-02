@@ -11,7 +11,7 @@ import { useProduct, useProducts, useUnifiedCart } from '@/hooks';
 import { toast } from 'react-toastify';
 import Loading from '@/app/loading';
 import { app } from '@/configs/app';
-import Breadcrumbs from '@/components/breadcrumbs';
+import Breadcrumbs from '@/components/custom/breadcrumbs';
 import { ProductReviewsSection } from './product-reviews-section';
 
 // Certifications data

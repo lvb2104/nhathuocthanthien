@@ -9,6 +9,7 @@ import { Analytics } from '@vercel/analytics/next';
 import AppProvider from '@/components/providers/app-provider';
 import CartProvider from '@/components/providers/cart-provider';
 
+// Metadata will show in the browser tab (title, description, icons)
 export const metadata: Metadata = {
 	title: 'Nhà thuốc thân thiện',
 	description:
@@ -28,13 +29,7 @@ export default function RootLayout({
 			<body
 				className={`${fonts.geistSans.variable} ${fonts.geistMono.variable} antialiased`}
 			>
-				<NextTopLoader
-					color='#11DCE8'
-					crawlSpeed={200}
-					height={3}
-					showSpinner={false}
-					shadow={false}
-				/>
+				<NextTopLoader color='#11DCE8' />
 				<AppProvider>
 					<CartProvider>{children}</CartProvider>
 				</AppProvider>
