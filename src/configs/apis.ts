@@ -92,4 +92,9 @@ export const apiEndpoints = {
 		approve: (id: number) => `/prescriptions/${id}/approve`,
 		reject: (id: number) => `/prescriptions/${id}/reject`,
 	},
+	notifications: {
+		getAll: '/notifications',
+		markAsRead: (id: number) => `/notifications/${id}/read`,
+		markAllAsRead: '/notifications/read-all',
+	},
 };

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import ContentWrapper from './content-wrapper';
 import SearchBar from './search-bar';
+import { NotificationBell } from './notification-bell';
 import {
 	useIsMobile,
 	useSignOut,
@@ -76,6 +77,8 @@ function Header() {
 					className='flex justify-end align-center gap-2 text-sm pt-2'
 					title='Tài khoản của bạn'
 				>
+					{/* Notification Bell - Only show when authenticated */}
+					<NotificationBell />
 					<Link href={routes.user.profile} className='flex items-center'>
 						<Image src='/icons/user.svg' alt='User' width={15} height={15} />
 					</Link>
