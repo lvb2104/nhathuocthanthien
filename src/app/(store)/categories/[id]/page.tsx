@@ -5,7 +5,7 @@ import { Suspense } from 'react';
 import Image from 'next/image';
 import { app } from '@/configs/app';
 import { routes } from '@/configs/routes';
-import Breadcrumbs from '@/components/breadcrumbs';
+import Breadcrumbs from '@/components/custom/breadcrumbs';
 
 async function CategoryPageContent({
 	params,

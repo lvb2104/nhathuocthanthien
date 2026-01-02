@@ -3,9 +3,9 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 function ScrollToTop() {
-	function scrollToTop() {
+	const scrollToTop = () => {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
-	}
+	};
 
 	const [isVisible, setIsVisible] = useState(false);
 
@@ -20,7 +20,8 @@ function ScrollToTop() {
 		window.addEventListener('scroll', toggleVisibility);
 
 		return () => window.removeEventListener('scroll', toggleVisibility);
-	}, []);
+	}, []); // Run only once, but this component is placed in the root layout, so it will be rendered on every page, never cleaned up
+
 	return (
 		<button
 			onClick={scrollToTop}
