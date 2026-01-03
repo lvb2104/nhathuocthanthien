@@ -1,3 +1,5 @@
+import { PaginatedResponse } from '.';
+
 // ============================================================================
 // GET USER PROFILE
 // ============================================================================
@@ -76,16 +78,37 @@ export type AssignAccountRequest = {
 	fullName: string;
 	email: string;
 	password: string;
-	phone: string;
-	role: UserRole;
+	phone?: string;
+	roleId: number;
+	hireDate?: string; // Required for employee role
+	licenseNumber?: string; // Required for pharmacist role
 };
 
 export type AssignAccountResponse = {
 	id: number;
 	email: string;
 	fullName: string;
-	role: UserRole;
+	role: string;
 };
+
+// ============================================================================
+// GET ALL USERS (Admin)
+// ============================================================================
+export type GetAllUsersResponse = PaginatedResponse<UserInfo>;
+
+export type UserFilterParams = {
+	page?: number;
+	limit?: number;
+	keyword?: string; // Search in email/full_name
+	role?: UserRole;
+	isActive?: boolean;
+	includeDeleted?: boolean; // Show deleted users
+};
+
+// ============================================================================
+// GET DELETED USERS (Admin)
+// ============================================================================
+export type GetDeletedUsersResponse = PaginatedResponse<UserInfo>;
 
 // ============================================================================
 // MODELS
@@ -95,13 +118,13 @@ export type UserInfo = {
 	email: string;
 	fullName: string;
 	phone: string;
-	gender: string | null;
+	gender: UserGender | null;
 	birthDay: string | null;
 	avatarUrl: string | null;
 	roles: {
 		id: number;
 		name: string;
-	}[];
+	};
 };
 
 export type ShippingAddress = {
@@ -119,8 +142,15 @@ export type ShippingAddress = {
 // ============================================================================
 // ENUMS
 // ============================================================================
+export enum UserGender {
+	MALE = 'male',
+	FEMALE = 'female',
+	OTHER = 'other',
+}
+
 export enum UserRole {
 	CUSTOMER = 'customer',
 	ADMIN = 'admin',
 	PHARMACIST = 'pharmacist',
+	EMPLOYEE = 'employee',
 }

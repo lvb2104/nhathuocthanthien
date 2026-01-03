@@ -97,7 +97,7 @@ export default function OrderDetailSheet({
 
 	const statusConfig = getOrderStatusConfig(order.status);
 	const paymentStatusConfig = order.payment
-		? getPaymentStatusConfig(order.payment.status as any)
+		? getPaymentStatusConfig(order.payment.status)
 		: null;
 
 	const handleCancelOrder = async () => {

@@ -5,6 +5,15 @@ import { PaginatedResponse } from '.';
 // ============================================================================
 export type GetAllBatchesResponse = PaginatedResponse<Batch>;
 
+export type BatchFilterParams = {
+	page?: number;
+	limit?: number;
+	productId?: number;
+	status?: BatchStatus;
+	expired?: boolean;
+	keyword?: string;
+};
+
 // ============================================================================
 // GET BATCH BY ID
 // ============================================================================
@@ -39,7 +48,7 @@ export type DisposeBatchRequest = {
 	note?: string;
 };
 
-export type DisposeBatchResponse = { message: string };
+export type DisposeBatchResponse = Batch;
 
 // ============================================================================
 // DELETE BATCH
@@ -56,10 +65,19 @@ export type Batch = {
 	batchCode?: string;
 	expiryDate: string;
 	receivedDate?: string;
-	disposedDate?: string;
+	disposedAt?: string;
+	status?: BatchStatus;
 	note?: string;
 	product?: {
 		id: number;
 		name: string;
 	};
 };
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+export enum BatchStatus {
+	ACTIVE = 'active',
+	DISPOSED = 'disposed',
+}

@@ -1,16 +1,9 @@
 import { getAllBatches } from '@/services';
-import { GetAllBatchesResponse } from '@/types';
+import { GetAllBatchesResponse, BatchFilterParams } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 
 export function useBatches(
-	params?: {
-		page?: number;
-		limit?: number;
-		productId?: number;
-		status?: string;
-		expired?: boolean;
-		keyword?: string;
-	},
+	params?: BatchFilterParams,
 	initialData?: GetAllBatchesResponse,
 ) {
 	return useQuery({

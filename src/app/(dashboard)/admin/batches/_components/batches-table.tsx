@@ -16,6 +16,8 @@ import {
 	ColumnFiltersState,
 	flexRender,
 	getCoreRowModel,
+	getFacetedRowModel,
+	getFacetedUniqueValues,
 	getFilteredRowModel,
 	getSortedRowModel,
 	SortingState,
@@ -23,6 +25,7 @@ import {
 	VisibilityState,
 } from '@tanstack/react-table';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -30,7 +33,6 @@ import {
 	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
@@ -50,14 +52,24 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover';
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { toast } from 'react-toastify';
-import { Category, CategoryFilterParams, GetCategoriesResponse } from '@/types';
+import {
+	GetAllBatchesResponse,
+	Batch,
+	GetProductsResponse,
+	BatchStatus,
+} from '@/types';
 import { useEffect } from 'react';
-import { useCategories, useDeleteCategory } from '@/hooks';
+import { useBatches, useDisposeBatch } from '@/hooks';
 import { RefreshCcw, Search, X } from 'lucide-react';
 import {
 	Sheet,
@@ -67,53 +79,66 @@ import {
 	SheetTitle,
 } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
-import CreateCategoryForm from './create-category-form';
-import EditCategoryForm from './edit-category-form';
+import { format, isPast } from 'date-fns';
+import CreateBatchForm from './create-batch-form';
+import EditBatchForm from './edit-batch-form';
 
-export function CategoriesTable({
-	initialCategories,
+// Main DataTable component
+export function BatchesTable({
+	initialBatches,
+	initialProducts,
 }: {
-	initialCategories?: GetCategoriesResponse;
+	initialBatches?: GetAllBatchesResponse;
+	initialProducts?: GetProductsResponse;
 }) {
 	// API Filter params state
-	const [apiParams, setApiParams] = React.useState<CategoryFilterParams>({
+	const [apiParams, setApiParams] = React.useState({
 		page: 1,
 		limit: 10,
+		productId: undefined as number | undefined,
+		status: undefined as BatchStatus | undefined,
+		expired: undefined as boolean | undefined,
 		keyword: '',
 	});
 
 	// Local filter inputs (for debouncing)
 	const [searchInput, setSearchInput] = React.useState('');
 
-	const [data, setData] = React.useState<Category[]>([]);
+	const [data, setData] = React.useState<Batch[]>([]);
 	const {
 		data: response,
-		isError: isCategoriesError,
-		refetch: refreshCategories,
-		isPending: isCategoriesPending,
-	} = useCategories(apiParams, initialCategories);
-	const { mutateAsync } = useDeleteCategory();
+		isError: isBatchesError,
+		refetch: refreshBatches,
+		isPending: isBatchesPending,
+	} = useBatches(apiParams, initialBatches);
+	const { mutateAsync: disposeAsync } = useDisposeBatch();
+
+	const [formKey, setFormKey] = React.useState(0);
 
 	// Edit sheet state
 	const [isEditOpen, setIsEditOpen] = React.useState(false);
-	const [selectedCategory, setSelectedCategory] =
-		React.useState<Category | null>(null);
-	const [editFormKey, setEditFormKey] = React.useState(0);
+	const [selectedBatch, setSelectedBatch] = React.useState<Batch | null>(null);
 
 	// Create sheet state
 	const [isCreateOpen, setIsCreateOpen] = React.useState(false);
 	const [createFormKey, setCreateFormKey] = React.useState(0);
 
-	const handleEdit = (category: Category) => {
-		setSelectedCategory(category);
-		setEditFormKey(Date.now());
+	// Dispose dialog state
+	const [disposeDialogOpen, setDisposeDialogOpen] = React.useState(false);
+	const [batchToDispose, setBatchToDispose] = React.useState<number | null>(
+		null,
+	);
+
+	const handleEdit = (batch: Batch) => {
+		setSelectedBatch(batch);
+		setFormKey(Date.now());
 		setIsEditOpen(true);
 	};
 
 	const handleEditSheetOpenChange = (open: boolean) => {
 		setIsEditOpen(open);
 		if (!open) {
-			setSelectedCategory(null);
+			setSelectedBatch(null);
 		}
 	};
 
@@ -135,25 +160,16 @@ export function CategoriesTable({
 	}, [searchInput]);
 
 	useEffect(() => {
-		if (isCategoriesError) {
-			toast.error('Error loading categories');
+		if (isBatchesError) {
+			toast.error('Error loading batches');
 		}
-	}, [isCategoriesError]);
+	}, [isBatchesError]);
 
 	useEffect(() => {
 		if (response?.data) {
 			setData(response.data);
 		}
 	}, [response]);
-
-	const clearFilters = () => {
-		setSearchInput('');
-		setApiParams({
-			page: 1,
-			limit: 10,
-			keyword: '',
-		});
-	};
 
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] =
@@ -162,9 +178,21 @@ export function CategoriesTable({
 		[],
 	);
 	const [sorting, setSorting] = React.useState<SortingState>([]);
-	const [deletePopoverOpen, setDeletePopoverOpen] = React.useState(false);
 
-	const columns: ColumnDef<Category>[] = [
+	const clearFilters = () => {
+		setSearchInput('');
+		setApiParams({
+			page: 1,
+			limit: 10,
+			productId: undefined,
+			status: undefined,
+			expired: undefined,
+			keyword: '',
+		});
+	};
+
+	// Define the columns for the table
+	const columns: ColumnDef<Batch>[] = [
 		{
 			id: 'select',
 			header: ({ table }) => (
@@ -192,13 +220,84 @@ export function CategoriesTable({
 			enableHiding: false,
 		},
 		{
-			accessorKey: 'name',
-			header: 'Category Name',
+			accessorKey: 'batchCode',
+			header: 'Batch Code',
 			cell: ({ row }) => {
-				return <div className='font-medium'>{row.getValue('name')}</div>;
+				return (
+					<div className='font-medium'>
+						{row.getValue('batchCode') || 'N/A'}
+					</div>
+				);
 			},
 			enableHiding: false,
-			size: 1000, // Make this column take up most of the space
+		},
+		{
+			accessorKey: 'product.name',
+			header: 'Product',
+			cell: ({ row }) => {
+				const productName = row.original.product?.name;
+				return (
+					<div className='max-w-[200px] truncate text-sm'>
+						{productName || 'Unknown'}
+					</div>
+				);
+			},
+		},
+		{
+			accessorKey: 'quantity',
+			header: 'Quantity',
+			cell: ({ row }) => {
+				const quantity = row.getValue('quantity') as number;
+				return <div className='text-right'>{quantity}</div>;
+			},
+		},
+		{
+			accessorKey: 'expiryDate',
+			header: 'Expiry Date',
+			cell: ({ row }) => {
+				const expiryDate = row.getValue('expiryDate') as string;
+				const isExpired = isPast(new Date(expiryDate));
+				return (
+					<div className='flex items-center gap-2'>
+						<span className={isExpired ? 'text-destructive' : ''}>
+							{format(new Date(expiryDate), 'MMM dd, yyyy')}
+						</span>
+						{isExpired && (
+							<Badge variant='destructive' className='text-xs'>
+								Expired
+							</Badge>
+						)}
+					</div>
+				);
+			},
+		},
+		{
+			accessorKey: 'receivedDate',
+			header: 'Received Date',
+			cell: ({ row }) => {
+				const receivedDate = row.getValue('receivedDate') as string;
+				if (!receivedDate) return <div className='text-sm'>-</div>;
+				return (
+					<div className='text-sm'>
+						{format(new Date(receivedDate), 'MMM dd, yyyy')}
+					</div>
+				);
+			},
+		},
+		{
+			accessorKey: 'status',
+			header: 'Status',
+			cell: ({ row }) => {
+				const status = row.getValue('status') as string;
+				return (
+					<Badge
+						variant={status === 'disposed' ? 'destructive' : 'secondary'}
+						className='w-fit'
+					>
+						{status || 'active'}
+					</Badge>
+				);
+			},
 		},
 		{
 			id: 'actions',
@@ -218,12 +317,8 @@ export function CategoriesTable({
 						<DropdownMenuItem onClick={() => handleEdit(row.original)}>
 							Edit
 						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem
-							variant='destructive'
-							onClick={() => handleDelete(row.original.id)}
-						>
-							Delete
+						<DropdownMenuItem onClick={() => handleDispose(row.original.id)}>
+							Dispose
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -249,59 +344,46 @@ export function CategoriesTable({
 		getCoreRowModel: getCoreRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
 		getSortedRowModel: getSortedRowModel(),
-		manualPagination: true, // Server-side pagination
+		getFacetedRowModel: getFacetedRowModel(),
+		getFacetedUniqueValues: getFacetedUniqueValues(),
+		manualPagination: true,
 		pageCount: response?.pagination?.totalPages ?? 0,
 	});
 
-	function handleDelete(id: number) {
-		mutateAsync(id, {
-			onSuccess: () => {
-				setData(prevData => prevData.filter(item => item.id !== id));
-				toast.success('Category deleted successfully');
-			},
-			onError: (error: any) => {
-				toast.error(
-					error?.message || 'Error deleting category. Please try again.',
-				);
-			},
-		});
+	function handleDispose(id: number) {
+		setBatchToDispose(id);
+		setDisposeDialogOpen(true);
 	}
 
-	function handleDeleteMultiple() {
-		const selectedRows = table.getFilteredSelectedRowModel().rows;
-		if (selectedRows.length === 0) return;
+	function confirmDispose() {
+		if (!batchToDispose) return;
 
-		const selectedIds = selectedRows.map(row => row.original.id);
-
-		Promise.all(
-			selectedIds.map(id =>
-				mutateAsync(id, {
+		toast.promise(
+			disposeAsync(
+				{ id: batchToDispose, request: { note: 'Disposed via admin panel' } },
+				{
 					onError: (error: any) => {
 						toast.error(
-							error?.message ||
-								`Error deleting category ID ${id}. Please try again.`,
+							error?.message || 'Error disposing batch. Please try again.',
 						);
 					},
-				}),
-			),
-		)
-			.then(() => {
-				setData(prevData =>
-					prevData.filter(item => !selectedIds.includes(item.id)),
-				);
-				setRowSelection({});
-				setDeletePopoverOpen(false);
-				toast.success(`${selectedIds.length} categories deleted successfully`);
-			})
-			.catch(() => {
-				toast.error('Error deleting categories. Please try again.');
-			});
+				},
+			).then(() => {
+				refreshBatches();
+				setDisposeDialogOpen(false);
+				setBatchToDispose(null);
+			}),
+			{
+				pending: 'Disposing batch...',
+				success: 'Batch disposed successfully',
+			},
+		);
 	}
 
-	if (isCategoriesPending) {
+	if (isBatchesPending) {
 		return (
 			<div className='flex h-48 w-full items-center justify-center'>
-				Loading categories...
+				Loading batches...
 			</div>
 		);
 	}
@@ -310,18 +392,87 @@ export function CategoriesTable({
 		<div className='w-full flex-col justify-start gap-6 flex'>
 			{/* Filter Bar */}
 			<div className='space-y-4 px-4 lg:px-6'>
-				<div className='flex items-center gap-4'>
+				<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
 					{/* Search */}
-					<div className='relative flex-1'>
+					<div className='relative'>
 						<Search className='absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
 						<Input
-							placeholder='Search categories...'
+							placeholder='Search by batch code...'
 							value={searchInput}
 							onChange={e => setSearchInput(e.target.value)}
 							className='pl-9'
 						/>
 					</div>
 
+					{/* Product Filter */}
+					<Select
+						value={apiParams.productId?.toString() || 'all'}
+						onValueChange={value => {
+							setApiParams(prev => ({
+								...prev,
+								productId: value === 'all' ? undefined : Number(value),
+								page: 1,
+							}));
+						}}
+					>
+						<SelectTrigger>
+							<SelectValue placeholder='All Products' />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value='all'>All Products</SelectItem>
+							{(initialProducts?.data || []).map(product => (
+								<SelectItem key={product.id} value={product.id.toString()}>
+									{product.name}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+
+					{/* Status Filter */}
+					<Select
+						value={apiParams.status || 'all'}
+						onValueChange={value => {
+							setApiParams(prev => ({
+								...prev,
+								status: value === 'all' ? undefined : (value as BatchStatus),
+								page: 1,
+							}));
+						}}
+					>
+						<SelectTrigger>
+							<SelectValue placeholder='All Statuses' />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value='all'>All Statuses</SelectItem>
+							<SelectItem value='active'>Active</SelectItem>
+							<SelectItem value='disposed'>Disposed</SelectItem>
+						</SelectContent>
+					</Select>
+
+					{/* Expired Filter (Checkbox) */}
+					<div className='flex items-center gap-2'>
+						<Checkbox
+							id='show-expired'
+							checked={apiParams.expired === true}
+							onCheckedChange={checked => {
+								setApiParams(prev => ({
+									...prev,
+									expired: checked ? true : undefined,
+									page: 1,
+								}));
+							}}
+						/>
+						<Label
+							htmlFor='show-expired'
+							className='text-sm font-medium cursor-pointer'
+						>
+							Show expired only
+						</Label>
+					</div>
+				</div>
+
+				{/* Clear Filters Button */}
+				<div className='flex items-center gap-4'>
 					<Button
 						variant='outline'
 						size='sm'
@@ -336,63 +487,7 @@ export function CategoriesTable({
 
 			{/* Toolbar */}
 			<div className='flex items-center justify-between px-4 lg:px-6'>
-				<div className='flex items-center gap-2'>
-					{table.getFilteredSelectedRowModel().rows.length > 0 && (
-						<Popover
-							open={deletePopoverOpen}
-							onOpenChange={setDeletePopoverOpen}
-						>
-							<PopoverTrigger asChild>
-								<Button
-									variant='destructive'
-									size='sm'
-									className='cursor-pointer'
-								>
-									<span>
-										Delete ({table.getFilteredSelectedRowModel().rows.length})
-									</span>
-								</Button>
-							</PopoverTrigger>
-							<PopoverContent className='w-80'>
-								<div className='space-y-4'>
-									<div className='space-y-2'>
-										<h4 className='font-medium leading-none'>
-											Delete categories?
-										</h4>
-										<p className='text-sm text-muted-foreground'>
-											You are about to delete{' '}
-											{table.getFilteredSelectedRowModel().rows.length}{' '}
-											categories. This action cannot be undone.
-										</p>
-										<div className='max-h-32 overflow-y-auto rounded-md bg-muted p-2 text-xs'>
-											{table.getFilteredSelectedRowModel().rows.map(row => (
-												<div key={row.original.id} className='truncate py-1'>
-													• {row.original.name}
-												</div>
-											))}
-										</div>
-									</div>
-									<div className='flex gap-2 justify-end'>
-										<Button
-											variant='outline'
-											size='sm'
-											onClick={() => setDeletePopoverOpen(false)}
-										>
-											Cancel
-										</Button>
-										<Button
-											variant='destructive'
-											size='sm'
-											onClick={handleDeleteMultiple}
-										>
-											Delete
-										</Button>
-									</div>
-								</div>
-							</PopoverContent>
-						</Popover>
-					)}
-				</div>
+				<div className='flex items-center gap-2' />
 				<div className='flex items-center gap-2'>
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
@@ -434,12 +529,12 @@ export function CategoriesTable({
 						onClick={() => {
 							toast.promise(
 								async () => {
-									return await refreshCategories();
+									return await refreshBatches();
 								},
 								{
-									pending: 'Refreshing categories...',
-									success: 'Categories refreshed',
-									error: 'Error refreshing categories',
+									pending: 'Refreshing batches...',
+									success: 'Batches refreshed',
+									error: 'Error refreshing batches',
 								},
 							);
 						}}
@@ -454,7 +549,7 @@ export function CategoriesTable({
 						onClick={handleCreate}
 					>
 						<IconPlus />
-						<span className='hidden lg:inline'>Add Category</span>
+						<span className='hidden lg:inline'>Add Batch</span>
 					</Button>
 				</div>
 			</div>
@@ -466,13 +561,7 @@ export function CategoriesTable({
 							<TableRow key={headerGroup.id}>
 								{headerGroup.headers.map(header => {
 									return (
-										<TableHead
-											key={header.id}
-											colSpan={header.colSpan}
-											style={{
-												width: header.id === 'name' ? '100%' : undefined,
-											}}
-										>
+										<TableHead key={header.id} colSpan={header.colSpan}>
 											{header.isPlaceholder
 												? null
 												: flexRender(
@@ -575,10 +664,10 @@ export function CategoriesTable({
 							onClick={() =>
 								setApiParams(prev => ({
 									...prev,
-									page: Math.max(1, (prev.page ?? 1) - 1),
+									page: Math.max(1, prev.page - 1),
 								}))
 							}
-							disabled={(apiParams.page ?? 1) === 1}
+							disabled={apiParams.page === 1}
 						>
 							<span className='sr-only'>Go to previous page</span>
 							<IconChevronLeft />
@@ -588,10 +677,10 @@ export function CategoriesTable({
 							className='size-8'
 							size='icon'
 							onClick={() =>
-								setApiParams(prev => ({ ...prev, page: (prev.page ?? 1) + 1 }))
+								setApiParams(prev => ({ ...prev, page: prev.page + 1 }))
 							}
 							disabled={
-								(apiParams.page ?? 1) >= (response?.pagination?.totalPages ?? 1)
+								apiParams.page >= (response?.pagination?.totalPages ?? 1)
 							}
 						>
 							<span className='sr-only'>Go to next page</span>
@@ -608,7 +697,7 @@ export function CategoriesTable({
 								}))
 							}
 							disabled={
-								(apiParams.page ?? 1) >= (response?.pagination?.totalPages ?? 1)
+								apiParams.page >= (response?.pagination?.totalPages ?? 1)
 							}
 						>
 							<span className='sr-only'>Go to last page</span>
@@ -618,46 +707,76 @@ export function CategoriesTable({
 				</div>
 			</div>
 
-			{/* Edit Category Sheet */}
+			{/* Edit Batch Sheet */}
 			<Sheet open={isEditOpen} onOpenChange={handleEditSheetOpenChange}>
 				<SheetContent className='overflow-y-auto w-full sm:max-w-2xl'>
 					<SheetHeader className='px-6'>
-						<SheetTitle>Edit Category</SheetTitle>
+						<SheetTitle>Edit Batch</SheetTitle>
 						<SheetDescription>
-							Make changes to the category here. Click update when done.
+							Make changes to the batch here. Click save when you&apos;re done.
 						</SheetDescription>
 					</SheetHeader>
-					{selectedCategory && (
-						<EditCategoryForm
-							key={editFormKey}
-							category={selectedCategory}
+					{selectedBatch && (
+						<EditBatchForm
+							key={formKey}
+							id={selectedBatch.id.toString()}
+							initialBatch={selectedBatch}
 							onSuccess={() => {
 								setIsEditOpen(false);
-								refreshCategories();
+								refreshBatches();
 							}}
 						/>
 					)}
 				</SheetContent>
 			</Sheet>
 
-			{/* Create Category Sheet */}
+			{/* Create Batch Sheet */}
 			<Sheet open={isCreateOpen} onOpenChange={handleCreateSheetOpenChange}>
 				<SheetContent className='overflow-y-auto w-full sm:max-w-2xl'>
 					<SheetHeader className='px-6'>
-						<SheetTitle>Create New Category</SheetTitle>
+						<SheetTitle>Create Batch</SheetTitle>
 						<SheetDescription>
-							Add a new category to the system.
+							Add a new batch to the inventory.
 						</SheetDescription>
 					</SheetHeader>
-					<CreateCategoryForm
+					<CreateBatchForm
 						key={createFormKey}
 						onSuccess={() => {
 							setIsCreateOpen(false);
-							refreshCategories();
+							refreshBatches();
 						}}
 					/>
 				</SheetContent>
 			</Sheet>
+
+			{/* Dispose Batch Dialog */}
+			<AlertDialog open={disposeDialogOpen} onOpenChange={setDisposeDialogOpen}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Dispose batch?</AlertDialogTitle>
+						<AlertDialogDescription>
+							Are you sure you want to mark this batch as disposed? This will
+							update the batch status and create a stock movement record.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel
+							onClick={() => {
+								setDisposeDialogOpen(false);
+								setBatchToDispose(null);
+							}}
+						>
+							Cancel
+						</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={confirmDispose}
+							className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
+						>
+							Dispose
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</div>
 	);
 }

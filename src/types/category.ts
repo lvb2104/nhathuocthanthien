@@ -6,6 +6,12 @@ import { PaginatedResponse } from '.';
 
 export type GetCategoriesResponse = PaginatedResponse<Category>;
 
+export type CategoryFilterParams = {
+	page?: number;
+	limit?: number;
+	keyword?: string; // Search in category name
+};
+
 // ============================================================================
 // CREATE CATEGORY
 // ============================================================================

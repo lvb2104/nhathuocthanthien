@@ -13,12 +13,12 @@ export function getOrderStatusConfig(status: OrderStatus) {
 			className: 'bg-blue-50 text-blue-700 border-blue-300',
 			label: 'Đã xác nhận',
 		},
-		[OrderStatus.DELIVERING]: {
+		[OrderStatus.SHIPPED]: {
 			variant: 'outline' as const,
 			className: 'bg-purple-50 text-purple-700 border-purple-300',
 			label: 'Đang giao',
 		},
-		[OrderStatus.COMPLETED]: {
+		[OrderStatus.DELIVERED]: {
 			variant: 'outline' as const,
 			className: 'bg-green-50 text-green-700 border-green-300',
 			label: 'Hoàn thành',
@@ -27,11 +27,6 @@ export function getOrderStatusConfig(status: OrderStatus) {
 			variant: 'outline' as const,
 			className: 'bg-red-50 text-red-700 border-red-300',
 			label: 'Đã hủy',
-		},
-		[OrderStatus.FAILED]: {
-			variant: 'outline' as const,
-			className: 'bg-gray-50 text-gray-700 border-gray-300',
-			label: 'Thất bại',
 		},
 	};
 
@@ -55,10 +50,10 @@ export function getPaymentStatusConfig(status: PaymentStatus) {
 			className: 'bg-red-50 text-red-700 border-red-300',
 			label: 'Thanh toán thất bại',
 		},
-		[PaymentStatus.CANCELLED]: {
+		[PaymentStatus.REFUNDED]: {
 			variant: 'outline' as const,
 			className: 'bg-gray-50 text-gray-700 border-gray-300',
-			label: 'Đã hủy',
+			label: 'Đã hoàn tiền',
 		},
 	};
 

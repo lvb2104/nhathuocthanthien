@@ -1,17 +1,9 @@
 import { getProducts } from '@/services';
-import { GetProductsResponse } from '@/types';
+import { GetProductsResponse, ProductFilterParams } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 
 export function useProducts(
-	params?: {
-		page?: number;
-		limit?: number;
-		categoryId?: number;
-		onlyDeleted?: boolean;
-		keyword?: string;
-		priceFrom?: number;
-		priceTo?: number;
-	},
+	params?: ProductFilterParams,
 	initialData?: GetProductsResponse,
 ) {
 	return useQuery({

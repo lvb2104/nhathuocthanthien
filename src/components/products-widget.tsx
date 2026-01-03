@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useProducts } from '@/hooks';
 import { toast } from 'react-toastify';
-import { GetProductsResponse } from '@/types';
+import { GetProductsResponse, ProductFilterParams } from '@/types';
 import { app } from '@/configs/app';
 
 function ProductsWidget({
@@ -14,15 +14,7 @@ function ProductsWidget({
 }: {
 	initialProducts: GetProductsResponse;
 	title: string;
-	params?: {
-		page?: number;
-		limit?: number;
-		categoryId?: number;
-		onlyDeleted?: boolean;
-		keyword?: string;
-		priceFrom?: number;
-		priceTo?: number;
-	};
+	params?: ProductFilterParams;
 }) {
 	const { data: response, isError: isProductsError } = useProducts(
 		params,

@@ -22,18 +22,15 @@ export const routes = {
 		overview: '/admin/overview',
 		products: {
 			main: '/admin/products',
-			create: '/admin/products/create',
-			edit: (id: number) => `/admin/products/edit/${id}`,
 		},
 		categories: {
 			main: '/admin/categories',
-			create: '/admin/categories/create',
-			edit: (id: number) => `/admin/categories/edit/${id}`,
 		},
 		promotions: {
 			main: '/admin/promotions',
-			create: '/admin/promotions/create',
-			edit: (id: number) => `/admin/promotions/edit/${id}`,
+		},
+		batches: {
+			main: '/admin/batches',
 		},
 	},
 	pharmacist: {
