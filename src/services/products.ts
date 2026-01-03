@@ -9,6 +9,7 @@ import {
 	GetProductsResponse,
 	UpdateProductRequest,
 	UpdateProductResponse,
+	ProductFilterParams,
 } from '@/types';
 
 export async function createProduct(
@@ -18,28 +19,16 @@ export async function createProduct(
 	return res.data;
 }
 
-export async function getProducts(params?: {
-	page?: number;
-	limit?: number;
-	categoryId?: number;
-	onlyDeleted?: boolean;
-	keyword?: string;
-	priceFrom?: number;
-	priceTo?: number;
-}): Promise<GetProductsResponse> {
+export async function getProducts(
+	params?: ProductFilterParams,
+): Promise<GetProductsResponse> {
 	const res = await axiosInstance.get(apiEndpoints.products.getAll, { params });
 	return res.data;
 }
 
-export async function serverGetProducts(params?: {
-	page?: number;
-	limit?: number;
-	categoryId?: number;
-	onlyDeleted?: boolean;
-	keyword?: string;
-	priceFrom?: number;
-	priceTo?: number;
-}): Promise<GetProductsResponse> {
+export async function serverGetProducts(
+	params?: ProductFilterParams,
+): Promise<GetProductsResponse> {
 	const res = await serverAxios.get(apiEndpoints.products.getAll, { params });
 	return res.data;
 }

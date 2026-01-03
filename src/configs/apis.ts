@@ -14,7 +14,7 @@ export const apiEndpoints = {
 		getAll: '/products',
 		getById: (id: number) => `/products/${id}`,
 		create: '/products',
-		update: (id: number) => `/products/${id}`,
+		update: (id: number) => `/products/${id}`, // TODO: update partial
 		delete: (id: number) => `/products/${id}`,
 	},
 	categories: {

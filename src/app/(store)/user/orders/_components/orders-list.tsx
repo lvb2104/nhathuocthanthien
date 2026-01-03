@@ -24,8 +24,8 @@ const STATUS_FILTERS = [
 	{ value: null, label: 'Tất cả' },
 	{ value: OrderStatus.PENDING, label: 'Chờ xác nhận' },
 	{ value: OrderStatus.CONFIRMED, label: 'Đã xác nhận' },
-	{ value: OrderStatus.DELIVERING, label: 'Đang giao' },
-	{ value: OrderStatus.COMPLETED, label: 'Hoàn thành' },
+	{ value: OrderStatus.SHIPPED, label: 'Đang giao' },
+	{ value: OrderStatus.DELIVERED, label: 'Hoàn thành' },
 	{ value: OrderStatus.CANCELLED, label: 'Đã hủy' },
 ] as const;
 

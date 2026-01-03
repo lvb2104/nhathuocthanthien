@@ -1,13 +1,9 @@
 import { getCategories } from '@/services';
-import { GetCategoriesResponse } from '@/types';
+import { CategoryFilterParams, GetCategoriesResponse } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 
 export function useCategories(
-	params?: {
-		page?: number;
-		limit?: number;
-		keyword?: string;
-	},
+	params?: CategoryFilterParams,
 	initialData?: GetCategoriesResponse,
 ) {
 	return useQuery({

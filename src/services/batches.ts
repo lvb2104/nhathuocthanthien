@@ -1,5 +1,7 @@
 import { apiEndpoints } from '@/configs/apis';
+import { getServerSessionWithAuth } from '@/lib/auth';
 import { axiosInstance } from '@/lib/axios';
+import { serverAxios } from '@/lib/server-axios';
 import {
 	CreateBatchRequest,
 	CreateBatchResponse,
@@ -9,6 +11,7 @@ import {
 	DisposeBatchResponse,
 	GetAllBatchesResponse,
 	GetBatchByIdResponse,
+	BatchFilterParams,
 	DeleteBatchResponse,
 } from '@/types';
 
@@ -19,15 +22,26 @@ export async function createBatch(
 	return res.data;
 }
 
-export async function getAllBatches(params?: {
-	page?: number;
-	limit?: number;
-	productId?: number;
-	status?: string;
-	expired?: boolean;
-	keyword?: string;
-}): Promise<GetAllBatchesResponse> {
+export async function getAllBatches(
+	params?: BatchFilterParams,
+): Promise<GetAllBatchesResponse> {
 	const res = await axiosInstance.get(apiEndpoints.batches.getAll, { params });
+	return res.data;
+}
+
+export async function serverGetBatches(
+	params?: BatchFilterParams,
+): Promise<GetAllBatchesResponse> {
+	const session = await getServerSessionWithAuth();
+	if (!session?.accessToken) {
+		throw new Error('Unauthorized: No access token in session');
+	}
+	const res = await serverAxios.get(apiEndpoints.batches.getAll, {
+		params,
+		headers: {
+			Authorization: `Bearer ${session.accessToken}`,
+		},
+	});
 	return res.data;
 }
 
@@ -40,7 +54,10 @@ export async function updateBatch(
 	id: number,
 	request: UpdateBatchRequest,
 ): Promise<UpdateBatchResponse> {
-	const res = await axiosInstance.put(apiEndpoints.batches.update(id), request);
+	const res = await axiosInstance.patch(
+		apiEndpoints.batches.update(id),
+		request,
+	);
 	return res.data;
 }
 
@@ -48,7 +65,7 @@ export async function disposeBatch(
 	id: number,
 	request: DisposeBatchRequest,
 ): Promise<DisposeBatchResponse> {
-	const res = await axiosInstance.post(
+	const res = await axiosInstance.put(
 		apiEndpoints.batches.dispose(id),
 		request,
 	);

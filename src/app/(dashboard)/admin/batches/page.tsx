@@ -1,11 +1,22 @@
+import { BatchesTable } from './_components/batches-table';
+import { serverGetBatches, serverGetProducts } from '@/services';
+
 export const dynamic = 'force-dynamic';
 
-function BatchesPage() {
-	return (
-		<div className='flex h-48 w-full items-center justify-center'>
-			<p className='text-muted-foreground'>Batches management coming soon...</p>
-		</div>
-	);
+async function BatchesPage() {
+	try {
+		const initialBatches = await serverGetBatches();
+		const initialProducts = await serverGetProducts();
+
+		return (
+			<BatchesTable
+				initialBatches={initialBatches}
+				initialProducts={initialProducts}
+			/>
+		);
+	} catch (error) {
+		throw error;
+	}
 }
 
 export default BatchesPage;

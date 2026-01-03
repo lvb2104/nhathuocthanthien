@@ -5,6 +5,16 @@ import { PaginatedResponse } from '.';
 // ============================================================================
 export type GetProductsResponse = PaginatedResponse<ProductWithoutDetail>;
 
+export type ProductFilterParams = {
+	page?: number;
+	limit?: number;
+	categoryId?: number;
+	keyword?: string; // Search in product name
+	priceFrom?: number;
+	priceTo?: number;
+	onlyDeleted?: boolean; // Admin only - show deleted products
+};
+
 // ============================================================================
 // GET PRODUCT BY ID
 // ============================================================================
@@ -15,7 +25,7 @@ export type GetProductByIdResponse = Product;
 // ============================================================================
 export type CreateProductRequest = FormData;
 
-export type CreateProductResponse = Product;
+export type CreateProductResponse = { message: string };
 
 // ============================================================================
 // UPDATE PRODUCT
@@ -23,6 +33,13 @@ export type CreateProductResponse = Product;
 export type UpdateProductRequest = FormData;
 
 export type UpdateProductResponse = Product;
+
+// ============================================================================
+// UPDATE PRODUCT (PARTIAL)
+// ============================================================================
+export type UpdateProductPartialRequest = FormData;
+
+export type UpdateProductPartialResponse = { message: string };
 
 // ============================================================================
 // DELETE PRODUCT

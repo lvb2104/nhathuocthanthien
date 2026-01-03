@@ -63,10 +63,7 @@ function PaymentCancelPage() {
 			if (order) {
 				// Check if payment was cancelled or is still pending
 				if (order.payment) {
-					if (
-						order.payment.status === PaymentStatus.CANCELLED ||
-						order.payment.status === PaymentStatus.FAILED
-					) {
+					if (order.payment.status === PaymentStatus.FAILED) {
 						setStatus(PageStatus.CANCELLED);
 					} else {
 						setStatus(PageStatus.PENDING);

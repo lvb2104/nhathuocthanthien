@@ -111,8 +111,8 @@ export type OrderItem = {
 export type Payment = {
 	id: number;
 	orderId: number;
-	method: string;
-	status: string;
+	method: PaymentMethod;
+	status: PaymentStatus;
 	paidAt?: string;
 	payosOrderCode?: string;
 	payosPaymentLinkId?: string;
@@ -138,10 +138,9 @@ export type OrderShipping = {
 export enum OrderStatus {
 	PENDING = 'pending',
 	CONFIRMED = 'confirmed',
-	DELIVERING = 'delivering',
-	COMPLETED = 'completed',
+	SHIPPED = 'shipped',
+	DELIVERED = 'delivered',
 	CANCELLED = 'cancelled',
-	FAILED = 'failed',
 }
 
 export enum PaymentMethod {
@@ -153,5 +152,5 @@ export enum PaymentStatus {
 	PENDING = 'pending',
 	PAID = 'paid',
 	FAILED = 'failed',
-	CANCELLED = 'cancelled',
+	REFUNDED = 'refunded',
 }

@@ -11,7 +11,7 @@ export type ReviewFilterParams = {
 	rating?: number;
 	productId?: number;
 	userId?: number;
-	keyword?: string;
+	keyword?: string; // Search in comment
 };
 
 // ============================================================================
@@ -28,6 +28,7 @@ export type ProductReviewFilterParams = {
 	page?: number;
 	limit?: number;
 	rating?: number;
+	keyword?: string; // Search in comment
 };
 
 // ============================================================================
@@ -38,6 +39,7 @@ export type GetMyReviewsResponse = PaginatedResponse<Review>;
 export type MyReviewsFilterParams = {
 	page?: number;
 	limit?: number;
+	keyword?: string; // Search in comment
 };
 
 // ============================================================================
@@ -48,7 +50,7 @@ export type CreateReviewRequest = {
 	comment?: string;
 };
 
-export type CreateReviewResponse = Review;
+export type CreateReviewResponse = { message: string };
 
 // ============================================================================
 // UPDATE REVIEW
@@ -58,7 +60,7 @@ export type UpdateReviewRequest = {
 	comment?: string;
 };
 
-export type UpdateReviewResponse = Review;
+export type UpdateReviewResponse = { message: string };
 
 // ============================================================================
 // DELETE REVIEW

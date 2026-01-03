@@ -8,6 +8,7 @@ import {
 	GetCategoriesResponse,
 	UpdateCategoryRequest,
 	UpdateCategoryResponse,
+	CategoryFilterParams,
 } from '@/types';
 
 export async function createCategory(
@@ -17,22 +18,18 @@ export async function createCategory(
 	return res.data;
 }
 
-export async function getCategories(params?: {
-	page?: number;
-	limit?: number;
-	keyword?: string;
-}): Promise<GetCategoriesResponse> {
+export async function getCategories(
+	params?: CategoryFilterParams,
+): Promise<GetCategoriesResponse> {
 	const res = await axiosInstance.get(apiEndpoints.categories.getAll, {
 		params,
 	});
 	return res.data;
 }
 
-export async function serverGetCategories(params?: {
-	page?: number;
-	limit?: number;
-	keyword?: string;
-}): Promise<GetCategoriesResponse> {
+export async function serverGetCategories(
+	params?: CategoryFilterParams,
+): Promise<GetCategoriesResponse> {
 	const res = await serverAxios.get(apiEndpoints.categories.getAll, { params });
 	return res.data;
 }

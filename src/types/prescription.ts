@@ -1,29 +1,47 @@
+import { PaginatedResponse } from '.';
+
 // ============================================================================
 // GET MY PRESCRIPTIONS
 // ============================================================================
-export type GetMyPrescriptionsResponse = Prescription[];
+export type GetMyPrescriptionsResponse = PaginatedResponse<Prescription>;
+
+export type MyPrescriptionsFilterParams = {
+	page?: number;
+	limit?: number;
+	status?: PrescriptionStatus;
+	fromDate?: string;
+	toDate?: string;
+};
 
 // ============================================================================
 // GET MY PRESCRIPTION BY ID
 // ============================================================================
 export type GetMyPrescriptionByIdResponse = Prescription;
 
-// ============================================================================
-// GET APPROVED PRESCRIPTION
-// ============================================================================
-export type GetApprovedPrescriptionResponse = Prescription | null;
+export type GetApprovedPrescriptionResponse = PaginatedResponse<Prescription>;
 
-// ============================================================================
-// GET ALL PRESCRIPTIONS FOR PHARMACIST
-// ============================================================================
-export type GetAllPrescriptionsForPharmacistResponse = Prescription[];
+export type GetAllPrescriptionsForPharmacistResponse =
+	PaginatedResponse<Prescription>;
+
+export type PharmacistPrescriptionsFilterParams = {
+	page?: number;
+	limit?: number;
+	status?: PrescriptionStatus;
+	keyword?: string; // Search in user full_name
+	fromDate?: string;
+	toDate?: string;
+	userId?: number;
+};
 
 // ============================================================================
 // CREATE PRESCRIPTION
 // ============================================================================
 export type CreatePrescriptionRequest = FormData; // File upload
 
-export type CreatePrescriptionResponse = Prescription;
+export type CreatePrescriptionResponse = {
+	message: string;
+	prescription: Prescription;
+};
 
 // ============================================================================
 // APPROVE PRESCRIPTION
@@ -55,13 +73,12 @@ export type PrescriptionItem = {
 export type Prescription = {
 	id: number;
 	userId: number;
-	imageUrl: string;
+	fileUrl: string;
 	status: PrescriptionStatus;
 	items?: PrescriptionItem[];
-	approvedBy?: number;
-	createdAt: string;
-	updatedAt: string;
-	approver?: {
+	pharmacistId?: number;
+	uploadedAt: string;
+	pharmacist?: {
 		id: number;
 		fullName: string;
 	};

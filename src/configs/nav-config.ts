@@ -3,14 +3,12 @@ import {
 	IconDashboard,
 	IconDatabase,
 	IconFileWord,
-	IconFolder,
 	IconHelp,
 	IconListDetails,
 	IconReport,
 	IconSearch,
 	IconSettings,
 	IconTag,
-	IconUsers,
 } from '@tabler/icons-react';
 import { routes } from './routes';
 
@@ -38,14 +36,9 @@ export const navConfig = {
 				icon: IconTag,
 			},
 			{
-				title: 'Projects',
-				url: '/admin/projects',
-				icon: IconFolder,
-			},
-			{
-				title: 'Team',
-				url: '/admin/team',
-				icon: IconUsers,
+				title: 'Batches',
+				url: routes.admin.batches.main,
+				icon: IconDatabase,
 			},
 		],
 		documents: [
