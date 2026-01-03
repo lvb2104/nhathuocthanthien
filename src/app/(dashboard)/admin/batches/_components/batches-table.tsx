@@ -67,6 +67,7 @@ import {
 	Batch,
 	GetProductsResponse,
 	BatchStatus,
+	BatchFilterParams,
 } from '@/types';
 import { useEffect } from 'react';
 import { useBatches, useDisposeBatch } from '@/hooks';
@@ -92,7 +93,7 @@ export function BatchesTable({
 	initialProducts?: GetProductsResponse;
 }) {
 	// API Filter params state
-	const [apiParams, setApiParams] = React.useState({
+	const [apiParams, setApiParams] = React.useState<BatchFilterParams>({
 		page: 1,
 		limit: 10,
 		productId: undefined as number | undefined,
@@ -664,10 +665,10 @@ export function BatchesTable({
 							onClick={() =>
 								setApiParams(prev => ({
 									...prev,
-									page: Math.max(1, prev.page - 1),
+									page: Math.max(1, (prev.page ?? 1) - 1),
 								}))
 							}
-							disabled={apiParams.page === 1}
+							disabled={(apiParams.page ?? 1) === 1}
 						>
 							<span className='sr-only'>Go to previous page</span>
 							<IconChevronLeft />
@@ -677,10 +678,10 @@ export function BatchesTable({
 							className='size-8'
 							size='icon'
 							onClick={() =>
-								setApiParams(prev => ({ ...prev, page: prev.page + 1 }))
+								setApiParams(prev => ({ ...prev, page: (prev.page ?? 1) + 1 }))
 							}
 							disabled={
-								apiParams.page >= (response?.pagination?.totalPages ?? 1)
+								(apiParams.page ?? 1) >= (response?.pagination?.totalPages ?? 1)
 							}
 						>
 							<span className='sr-only'>Go to next page</span>
@@ -697,7 +698,7 @@ export function BatchesTable({
 								}))
 							}
 							disabled={
-								apiParams.page >= (response?.pagination?.totalPages ?? 1)
+								(apiParams.page ?? 1) >= (response?.pagination?.totalPages ?? 1)
 							}
 						>
 							<span className='sr-only'>Go to last page</span>

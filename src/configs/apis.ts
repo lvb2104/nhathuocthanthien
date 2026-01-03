@@ -42,6 +42,11 @@ export const apiEndpoints = {
 		updateProfile: '/users/me',
 		changePassword: '/users/change-password',
 		assignAccount: '/users/assign-account',
+		// Admin operations
+		getAll: '/users',
+		getLocked: '/users/locked',
+		restore: (id: number) => `/users/${id}/restore`,
+		lock: (id: number) => `/users/${id}`,
 		shippingAddresses: {
 			getAll: '/users/shipping-addresses',
 			getById: (id: number) => `/users/shipping-addresses/${id}`,

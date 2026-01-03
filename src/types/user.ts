@@ -85,10 +85,13 @@ export type AssignAccountRequest = {
 };
 
 export type AssignAccountResponse = {
-	id: number;
-	email: string;
-	fullName: string;
-	role: string;
+	message: string;
+	user: {
+		id: number;
+		email: string;
+		fullName: string;
+		roleId: number;
+	};
 };
 
 // ============================================================================
@@ -117,10 +120,19 @@ export type UserInfo = {
 	id: number;
 	email: string;
 	fullName: string;
-	phone: string;
+	phone: string | null;
 	gender: UserGender | null;
 	birthDay: string | null;
 	avatarUrl: string | null;
+	avatarPublicId: string | null;
+	isActive: boolean;
+	loyaltyPoints: number;
+	licenseNumber: string | null;
+	hireDate: string | null;
+	createdAt: string;
+	updatedAt: string;
+	deletedAt: string | null;
+	roleId: number;
 	roles: {
 		id: number;
 		name: string;
@@ -129,14 +141,17 @@ export type UserInfo = {
 
 export type ShippingAddress = {
 	id: number;
+	userId: number;
 	fullName: string;
 	phone: string;
 	addressLine: string;
-	ward: string;
-	district: string;
-	province: string;
+	ward: string | null;
+	district: string | null;
+	province: string | null;
 	note: string | null;
 	isDefault: boolean;
+	createdAt: string;
+	updatedAt: string;
 };
 
 // ============================================================================

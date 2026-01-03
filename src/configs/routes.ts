@@ -32,6 +32,9 @@ export const routes = {
 		batches: {
 			main: '/admin/batches',
 		},
+		users: {
+			main: '/admin/users',
+		},
 	},
 	pharmacist: {
 		overview: '/pharmacist/overview',

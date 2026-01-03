@@ -9,6 +9,7 @@ import {
 	IconSearch,
 	IconSettings,
 	IconTag,
+	IconUsers,
 } from '@tabler/icons-react';
 import { routes } from './routes';
 
@@ -39,6 +40,11 @@ export const navConfig = {
 				title: 'Batches',
 				url: routes.admin.batches.main,
 				icon: IconDatabase,
+			},
+			{
+				title: 'Users',
+				url: routes.admin.users.main,
+				icon: IconUsers,
 			},
 		],
 		documents: [

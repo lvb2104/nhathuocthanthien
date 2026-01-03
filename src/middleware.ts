@@ -26,7 +26,12 @@ export default withAuth(
 			return NextResponse.redirect(new URL(routes.home, req.url));
 		}
 
-		if (pathname.startsWith('/user') && role !== UserRole.CUSTOMER) {
+		if (
+			pathname.startsWith('/user') &&
+			role !== UserRole.CUSTOMER &&
+			role !== UserRole.ADMIN &&
+			role !== UserRole.PHARMACIST
+		) {
 			// Redirect to sign-in with callback URL preserved
 			const signInUrl = new URL(routes.auth.signIn, req.url);
 			signInUrl.searchParams.set('callbackUrl', req.url);
