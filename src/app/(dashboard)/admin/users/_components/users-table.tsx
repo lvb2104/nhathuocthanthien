@@ -16,8 +16,6 @@ import {
 	ColumnFiltersState,
 	flexRender,
 	getCoreRowModel,
-	getFacetedRowModel,
-	getFacetedUniqueValues,
 	getFilteredRowModel,
 	getSortedRowModel,
 	SortingState,
@@ -59,14 +57,13 @@ import {
 } from '@/components/ui/popover';
 import { toast } from 'react-toastify';
 import {
-	GetCategoriesResponse,
-	GetProductsResponse,
-	ProductFilterParams,
-	Products,
-	ProductWithoutDetail,
+	GetAllUsersResponse,
+	UserFilterParams,
+	UserInfo,
+	UserRole,
 } from '@/types';
 import { useEffect } from 'react';
-import { useDeleteProduct, useProducts } from '@/hooks';
+import { useUsers, useLockUser, useRestoreUser } from '@/hooks';
 import { RefreshCcw, Search, X } from 'lucide-react';
 import {
 	Sheet,
@@ -76,65 +73,38 @@ import {
 	SheetTitle,
 } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
-import CreateProductForm from './create-product-form';
-import EditProductForm from './edit-product-form';
+import AssignAccountForm from './assign-account-form';
 
-// Main DataTable component
-export function ProductsTable({
-	initialCategories,
-	initialProducts,
+export function UsersTable({
+	initialUsers,
 }: {
-	initialCategories?: GetCategoriesResponse;
-	initialProducts?: GetProductsResponse;
+	initialUsers?: GetAllUsersResponse;
 }) {
 	// API Filter params state
-	const [apiParams, setApiParams] = React.useState<ProductFilterParams>({
+	const [apiParams, setApiParams] = React.useState<UserFilterParams>({
 		page: 1,
 		limit: 10,
-		categoryId: undefined as number | undefined,
 		keyword: '',
-		priceFrom: undefined as number | undefined,
-		priceTo: undefined as number | undefined,
-		onlyDeleted: false,
+		role: undefined as UserRole | undefined,
+		isActive: undefined as boolean | undefined,
 	});
 
 	// Local filter inputs (for debouncing)
 	const [searchInput, setSearchInput] = React.useState('');
-	const [priceFromInput, setPriceFromInput] = React.useState('');
-	const [priceToInput, setPriceToInput] = React.useState('');
 
-	const [data, setData] = React.useState<Products>([]);
+	const [data, setData] = React.useState<UserInfo[]>([]);
 	const {
 		data: response,
-		isError: isProductsError,
-		refetch: refreshProducts,
-		isPending: isProductsPending,
-	} = useProducts(apiParams, initialProducts);
-	const { mutateAsync } = useDeleteProduct();
-
-	const [formKey, setFormKey] = React.useState(0);
-
-	// Edit sheet state
-	const [isEditOpen, setIsEditOpen] = React.useState(false);
-	const [selectedProduct, setSelectedProduct] =
-		React.useState<ProductWithoutDetail | null>(null);
+		isError: isUsersError,
+		refetch: refreshUsers,
+		isPending: isUsersPending,
+	} = useUsers(apiParams, initialUsers);
+	const { mutateAsync: lockMutate } = useLockUser();
+	const { mutateAsync: restoreMutate } = useRestoreUser();
 
 	// Create sheet state
 	const [isCreateOpen, setIsCreateOpen] = React.useState(false);
 	const [createFormKey, setCreateFormKey] = React.useState(0);
-
-	const handleEdit = (product: ProductWithoutDetail) => {
-		setSelectedProduct(product);
-		setFormKey(Date.now());
-		setIsEditOpen(true);
-	};
-
-	const handleEditSheetOpenChange = (open: boolean) => {
-		setIsEditOpen(open);
-		if (!open) {
-			setSelectedProduct(null);
-		}
-	};
 
 	const handleCreate = () => {
 		setCreateFormKey(Date.now());
@@ -153,30 +123,29 @@ export function ProductsTable({
 		return () => clearTimeout(timeout);
 	}, [searchInput]);
 
-	// Debounced price filters
 	useEffect(() => {
-		const timeout = setTimeout(() => {
-			setApiParams(prev => ({
-				...prev,
-				priceFrom: priceFromInput ? Number(priceFromInput) : undefined,
-				priceTo: priceToInput ? Number(priceToInput) : undefined,
-				page: 1,
-			}));
-		}, 500);
-		return () => clearTimeout(timeout);
-	}, [priceFromInput, priceToInput]);
-
-	useEffect(() => {
-		if (isProductsError) {
-			toast.error('Error loading products');
+		if (isUsersError) {
+			toast.error('Error loading users');
 		}
-	}, [isProductsError]);
+	}, [isUsersError]);
 
 	useEffect(() => {
 		if (response?.data) {
 			setData(response.data);
 		}
 	}, [response]);
+
+	const clearFilters = () => {
+		setSearchInput('');
+		setApiParams({
+			page: 1,
+			limit: 10,
+			keyword: '',
+			role: undefined,
+			isActive: undefined,
+			includeDeleted: undefined,
+		});
+	};
 
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] =
@@ -185,25 +154,14 @@ export function ProductsTable({
 		[],
 	);
 	const [sorting, setSorting] = React.useState<SortingState>([]);
-	const [deletePopoverOpen, setDeletePopoverOpen] = React.useState(false);
+	const [lockPopoverOpen, setLockPopoverOpen] = React.useState(false);
 
-	const clearFilters = () => {
-		setSearchInput('');
-		setPriceFromInput('');
-		setPriceToInput('');
-		setApiParams({
-			page: 1,
-			limit: 10,
-			categoryId: undefined,
-			keyword: '',
-			priceFrom: undefined,
-			priceTo: undefined,
-			onlyDeleted: false,
-		});
+	// Check if user is locked/deleted (soft delete)
+	const isUserLocked = (user: UserInfo) => {
+		return user.deletedAt !== null;
 	};
 
-	// Define the columns for the table with header (what to show at the top of the column) and cell (how to render each cell in that column)
-	const columns: ColumnDef<ProductWithoutDetail>[] = [
+	const columns: ColumnDef<UserInfo>[] = [
 		{
 			id: 'select',
 			header: ({ table }) => (
@@ -226,86 +184,111 @@ export function ProductsTable({
 						aria-label='Select row'
 					/>
 				</div>
-			), // handle for selecting only for this cell
+			),
 			enableSorting: false,
 			enableHiding: false,
 		},
 		{
-			accessorKey: 'name',
-			header: 'Name',
+			accessorKey: 'fullName',
+			header: 'Full Name',
 			cell: ({ row }) => {
-				return <div className='font-medium'>{row.getValue('name')}</div>;
+				return <div className='font-medium'>{row.getValue('fullName')}</div>;
 			},
 			enableHiding: false,
 		},
 		{
-			accessorKey: 'description',
-			header: 'Description',
+			accessorKey: 'email',
+			header: 'Email',
 			cell: ({ row }) => {
-				const description = row.getValue('description') as string;
+				return <div className='text-sm'>{row.getValue('email')}</div>;
+			},
+			enableHiding: false,
+		},
+		{
+			accessorKey: 'phone',
+			header: 'Phone',
+			cell: ({ row }) => {
+				const phone = row.getValue('phone') as string;
+				return <div className='text-sm'>{phone || 'N/A'}</div>;
+			},
+		},
+		{
+			accessorKey: 'roles.name',
+			header: 'Role',
+			cell: ({ row }) => {
+				const role = (row.original as any).roles?.name;
 				return (
-					<div className='max-w-[300px] truncate text-sm text-muted-foreground'>
-						{description}
-					</div>
+					<Badge variant='secondary' className='w-fit capitalize'>
+						{role || 'N/A'}
+					</Badge>
 				);
 			},
 		},
 		{
-			accessorKey: 'price',
-			header: 'Price',
+			id: 'emailStatus',
+			header: 'Email Status',
 			cell: ({ row }) => {
-				const price = row.getValue('price') as number;
-				return <div className='text-right'>{price}</div>;
-			},
-		},
-		{
-			accessorKey: 'manufacturer',
-			header: 'Manufacturer',
-			cell: ({ row }) => {
-				const manufacturer = row.getValue('manufacturer') as string;
-				return <div className='text-sm'>{manufacturer}</div>;
-			},
-		},
-		{
-			accessorKey: 'category.name',
-			header: 'Category',
-			cell: ({ row }) => {
-				const category = (row.original as any).category?.name;
+				const isVerified = row.original.isActive;
 				return (
-					<Badge variant='secondary' className='w-fit'>
-						{category || 'Uncategorized'}
+					<Badge
+						variant={isVerified ? 'default' : 'secondary'}
+						className='w-fit'
+					>
+						{isVerified ? 'Verified' : 'Unverified'}
+					</Badge>
+				);
+			},
+		},
+		{
+			id: 'accountStatus',
+			header: 'Account Status',
+			cell: ({ row }) => {
+				const isLocked = isUserLocked(row.original);
+				return (
+					<Badge
+						variant={isLocked ? 'destructive' : 'default'}
+						className='w-fit'
+					>
+						{isLocked ? 'Locked' : 'Active'}
 					</Badge>
 				);
 			},
 		},
 		{
 			id: 'actions',
-			cell: ({ row }) => (
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button
-							variant='ghost'
-							className='data-[state=open]:bg-muted text-muted-foreground flex size-8'
-							size='icon'
-						>
-							<IconDotsVertical />
-							<span className='sr-only'>Open menu</span>
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align='end' className='w-32'>
-						<DropdownMenuItem onClick={() => handleEdit(row.original)}>
-							Edit
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem
-							variant='destructive'
-							onClick={() => handleDelete(row.original.id)}
-						>
-							Delete
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
-			),
+			cell: ({ row }) => {
+				const isLocked = isUserLocked(row.original);
+				return (
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button
+								variant='ghost'
+								className='data-[state=open]:bg-muted text-muted-foreground flex size-8'
+								size='icon'
+							>
+								<IconDotsVertical />
+								<span className='sr-only'>Open menu</span>
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align='end' className='w-32'>
+							{isLocked ? (
+								<DropdownMenuItem
+									onClick={() => handleRestore(row.original.id)}
+								>
+									Restore
+								</DropdownMenuItem>
+							) : (
+								<DropdownMenuItem
+									variant='destructive'
+									onClick={() => handleLock(row.original.id)}
+								>
+									Lock
+								</DropdownMenuItem>
+							)}
+						</DropdownMenuContent>
+					</DropdownMenu>
+				);
+			},
 		},
 	];
 
@@ -327,67 +310,85 @@ export function ProductsTable({
 		getCoreRowModel: getCoreRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
 		getSortedRowModel: getSortedRowModel(),
-		getFacetedRowModel: getFacetedRowModel(),
-		getFacetedUniqueValues: getFacetedUniqueValues(),
 		manualPagination: true, // Server-side pagination
 		pageCount: response?.pagination?.totalPages ?? 0,
 	});
 
-	function handleDelete(id: number) {
+	function handleLock(id: number) {
 		toast.promise(
-			mutateAsync(id, {
-				onError: (error: any) => {
-					toast.error(
-						error?.message || 'Error deleting product. Please try again.',
-					);
-				},
-			}).then(() => {
+			lockMutate(id).then(() => {
 				setData(prevData => prevData.filter(item => item.id !== id));
 			}),
 			{
-				pending: 'Deleting product...',
-				success: 'Product deleted successfully',
+				pending: 'Locking user...',
+				success: 'User locked successfully',
+				error: 'Error locking user. Please try again.',
 			},
 		);
 	}
 
-	function handleDeleteMultiple() {
+	function handleRestore(id: number) {
+		toast.promise(
+			restoreMutate(id).then(() => {
+				setData(prevData => prevData.filter(item => item.id !== id));
+			}),
+			{
+				pending: 'Restoring user...',
+				success: 'User restored successfully',
+				error: 'Error restoring user. Please try again.',
+			},
+		);
+	}
+
+	function handleLockMultiple() {
 		const selectedRows = table.getFilteredSelectedRowModel().rows;
 		if (selectedRows.length === 0) return;
 
-		const selectedIds = selectedRows.map(row => (row.original as any).id);
+		const activeUsers = selectedRows.filter(row => !isUserLocked(row.original));
+		const selectedIds = activeUsers.map(row => row.original.id);
 
 		toast.promise(
-			Promise.all(
-				selectedIds.map(id =>
-					mutateAsync(id, {
-						onError: (error: any) => {
-							toast.error(
-								error?.message ||
-									`Error deleting product with ID ${id}. Please try again.`,
-							);
-						},
-					}),
-				),
-			).then(() => {
+			Promise.all(selectedIds.map(id => lockMutate(id))).then(() => {
 				setData(prevData =>
 					prevData.filter(item => !selectedIds.includes(item.id)),
 				);
 				setRowSelection({});
-				setDeletePopoverOpen(false);
+				setLockPopoverOpen(false);
 			}),
 			{
-				pending: `Deleting ${selectedIds.length} product(s)...`,
-				success: `${selectedIds.length} product(s) deleted successfully`,
-				error: 'Error deleting products. Please try again.',
+				pending: `Locking ${selectedIds.length} user(s)...`,
+				success: `${selectedIds.length} user(s) locked successfully`,
+				error: 'Error locking users. Please try again.',
 			},
 		);
 	}
 
-	if (isProductsPending) {
+	function handleRestoreMultiple() {
+		const selectedRows = table.getFilteredSelectedRowModel().rows;
+		if (selectedRows.length === 0) return;
+
+		const lockedUsers = selectedRows.filter(row => isUserLocked(row.original));
+		const selectedIds = lockedUsers.map(row => row.original.id);
+
+		toast.promise(
+			Promise.all(selectedIds.map(id => restoreMutate(id))).then(() => {
+				setData(prevData =>
+					prevData.filter(item => !selectedIds.includes(item.id)),
+				);
+				setRowSelection({});
+			}),
+			{
+				pending: `Restoring ${selectedIds.length} user(s)...`,
+				success: `${selectedIds.length} user(s) restored successfully`,
+				error: 'Error restoring users. Please try again.',
+			},
+		);
+	}
+
+	if (isUsersPending) {
 		return (
 			<div className='flex h-48 w-full items-center justify-center'>
-				Loading products...
+				Loading users...
 			</div>
 		);
 	}
@@ -401,76 +402,92 @@ export function ProductsTable({
 					<div className='relative'>
 						<Search className='absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
 						<Input
-							placeholder='Search products...'
+							placeholder='Search by email or name...'
 							value={searchInput}
 							onChange={e => setSearchInput(e.target.value)}
 							className='pl-9'
 						/>
 					</div>
 
-					{/* Category Filter */}
+					{/* Role Filter */}
 					<Select
-						value={apiParams.categoryId?.toString() || 'all'}
+						value={apiParams.role || 'all'}
 						onValueChange={value => {
 							setApiParams(prev => ({
 								...prev,
-								categoryId: value === 'all' ? undefined : Number(value),
+								role: value === 'all' ? undefined : (value as UserRole),
 								page: 1,
 							}));
 						}}
 					>
 						<SelectTrigger>
-							<SelectValue placeholder='All Categories' />
+							<SelectValue placeholder='All Roles' />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value='all'>All Categories</SelectItem>
-							{(initialCategories?.data || []).map(cat => (
-								<SelectItem key={cat.id} value={cat.id.toString()}>
-									{cat.name}
-								</SelectItem>
-							))}
+							<SelectItem value='all'>All Roles</SelectItem>
+							<SelectItem value={UserRole.CUSTOMER}>Customer</SelectItem>
+							<SelectItem value={UserRole.ADMIN}>Admin</SelectItem>
+							<SelectItem value={UserRole.PHARMACIST}>Pharmacist</SelectItem>
+							<SelectItem value={UserRole.EMPLOYEE}>Employee</SelectItem>
 						</SelectContent>
 					</Select>
 
-					{/* Price From */}
-					<Input
-						type='number'
-						placeholder='Min price'
-						value={priceFromInput}
-						onChange={e => setPriceFromInput(e.target.value)}
-					/>
+					{/* Status Filter */}
+					<Select
+						value={
+							apiParams.isActive === undefined
+								? 'all'
+								: apiParams.isActive
+									? 'verified'
+									: 'unverified'
+						}
+						onValueChange={value => {
+							setApiParams(prev => ({
+								...prev,
+								isActive:
+									value === 'all'
+										? undefined
+										: value === 'verified'
+											? true
+											: false,
+								page: 1,
+							}));
+						}}
+					>
+						<SelectTrigger>
+							<SelectValue placeholder='All Status' />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value='all'>All Status</SelectItem>
+							<SelectItem value='verified'>Verified</SelectItem>
+							<SelectItem value='unverified'>Unverified</SelectItem>
+						</SelectContent>
+					</Select>
 
-					{/* Price To */}
-					<Input
-						type='number'
-						placeholder='Max price'
-						value={priceToInput}
-						onChange={e => setPriceToInput(e.target.value)}
-					/>
-				</div>
-
-				{/* Second row - Deleted toggle and clear button */}
-				<div className='flex items-center gap-4'>
+					{/* Include Deleted Filter (Checkbox) */}
 					<div className='flex items-center gap-2'>
 						<Checkbox
-							id='show-deleted'
-							checked={apiParams.onlyDeleted}
+							id='include-deleted'
+							checked={apiParams.includeDeleted === true}
 							onCheckedChange={checked => {
 								setApiParams(prev => ({
 									...prev,
-									onlyDeleted: checked as boolean,
+									includeDeleted: checked ? true : undefined,
 									page: 1,
 								}));
 							}}
 						/>
 						<Label
-							htmlFor='show-deleted'
+							htmlFor='include-deleted'
 							className='text-sm font-medium cursor-pointer'
 						>
-							Show deleted products
+							Include deleted users
 						</Label>
 					</div>
+				</div>
 
+				{/* Clear Filters Button */}
+				<div className='flex items-center gap-4'>
 					<Button
 						variant='outline'
 						size='sm'
@@ -486,64 +503,88 @@ export function ProductsTable({
 			{/* Toolbar */}
 			<div className='flex items-center justify-between px-4 lg:px-6'>
 				<div className='flex items-center gap-2'>
-					{table.getFilteredSelectedRowModel().rows.length > 0 && (
-						<Popover
-							open={deletePopoverOpen}
-							onOpenChange={setDeletePopoverOpen}
-						>
-							<PopoverTrigger asChild>
-								<Button
-									variant='destructive'
-									size='sm'
-									className='cursor-pointer'
-								>
-									<span>
-										Delete ({table.getFilteredSelectedRowModel().rows.length})
-									</span>
-								</Button>
-							</PopoverTrigger>
-							<PopoverContent className='w-80'>
-								<div className='space-y-4'>
-									<div className='space-y-2'>
-										<h4 className='font-medium leading-none'>
-											Delete products?
-										</h4>
-										<p className='text-sm text-muted-foreground'>
-											You are about to delete{' '}
-											{table.getFilteredSelectedRowModel().rows.length}{' '}
-											product(s). This action cannot be undone.
-										</p>
-										<div className='max-h-32 overflow-y-auto rounded-md bg-muted p-2 text-xs'>
-											{table.getFilteredSelectedRowModel().rows.map(row => (
-												<div
-													key={(row.original as any).id}
-													className='truncate py-1'
+					{table.getFilteredSelectedRowModel().rows.length > 0 &&
+						(() => {
+							const selectedRows = table.getFilteredSelectedRowModel().rows;
+							const activeUsers = selectedRows.filter(
+								row => !isUserLocked(row.original),
+							);
+							const lockedUsers = selectedRows.filter(row =>
+								isUserLocked(row.original),
+							);
+
+							return (
+								<>
+									{activeUsers.length > 0 && (
+										<Popover
+											open={lockPopoverOpen}
+											onOpenChange={setLockPopoverOpen}
+										>
+											<PopoverTrigger asChild>
+												<Button
+													variant='destructive'
+													size='sm'
+													className='cursor-pointer'
 												>
-													• {(row.original as any).name}
+													<span>Lock ({activeUsers.length})</span>
+												</Button>
+											</PopoverTrigger>
+											<PopoverContent className='w-80'>
+												<div className='space-y-4'>
+													<div className='space-y-2'>
+														<h4 className='font-medium leading-none'>
+															Lock users?
+														</h4>
+														<p className='text-sm text-muted-foreground'>
+															You are about to lock {activeUsers.length}{' '}
+															user(s). They will no longer be able to access the
+															system.
+														</p>
+														<div className='max-h-32 overflow-y-auto rounded-md bg-muted p-2 text-xs'>
+															{activeUsers.map(row => (
+																<div
+																	key={row.original.id}
+																	className='truncate py-1'
+																>
+																	• {row.original.fullName} (
+																	{row.original.email})
+																</div>
+															))}
+														</div>
+													</div>
+													<div className='flex gap-2 justify-end'>
+														<Button
+															variant='outline'
+															size='sm'
+															onClick={() => setLockPopoverOpen(false)}
+														>
+															Cancel
+														</Button>
+														<Button
+															variant='destructive'
+															size='sm'
+															onClick={handleLockMultiple}
+														>
+															Lock
+														</Button>
+													</div>
 												</div>
-											))}
-										</div>
-									</div>
-									<div className='flex gap-2 justify-end'>
+											</PopoverContent>
+										</Popover>
+									)}
+									{lockedUsers.length > 0 && (
 										<Button
-											variant='outline'
+											variant='default'
 											size='sm'
-											onClick={() => setDeletePopoverOpen(false)}
+											className='cursor-pointer'
+											onClick={handleRestoreMultiple}
 										>
-											Cancel
+											<span>Restore ({lockedUsers.length})</span>
 										</Button>
-										<Button
-											variant='destructive'
-											size='sm'
-											onClick={handleDeleteMultiple}
-										>
-											Delete
-										</Button>
-									</div>
-								</div>
-							</PopoverContent>
-						</Popover>
-					)}
+									)}
+								</>
+							);
+						})()}
 				</div>
 				<div className='flex items-center gap-2'>
 					<DropdownMenu>
@@ -586,12 +627,12 @@ export function ProductsTable({
 						onClick={() => {
 							toast.promise(
 								async () => {
-									return await refreshProducts();
+									return await refreshUsers();
 								},
 								{
-									pending: 'Refreshing products...',
-									success: 'Products refreshed',
-									error: 'Error refreshing products',
+									pending: 'Refreshing users...',
+									success: 'Users refreshed',
+									error: 'Error refreshing users',
 								},
 							);
 						}}
@@ -606,7 +647,7 @@ export function ProductsTable({
 						onClick={handleCreate}
 					>
 						<IconPlus />
-						<span className='hidden lg:inline'>Add Product</span>
+						<span className='hidden lg:inline'>Add User</span>
 					</Button>
 				</div>
 			</div>
@@ -764,45 +805,20 @@ export function ProductsTable({
 				</div>
 			</div>
 
-			{/* Edit Product Sheet */}
-			<Sheet open={isEditOpen} onOpenChange={handleEditSheetOpenChange}>
-				<SheetContent className='overflow-y-auto w-full sm:max-w-2xl'>
-					<SheetHeader className='px-6'>
-						<SheetTitle>Edit Product</SheetTitle>
-						<SheetDescription>
-							Make changes to the product here. Click save when you&apos;re
-							done.
-						</SheetDescription>
-					</SheetHeader>
-					{selectedProduct && (
-						<EditProductForm
-							key={formKey}
-							initialCategories={initialCategories?.data}
-							id={selectedProduct.id.toString()}
-							initialProduct={selectedProduct}
-							onSuccess={() => {
-								setIsEditOpen(false);
-							}}
-						/>
-					)}
-				</SheetContent>
-			</Sheet>
-
-			{/* Create Product Sheet */}
+			{/* Create User Sheet */}
 			<Sheet open={isCreateOpen} onOpenChange={handleCreateSheetOpenChange}>
 				<SheetContent className='overflow-y-auto w-full sm:max-w-2xl'>
 					<SheetHeader className='px-6'>
-						<SheetTitle>Create Product</SheetTitle>
+						<SheetTitle>Create User Account</SheetTitle>
 						<SheetDescription>
-							Add a new product to your inventory.
+							Assign a new account to a user. Required fields are marked with *.
 						</SheetDescription>
 					</SheetHeader>
-					<CreateProductForm
+					<AssignAccountForm
 						key={createFormKey}
-						initialCategories={initialCategories?.data}
 						onSuccess={() => {
 							setIsCreateOpen(false);
-							refreshProducts();
+							refreshUsers();
 						}}
 					/>
 				</SheetContent>

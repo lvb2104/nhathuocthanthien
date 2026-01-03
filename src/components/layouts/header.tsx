@@ -79,16 +79,23 @@ function Header() {
 				>
 					{/* Notification Bell - Only show when authenticated */}
 					<NotificationBell />
-					<Link
-						href={routes.user.profile}
-						className='flex items-center p-1 rounded hover:bg-white/10 transition-colors'
-					>
-						<Image src='/icons/user.svg' alt='User' width={15} height={15} />
-					</Link>
 					{session?.user ? (
-						<button className='cursor-pointer' onClick={handleSignOut}>
-							Đăng xuất
-						</button>
+						<>
+							<Link
+								href={routes.user.profile}
+								className='flex items-center p-1 rounded hover:bg-white/10 transition-colors'
+							>
+								<Image
+									src='/icons/user.svg'
+									alt='User'
+									width={15}
+									height={15}
+								/>
+							</Link>
+							<button className='cursor-pointer' onClick={handleSignOut}>
+								Đăng xuất
+							</button>
+						</>
 					) : (
 						<>
 							<Link href={routes.auth.signIn}>Đăng nhập</Link> |
