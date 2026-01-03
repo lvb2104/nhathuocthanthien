@@ -44,7 +44,7 @@ export default function OrdersList({ initialData }: OrdersListProps) {
 			page: currentPage,
 			limit: 10,
 		},
-		initialData,
+		initialData, // Used as placeholderData - will still refetch on filter changes
 	);
 
 	const orders = data?.data || [];

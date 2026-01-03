@@ -4,12 +4,12 @@ import { useQuery } from '@tanstack/react-query';
 
 export function useReviews(
 	params?: ReviewFilterParams,
-	initialData?: GetAllReviewsResponse,
+	placeholderData?: GetAllReviewsResponse,
 ) {
 	return useQuery({
 		queryKey: ['reviews', params],
 		queryFn: () => getAllReviews(params),
 		staleTime: 1000 * 60 * 5,
-		initialData,
+		placeholderData,
 	});
 }

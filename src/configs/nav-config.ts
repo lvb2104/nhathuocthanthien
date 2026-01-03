@@ -8,7 +8,10 @@ import {
 	IconReport,
 	IconSearch,
 	IconSettings,
+	IconShoppingBag,
+	IconStar,
 	IconTag,
+	IconTruck,
 	IconUsers,
 } from '@tabler/icons-react';
 import { routes } from './routes';
@@ -45,6 +48,21 @@ export const navConfig = {
 				title: 'Users',
 				url: routes.admin.users.main,
 				icon: IconUsers,
+			},
+			{
+				title: 'Orders',
+				url: routes.admin.orders.main,
+				icon: IconShoppingBag,
+			},
+			{
+				title: 'Reviews',
+				url: routes.admin.reviews.main,
+				icon: IconStar,
+			},
+			{
+				title: 'Deliveries',
+				url: routes.admin.deliveries.main,
+				icon: IconTruck,
 			},
 		],
 		documents: [
@@ -83,4 +101,20 @@ export const navConfig = {
 		],
 	},
 	pharmacist: {},
+	employee: {
+		navMain: [
+			{
+				title: 'My Deliveries',
+				url: routes.employee.main,
+				icon: IconTruck,
+			},
+		],
+		navSecondary: [
+			{
+				title: 'Get Help',
+				url: '/employee/get-help',
+				icon: IconHelp,
+			},
+		],
+	},
 };

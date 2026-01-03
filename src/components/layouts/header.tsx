@@ -78,9 +78,9 @@ function Header() {
 					title='Tài khoản của bạn'
 				>
 					{/* Notification Bell - Only show when authenticated */}
-					<NotificationBell />
 					{session?.user ? (
 						<>
+							<NotificationBell />
 							<Link
 								href={routes.user.profile}
 								className='flex items-center p-1 rounded hover:bg-white/10 transition-colors'
@@ -127,7 +127,9 @@ function Header() {
 									? routes.admin.overview
 									: user?.role === UserRole.PHARMACIST
 										? routes.pharmacist.overview
-										: routes.user.orders
+										: user?.role === UserRole.EMPLOYEE
+											? routes.employee.main
+											: routes.user.orders
 							}
 						>
 							<div className='p-2 rounded'>
@@ -147,6 +149,11 @@ function Header() {
 								<div>
 									<div className='text-xs mb-[-2px]'>Quản lý</div>
 									<div className='font-semibold'>Nhà thuốc</div>
+								</div>
+							) : user?.role === UserRole.EMPLOYEE ? (
+								<div>
+									<div className='text-xs mb-[-2px]'>Quản lý</div>
+									<div className='font-semibold'>Đơn hàng</div>
 								</div>
 							) : (
 								<div>

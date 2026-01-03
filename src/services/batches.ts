@@ -12,7 +12,6 @@ import {
 	GetAllBatchesResponse,
 	GetBatchByIdResponse,
 	BatchFilterParams,
-	DeleteBatchResponse,
 } from '@/types';
 
 export async function createBatch(
@@ -69,10 +68,5 @@ export async function disposeBatch(
 		apiEndpoints.batches.dispose(id),
 		request,
 	);
-	return res.data;
-}
-
-export async function deleteBatch(id: number): Promise<DeleteBatchResponse> {
-	const res = await axiosInstance.delete(apiEndpoints.batches.delete(id));
 	return res.data;
 }
