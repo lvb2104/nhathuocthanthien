@@ -21,10 +21,15 @@ import { vi } from 'date-fns/locale';
 
 export function NotificationBell() {
 	const { data: session } = useSession();
+	const isAuthenticated = !!session?.user;
 	const { data: notifications, isLoading } = useNotifications();
 	const { mutate: markAsRead } = useMarkNotificationRead();
 	const { mutate: markAllAsRead, isPending: isMarkingAllAsRead } =
 		useMarkAllNotificationsRead();
+
+	if (!isAuthenticated) {
+		return null;
+	}
 
 	// Only show for authenticated users
 	if (!session?.user) {

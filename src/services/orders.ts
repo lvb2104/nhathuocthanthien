@@ -1,4 +1,5 @@
 import { apiEndpoints } from '@/configs/apis';
+import { getServerSessionWithAuth } from '@/lib/auth';
 import { axiosInstance } from '@/lib/axios';
 import { serverAxios } from '@/lib/server-axios';
 import {
@@ -9,7 +10,6 @@ import {
 	UpdateOrderStatusRequest,
 	UpdateOrderStatusResponse,
 	CancelOrderResponse,
-	DeleteOrderResponse,
 	OrderFilterParams,
 } from '@/types';
 
@@ -30,7 +30,16 @@ export async function getAllOrders(
 export async function serverGetOrders(
 	params?: OrderFilterParams,
 ): Promise<GetAllOrdersResponse> {
-	const res = await serverAxios.get(apiEndpoints.orders.getAll, { params });
+	const session = await getServerSessionWithAuth();
+	if (!session?.accessToken) {
+		throw new Error('Unauthorized: No access token in session');
+	}
+	const res = await serverAxios.get(apiEndpoints.orders.getAll, {
+		params,
+		headers: {
+			Authorization: `Bearer ${session.accessToken}`,
+		},
+	});
 	return res.data;
 }
 
@@ -43,7 +52,7 @@ export async function updateOrderStatus(
 	id: number,
 	request: UpdateOrderStatusRequest,
 ): Promise<UpdateOrderStatusResponse> {
-	const res = await axiosInstance.put(
+	const res = await axiosInstance.patch(
 		apiEndpoints.orders.updateStatus(id),
 		request,
 	);
@@ -52,10 +61,5 @@ export async function updateOrderStatus(
 
 export async function cancelOrder(id: number): Promise<CancelOrderResponse> {
 	const res = await axiosInstance.patch(apiEndpoints.orders.cancel(id));
-	return res.data;
-}
-
-export async function deleteOrder(id: number): Promise<DeleteOrderResponse> {
-	const res = await axiosInstance.delete(apiEndpoints.orders.delete(id));
 	return res.data;
 }

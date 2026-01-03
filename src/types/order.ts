@@ -57,11 +57,6 @@ export type UpdateOrderStatusResponse = { message: string };
 export type CancelOrderResponse = { message: string };
 
 // ============================================================================
-// DELETE ORDER
-// ============================================================================
-export type DeleteOrderResponse = { message: string };
-
-// ============================================================================
 // MODELS
 // ============================================================================
 export type Order = {

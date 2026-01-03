@@ -35,9 +35,24 @@ export const routes = {
 		users: {
 			main: '/admin/users',
 		},
+		orders: {
+			main: '/admin/orders',
+		},
+		deliveries: {
+			main: '/admin/deliveries',
+		},
+		reviews: {
+			main: '/admin/reviews',
+		},
 	},
 	pharmacist: {
 		overview: '/pharmacist/overview',
 	},
+	employee: {
+		main: '/employee',
+	},
 	category: (id: number) => `/categories/${id}`,
+	products: {
+		detail: (id: number) => `/products/${id}`,
+	},
 };

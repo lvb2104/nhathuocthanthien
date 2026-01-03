@@ -26,6 +26,10 @@ export default withAuth(
 			return NextResponse.redirect(new URL(routes.home, req.url));
 		}
 
+		if (pathname.startsWith('/employee') && role !== UserRole.EMPLOYEE) {
+			return NextResponse.redirect(new URL(routes.home, req.url));
+		}
+
 		if (
 			pathname.startsWith('/user') &&
 			role !== UserRole.CUSTOMER &&
@@ -50,5 +54,10 @@ export default withAuth(
 
 // On these paths, the middleware will be invoked
 export const config = {
-	matcher: ['/admin/:path*', '/pharmacist/:path*', '/user/:path*'],
+	matcher: [
+		'/admin/:path*',
+		'/pharmacist/:path*',
+		'/employee/:path*',
+		'/user/:path*',
+	],
 };

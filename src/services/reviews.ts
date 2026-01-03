@@ -1,5 +1,7 @@
 import { apiEndpoints } from '@/configs/apis';
+import { getServerSessionWithAuth } from '@/lib/auth';
 import { axiosInstance } from '@/lib/axios';
+import { serverAxios } from '@/lib/server-axios';
 import {
 	CreateReviewRequest,
 	CreateReviewResponse,
@@ -62,11 +64,31 @@ export async function updateReview(
 	id: number,
 	request: UpdateReviewRequest,
 ): Promise<UpdateReviewResponse> {
-	const res = await axiosInstance.put(apiEndpoints.reviews.update(id), request);
+	const res = await axiosInstance.patch(
+		apiEndpoints.reviews.update(id),
+		request,
+	);
 	return res.data;
 }
 
 export async function deleteReview(id: number): Promise<DeleteReviewResponse> {
 	const res = await axiosInstance.delete(apiEndpoints.reviews.delete(id));
+	return res.data;
+}
+
+// Server-side function for Next.js server components
+export async function serverGetReviews(
+	params?: ReviewFilterParams,
+): Promise<GetAllReviewsResponse> {
+	const session = await getServerSessionWithAuth();
+	if (!session?.accessToken) {
+		throw new Error('Unauthorized: No access token in session');
+	}
+	const res = await serverAxios.get(apiEndpoints.reviews.getAll, {
+		params,
+		headers: {
+			Authorization: `Bearer ${session.accessToken}`,
+		},
+	});
 	return res.data;
 }

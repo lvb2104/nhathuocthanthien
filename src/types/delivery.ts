@@ -60,6 +60,17 @@ export type Delivery = {
 	employee?: {
 		id: number;
 		fullName: string;
+		email?: string;
+	};
+	order?: {
+		id: number;
+		userId: number;
+		promotionId?: number;
+		orderDate: string;
+		status: string;
+		totalAmount: string;
+		discountAmount?: string;
+		finalAmount: string;
 	};
 };
 

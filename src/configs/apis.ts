@@ -59,14 +59,13 @@ export const apiEndpoints = {
 		getAll: '/orders',
 		getById: (id: number) => `/orders/${id}`,
 		create: '/orders',
-		updateStatus: (id: number) => `/orders/${id}`,
+		updateStatus: (id: number) => `/orders/${id}/status`,
 		cancel: (id: number) => `/orders/${id}/cancel`,
-		delete: (id: number) => `/orders/${id}`,
 	},
 	reviews: {
 		getAll: '/reviews',
 		getById: (id: number) => `/reviews/${id}`,
-		getByProduct: (productId: number) => `/reviews/product/${productId}`,
+		getByProduct: (productId: number) => `/reviews/products/${productId}`,
 		getMy: '/reviews/my',
 		create: (productId: number) => `/reviews/${productId}`,
 		update: (id: number) => `/reviews/${id}`,
@@ -74,7 +73,7 @@ export const apiEndpoints = {
 	},
 	delivery: {
 		getAll: '/deliveries',
-		getByEmployee: '/deliveries/employee',
+		getByEmployee: '/deliveries/my',
 		create: (orderId: number, employeeId: number) =>
 			`/deliveries/${orderId}/${employeeId}`,
 		updateStatus: (id: number) => `/deliveries/${id}/status`,
@@ -86,7 +85,6 @@ export const apiEndpoints = {
 		create: '/batches',
 		update: (id: number) => `/batches/${id}`,
 		dispose: (id: number) => `/batches/${id}/dispose`,
-		delete: (id: number) => `/batches/${id}`,
 	},
 	prescriptions: {
 		getMy: '/prescriptions/my',
