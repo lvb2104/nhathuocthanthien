@@ -1,5 +1,10 @@
-import { UserGender } from '@/types';
 import z from 'zod';
+
+enum UserGender {
+	MALE = 'male',
+	FEMALE = 'female',
+	OTHER = 'other',
+}
 
 export const UpdateUserProfileSchema = z.object({
 	fullName: z

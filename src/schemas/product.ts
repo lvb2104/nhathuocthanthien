@@ -1,5 +1,9 @@
 import z from 'zod';
-import { CategorySchema } from '.';
+
+const CategorySchema = z.object({
+	id: z.number(),
+	name: z.string(),
+});
 
 export const ProductDetailSchema = z.object({
 	composition: z.string().optional(),

@@ -1,5 +1,3 @@
-import { UserRole } from '.';
-
 // ============================================================================
 // SIGN IN
 // ============================================================================
@@ -89,6 +87,13 @@ export type SignOutResponse = {
 // ============================================================================
 // MODELS
 // ============================================================================
+enum UserRole {
+	CUSTOMER = 'customer',
+	ADMIN = 'admin',
+	PHARMACIST = 'pharmacist',
+	EMPLOYEE = 'employee',
+}
+
 export type JwtPayload = {
 	id: number;
 	fullName: string;
