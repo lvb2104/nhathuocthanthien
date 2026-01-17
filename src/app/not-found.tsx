@@ -11,17 +11,18 @@ function NotFound() {
 
 	useEffect(() => {
 		if (cooldown <= 0) return;
-		const interval = setInterval(() => {
+
+		const timeout = setTimeout(() => {
 			setCooldown(prev => {
 				if (prev <= 1) {
-					clearInterval(interval);
 					router.replace(routes.home);
+					return 0;
 				}
 				return prev - 1;
 			});
 		}, 1000);
 
-		return () => clearInterval(interval);
+		return () => clearTimeout(timeout);
 	}, [cooldown, router]);
 
 	return (

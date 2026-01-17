@@ -26,9 +26,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang='vi'>
-			<body
-				className={`${fonts.geistSans.variable} ${fonts.geistMono.variable} antialiased`}
-			>
+			<body className={`${fonts.beVietnamPro.className} antialiased`}>
 				<NextTopLoader color='#11DCE8' />
 				<AppProvider>
 					<CartProvider>{children}</CartProvider>
