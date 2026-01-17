@@ -13,7 +13,7 @@ async function StorePageContent({
 	searchParams: Promise<{ search?: string }>;
 }) {
 	try {
-		const params = await searchParams;
+		const params = await searchParams; // Get query after ? in server component instead of using useSearchParams which is for client component
 		const searchQuery = params.search;
 
 		// Fetch products with or without search filter

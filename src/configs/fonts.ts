@@ -1,13 +1,9 @@
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Be_Vietnam_Pro } from 'next/font/google';
 
-const geistSans = Geist({
-	variable: '--font-geist-sans',
-	subsets: ['latin'],
+const beVietnamPro = Be_Vietnam_Pro({
+	weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+	subsets: ['vietnamese', 'latin'], // ensure Vietnamese characters are displayed correctly
+	display: 'swap', // ensure font is loaded before rendering
 });
 
-const geistMono = Geist_Mono({
-	variable: '--font-geist-mono',
-	subsets: ['latin'],
-});
-
-export const fonts = { geistSans, geistMono };
+export const fonts = { beVietnamPro };
