@@ -59,7 +59,7 @@ export default function EditProductForm({
 
 	useEffect(() => {
 		if (isProductError) {
-			toast.error('Error fetching product data');
+			toast.error('Lỗi khi tải dữ liệu sản phẩm');
 		}
 	}, [isProductError]);
 
@@ -128,7 +128,7 @@ export default function EditProductForm({
 				{ id: Number(id), request: fd },
 				{
 					onError: (error: any) => {
-						toast.error(error?.message || 'Error updating product');
+						toast.error(error?.message || 'Lỗi khi cập nhật sản phẩm');
 					},
 				},
 			).then(() => {
@@ -139,8 +139,8 @@ export default function EditProductForm({
 				}
 			}),
 			{
-				pending: 'Updating product...',
-				success: 'Product updated successfully',
+				pending: 'Đang cập nhật sản phẩm...',
+				success: 'Đã cập nhật sản phẩm thành công',
 			},
 		);
 	}
@@ -171,13 +171,9 @@ export default function EditProductForm({
 					name='name'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Name</FormLabel>
+							<FormLabel>Tên sản phẩm *</FormLabel>
 							<FormControl>
-								<Input
-									placeholder='Paracetamol 500mg 123'
-									type='text'
-									{...field}
-								/>
+								<Input placeholder='Nhập tên sản phẩm' type='text' {...field} />
 							</FormControl>
 
 							<FormMessage />
@@ -190,10 +186,10 @@ export default function EditProductForm({
 					name='description'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Description</FormLabel>
+							<FormLabel>Mô tả</FormLabel>
 							<FormControl>
 								<Textarea
-									placeholder='Thuốc giảm đau, hạ sốt thông thường 123'
+									placeholder='Nhập mô tả sản phẩm'
 									className='resize-none'
 									{...field}
 								/>
@@ -209,7 +205,7 @@ export default function EditProductForm({
 					name='price'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Price</FormLabel>
+							<FormLabel>Giá bán *</FormLabel>
 							<FormControl>
 								<Input placeholder='45000' type='number' {...field} />
 							</FormControl>
@@ -224,10 +220,10 @@ export default function EditProductForm({
 					name='manufacturer'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Manufacturer</FormLabel>
+							<FormLabel>Nhà sản xuất</FormLabel>
 							<FormControl>
 								<Textarea
-									placeholder='PharmaVN 123'
+									placeholder='Nhập tên nhà sản xuất'
 									className='resize-none'
 									{...field}
 								/>
@@ -243,11 +239,11 @@ export default function EditProductForm({
 					name='categoryId'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Category</FormLabel>
+							<FormLabel>Danh mục *</FormLabel>
 							<Select onValueChange={field.onChange} value={field.value}>
 								<FormControl>
 									<SelectTrigger>
-										<SelectValue placeholder='Select a category to display' />
+										<SelectValue placeholder='Chọn danh mục' />
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
@@ -272,10 +268,10 @@ export default function EditProductForm({
 					name='detail.composition'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Composition</FormLabel>
+							<FormLabel>Thành phần</FormLabel>
 							<FormControl>
 								<Textarea
-									placeholder='Paracetamol 500mg'
+									placeholder='Nhập thành phần thuốc'
 									className='resize-none'
 									{...field}
 								/>
@@ -291,10 +287,10 @@ export default function EditProductForm({
 					name='detail.usageText'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Usage</FormLabel>
+							<FormLabel>Cách dùng</FormLabel>
 							<FormControl>
 								<Textarea
-									placeholder='Uống sau khi ăn'
+									placeholder='Nhập cách dùng'
 									className='resize-none'
 									{...field}
 								/>
@@ -310,10 +306,10 @@ export default function EditProductForm({
 					name='detail.dosage'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Dosage</FormLabel>
+							<FormLabel>Liều dùng</FormLabel>
 							<FormControl>
 								<Textarea
-									placeholder='1–2 viên/lần, tối đa 4 lần/ngày'
+									placeholder='Nhập liều dùng'
 									className='resize-none'
 									{...field}
 								/>
@@ -329,10 +325,10 @@ export default function EditProductForm({
 					name='detail.targetUser'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Target User</FormLabel>
+							<FormLabel>Đối tượng sử dụng</FormLabel>
 							<FormControl>
 								<Textarea
-									placeholder='Người lớn và trẻ em trên 12 tuổi'
+									placeholder='Nhập đối tượng sử dụng'
 									className='resize-none'
 									{...field}
 								/>
@@ -348,10 +344,10 @@ export default function EditProductForm({
 					name='detail.warning'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Warning</FormLabel>
+							<FormLabel>Cảnh báo</FormLabel>
 							<FormControl>
 								<Textarea
-									placeholder='Không dùng cho người dị ứng paracetamol'
+									placeholder='Nhập các cảnh báo, thận trọng khi dùng thuốc'
 									className='resize-none'
 									{...field}
 								/>
@@ -368,7 +364,7 @@ export default function EditProductForm({
 					// eslint-disable-next-line @typescript-eslint/no-unused-vars
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Images</FormLabel>
+							<FormLabel>Hình ảnh</FormLabel>
 							<FormControl>
 								<div className='space-y-4'>
 									{/* Image Preview Grid */}
@@ -415,11 +411,11 @@ export default function EditProductForm({
 											<div className='flex items-center justify-center flex-col p-8 w-full '>
 												<CloudUpload className='text-gray-500 w-10 h-10' />
 												<p className='mb-1 text-sm text-gray-500 dark:text-gray-400'>
-													<span className='font-semibold'>Click to upload</span>
-													&nbsp; or drag and drop
+													<span className='font-semibold'>Nhấn để tải lên</span>
+													&nbsp; hoặc kéo thả vào đây
 												</p>
 												<p className='text-xs text-gray-500 dark:text-gray-400'>
-													SVG, PNG, JPG or GIF
+													Chấp nhận SVG, PNG, JPG hoặc GIF
 												</p>
 											</div>
 										</FileInput>
@@ -442,9 +438,9 @@ export default function EditProductForm({
 					)}
 				/>
 				<LoadingButton
-					text='Update'
+					text='Cập nhật'
 					isLoading={isPending}
-					loadingText='Processing...'
+					loadingText='Đang xử lý...'
 				/>
 			</form>
 		</Form>

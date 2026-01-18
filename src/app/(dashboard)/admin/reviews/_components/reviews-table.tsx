@@ -140,7 +140,7 @@ export function ReviewsTable({
 
 	useEffect(() => {
 		if (isReviewsError) {
-			toast.error('Error loading reviews');
+			toast.error('Lỗi khi tải đánh giá');
 		}
 	}, [isReviewsError]);
 
@@ -241,7 +241,7 @@ export function ReviewsTable({
 		},
 		{
 			accessorKey: 'productId',
-			header: 'Product',
+			header: 'Sản phẩm',
 			cell: ({ row }) => {
 				const productId = row.getValue('productId') as number;
 				return (
@@ -250,14 +250,14 @@ export function ReviewsTable({
 						className='text-primary hover:underline font-medium'
 						target='_blank'
 					>
-						Product #{productId}
+						Sản phẩm #{productId}
 					</Link>
 				);
 			},
 		},
 		{
 			accessorKey: 'user.fullName',
-			header: 'User',
+			header: 'Người dùng',
 			cell: ({ row }) => {
 				const user = row.original.user;
 				return (
@@ -266,7 +266,7 @@ export function ReviewsTable({
 							{user?.fullName || 'N/A'}
 						</div>
 						<div className='text-xs text-muted-foreground'>
-							User #{row.original.userId}
+							Người dùng #{row.original.userId}
 						</div>
 					</div>
 				);
@@ -274,7 +274,7 @@ export function ReviewsTable({
 		},
 		{
 			accessorKey: 'rating',
-			header: 'Rating',
+			header: 'Đánh giá',
 			cell: ({ row }) => {
 				const rating = row.getValue('rating') as number;
 				return <div>{renderStars(rating)}</div>;
@@ -282,7 +282,7 @@ export function ReviewsTable({
 		},
 		{
 			accessorKey: 'comment',
-			header: 'Comment',
+			header: 'Nhận xét',
 			cell: ({ row }) => {
 				const comment = row.getValue('comment') as string | undefined;
 				return (
@@ -291,7 +291,7 @@ export function ReviewsTable({
 							<p className='truncate text-sm'>{comment}</p>
 						) : (
 							<span className='text-muted-foreground text-sm italic'>
-								No comment
+								Không có nhận xét
 							</span>
 						)}
 					</div>
@@ -300,7 +300,7 @@ export function ReviewsTable({
 		},
 		{
 			accessorKey: 'createdAt',
-			header: 'Created',
+			header: 'Ngày tạo',
 			cell: ({ row }) => {
 				const date = row.getValue('createdAt') as string;
 				return <div className='text-sm'>{formatDate(date)}</div>;
@@ -317,20 +317,20 @@ export function ReviewsTable({
 							size='icon'
 						>
 							<IconDotsVertical />
-							<span className='sr-only'>Open menu</span>
+							<span className='sr-only'>Mở menu</span>
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align='end' className='w-40'>
 						<DropdownMenuItem onClick={() => handleViewDetails(row.original)}>
 							<Eye className='mr-2 size-4' />
-							View Details
+							Xem chi tiết
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem
 							variant='destructive'
 							onClick={() => handleDelete(row.original.id)}
 						>
-							Delete Review
+							Xóa đánh giá
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -368,9 +368,9 @@ export function ReviewsTable({
 				setData(prevData => prevData.filter(item => item.id !== id));
 			}),
 			{
-				pending: 'Deleting review...',
-				success: 'Review deleted successfully',
-				error: 'Error deleting review. Please try again.',
+				pending: 'Đang xóa đánh giá...',
+				success: 'Đã xóa đánh giá thành công',
+				error: 'Lỗi khi xóa đánh giá. Vui lòng thử lại.',
 			},
 		);
 	}
@@ -390,9 +390,9 @@ export function ReviewsTable({
 				setDeletePopoverOpen(false);
 			}),
 			{
-				pending: `Deleting ${selectedIds.length} review(s)...`,
-				success: `${selectedIds.length} review(s) deleted successfully`,
-				error: 'Error deleting reviews. Please try again.',
+				pending: `Đang xóa ${selectedIds.length} đánh giá...`,
+				success: `Đã xóa ${selectedIds.length} đánh giá thành công`,
+				error: 'Lỗi khi xóa đánh giá. Vui lòng thử lại.',
 			},
 		);
 	}
@@ -400,7 +400,7 @@ export function ReviewsTable({
 	if (isReviewsPending) {
 		return (
 			<div className='flex h-48 w-full items-center justify-center'>
-				Loading reviews...
+				Đang tải đánh giá...
 			</div>
 		);
 	}
@@ -414,7 +414,7 @@ export function ReviewsTable({
 					<div className='relative'>
 						<Search className='absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
 						<Input
-							placeholder='Search comments...'
+							placeholder='Tìm kiếm nhận xét...'
 							value={searchInput}
 							onChange={e => setSearchInput(e.target.value)}
 							className='pl-9'
@@ -433,22 +433,22 @@ export function ReviewsTable({
 						}}
 					>
 						<SelectTrigger>
-							<SelectValue placeholder='All Ratings' />
+							<SelectValue placeholder='Tất cả đánh giá' />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value='all'>All Ratings</SelectItem>
-							<SelectItem value='5'>5 Stars</SelectItem>
-							<SelectItem value='4'>4 Stars</SelectItem>
-							<SelectItem value='3'>3 Stars</SelectItem>
-							<SelectItem value='2'>2 Stars</SelectItem>
-							<SelectItem value='1'>1 Star</SelectItem>
+							<SelectItem value='all'>Tất cả đánh giá</SelectItem>
+							<SelectItem value='5'>5 Sao</SelectItem>
+							<SelectItem value='4'>4 Sao</SelectItem>
+							<SelectItem value='3'>3 Sao</SelectItem>
+							<SelectItem value='2'>2 Sao</SelectItem>
+							<SelectItem value='1'>1 Sao</SelectItem>
 						</SelectContent>
 					</Select>
 
 					{/* Product ID Filter */}
 					<Input
 						type='number'
-						placeholder='Filter by Product ID'
+						placeholder='Lọc theo mã sản phẩm'
 						value={productIdInput}
 						onChange={e => setProductIdInput(e.target.value)}
 					/>
@@ -456,7 +456,7 @@ export function ReviewsTable({
 					{/* User ID Filter */}
 					<Input
 						type='number'
-						placeholder='Filter by User ID'
+						placeholder='Lọc theo mã người dùng'
 						value={userIdInput}
 						onChange={e => setUserIdInput(e.target.value)}
 					/>
@@ -471,7 +471,7 @@ export function ReviewsTable({
 						className='ml-auto'
 					>
 						<X className='size-4' />
-						Clear Filters
+						Xóa bộ lọc
 					</Button>
 				</div>
 			</div>
@@ -492,7 +492,7 @@ export function ReviewsTable({
 										className='cursor-pointer'
 									>
 										<span>
-											Delete ({table.getFilteredSelectedRowModel().rows.length})
+											Xóa ({table.getFilteredSelectedRowModel().rows.length})
 										</span>
 									</Button>
 								</PopoverTrigger>
@@ -500,17 +500,17 @@ export function ReviewsTable({
 									<div className='space-y-4'>
 										<div className='space-y-2'>
 											<h4 className='font-medium leading-none'>
-												Delete reviews?
+												Xóa đánh giá?
 											</h4>
 											<p className='text-sm text-muted-foreground'>
-												You are about to delete{' '}
-												{table.getFilteredSelectedRowModel().rows.length}{' '}
-												review(s). This action cannot be undone.
+												Bạn sắp xóa{' '}
+												{table.getFilteredSelectedRowModel().rows.length} đánh
+												giá. Hành động này không thể hoàn tác.
 											</p>
 											<div className='max-h-32 overflow-y-auto rounded-md bg-muted p-2 text-xs'>
 												{table.getFilteredSelectedRowModel().rows.map(row => (
 													<div key={row.original.id} className='truncate py-1'>
-														• Review #{row.original.id}
+														• Đánh giá #{row.original.id}
 													</div>
 												))}
 											</div>
@@ -521,14 +521,14 @@ export function ReviewsTable({
 												size='sm'
 												onClick={() => setDeletePopoverOpen(false)}
 											>
-												Cancel
+												Hủy
 											</Button>
 											<Button
 												variant='destructive'
 												size='sm'
 												onClick={handleDeleteMultiple}
 											>
-												Confirm
+												Xác nhận
 											</Button>
 										</div>
 									</div>
@@ -542,8 +542,8 @@ export function ReviewsTable({
 						<DropdownMenuTrigger asChild>
 							<Button variant='outline' size='sm'>
 								<IconLayoutColumns />
-								<span className='hidden lg:inline'>Customize Columns</span>
-								<span className='lg:hidden'>Columns</span>
+								<span className='hidden lg:inline'>Tùy chỉnh cột</span>
+								<span className='lg:hidden'>Cột</span>
 								<IconChevronDown />
 							</Button>
 						</DropdownMenuTrigger>
@@ -581,15 +581,15 @@ export function ReviewsTable({
 									return await refreshReviews();
 								},
 								{
-									pending: 'Refreshing reviews...',
-									success: 'Reviews refreshed',
-									error: 'Error refreshing reviews',
+									pending: 'Đang làm mới...',
+									success: 'Đã làm mới đánh giá',
+									error: 'Lỗi khi làm mới đánh giá',
 								},
 							);
 						}}
 					>
 						<RefreshCcw />
-						<span className='hidden lg:inline'>Refresh</span>
+						<span className='hidden lg:inline'>Làm mới</span>
 					</Button>
 				</div>
 			</div>
@@ -637,7 +637,7 @@ export function ReviewsTable({
 									colSpan={columns.length}
 									className='h-24 text-center'
 								>
-									No results.
+									Không có kết quả.
 								</TableCell>
 							</TableRow>
 						)}
@@ -647,14 +647,14 @@ export function ReviewsTable({
 
 			<div className='flex items-center justify-between px-4 lg:px-6'>
 				<div className='text-muted-foreground hidden flex-1 text-sm lg:flex'>
-					{table.getFilteredSelectedRowModel().rows.length} of{' '}
-					{response?.pagination?.totalItems ?? 0} row(s) selected.
+					{table.getFilteredSelectedRowModel().rows.length} hàng đã chọn. Tổng
+					cộng {response?.pagination?.totalItems ?? 0} hàng.
 				</div>
 				<div className='flex w-full items-center gap-8 lg:w-fit'>
 					{/* Page size selector */}
 					<div className='hidden items-center gap-2 lg:flex'>
 						<Label htmlFor='rows-per-page' className='text-sm font-medium'>
-							Rows per page
+							Hàng mỗi trang
 						</Label>
 						<Select
 							value={`${apiParams.limit}`}
@@ -681,8 +681,8 @@ export function ReviewsTable({
 
 					{/* Page info */}
 					<div className='flex w-fit items-center justify-center text-sm font-medium'>
-						Page {response?.pagination?.page ?? 1} of{' '}
-						{response?.pagination?.totalPages ?? 1} • Total:{' '}
+						Trang {response?.pagination?.page ?? 1} /{' '}
+						{response?.pagination?.totalPages ?? 1} • Tổng:{' '}
 						{response?.pagination?.totalItems ?? 0}
 					</div>
 
@@ -694,7 +694,7 @@ export function ReviewsTable({
 							onClick={() => setApiParams(prev => ({ ...prev, page: 1 }))}
 							disabled={apiParams.page === 1}
 						>
-							<span className='sr-only'>Go to first page</span>
+							<span className='sr-only'>Đến trang đầu</span>
 							<IconChevronsLeft />
 						</Button>
 						<Button
@@ -709,7 +709,7 @@ export function ReviewsTable({
 							}
 							disabled={(apiParams.page ?? 1) === 1}
 						>
-							<span className='sr-only'>Go to previous page</span>
+							<span className='sr-only'>Đến trang trước</span>
 							<IconChevronLeft />
 						</Button>
 						<Button
@@ -723,7 +723,7 @@ export function ReviewsTable({
 								(apiParams.page ?? 1) >= (response?.pagination?.totalPages ?? 1)
 							}
 						>
-							<span className='sr-only'>Go to next page</span>
+							<span className='sr-only'>Đến trang sau</span>
 							<IconChevronRight />
 						</Button>
 						<Button
@@ -740,7 +740,7 @@ export function ReviewsTable({
 								(apiParams.page ?? 1) >= (response?.pagination?.totalPages ?? 1)
 							}
 						>
-							<span className='sr-only'>Go to last page</span>
+							<span className='sr-only'>Đến trang cuối</span>
 							<IconChevronsRight />
 						</Button>
 					</div>

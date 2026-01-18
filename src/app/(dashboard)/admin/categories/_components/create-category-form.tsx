@@ -18,7 +18,7 @@ import { toast } from 'react-toastify';
 import { z } from 'zod';
 
 const createCategorySchema = z.object({
-	name: z.string().min(1, { message: 'Category name is required' }),
+	name: z.string().min(1, { message: 'Vui lòng nhập tên danh mục' }),
 });
 
 type CreateCategoryFormProps = {
@@ -40,11 +40,11 @@ export default function CreateCategoryForm({
 	async function onSubmit(data: CreateCategoryRequest) {
 		try {
 			await mutateAsync(data);
-			toast.success('Category created successfully');
+			toast.success('Đã tạo danh mục thành công');
 			form.reset();
 			onSuccess?.();
 		} catch (error: any) {
-			toast.error(error?.message || 'Error creating category');
+			toast.error(error?.message || 'Lỗi khi tạo danh mục');
 		}
 	}
 
@@ -56,9 +56,9 @@ export default function CreateCategoryForm({
 					name='name'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Category Name</FormLabel>
+							<FormLabel>Tên danh mục *</FormLabel>
 							<FormControl>
-								<Input placeholder='Enter category name' {...field} />
+								<Input placeholder='Nhập tên danh mục' {...field} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -66,7 +66,7 @@ export default function CreateCategoryForm({
 				/>
 				<div className='flex justify-end gap-2'>
 					<Button type='submit' disabled={isPending}>
-						{isPending ? 'Creating...' : 'Create Category'}
+						{isPending ? 'Đang tạo...' : 'Tạo danh mục'}
 					</Button>
 				</div>
 			</form>

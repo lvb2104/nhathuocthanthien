@@ -55,7 +55,7 @@ export function AssignDeliveryDialog({
 
 	const handleSubmit = async () => {
 		if (!selectedEmployeeId) {
-			toast.error('Please select an employee');
+			toast.error('Vui lòng chọn nhân viên');
 			return;
 		}
 
@@ -68,9 +68,9 @@ export function AssignDeliveryDialog({
 				onOpenChange(false);
 			}),
 			{
-				pending: 'Assigning delivery...',
-				success: 'Delivery assigned successfully',
-				error: 'Error assigning delivery',
+				pending: 'Đang phân công giao hàng...',
+				success: 'Đã phân công giao hàng thành công',
+				error: 'Lỗi khi phân công giao hàng',
 			},
 		);
 	};
@@ -79,17 +79,17 @@ export function AssignDeliveryDialog({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className='sm:max-w-[425px]'>
 				<DialogHeader>
-					<DialogTitle>Assign Delivery</DialogTitle>
+					<DialogTitle>Phân công giao hàng</DialogTitle>
 					<DialogDescription>
-						Assign an employee to deliver order #{orderId}.
+						Phân công nhân viên thực hiện giao đơn hàng #{orderId}.
 					</DialogDescription>
 				</DialogHeader>
 				<div className='grid gap-4 py-4'>
 					<div className='grid gap-2'>
-						<Label htmlFor='employee'>Employee</Label>
+						<Label htmlFor='employee'>Nhân viên</Label>
 						{isLoadingEmployees ? (
 							<div className='text-sm text-muted-foreground'>
-								Loading employees...
+								Đang tải danh sách nhân viên...
 							</div>
 						) : (
 							<Select
@@ -97,7 +97,7 @@ export function AssignDeliveryDialog({
 								onValueChange={setSelectedEmployeeId}
 							>
 								<SelectTrigger id='employee'>
-									<SelectValue placeholder='Select employee' />
+									<SelectValue placeholder='Chọn nhân viên' />
 								</SelectTrigger>
 								<SelectContent>
 									{employees.map(employee => (
@@ -110,7 +110,7 @@ export function AssignDeliveryDialog({
 									))}
 									{employees.length === 0 && (
 										<div className='p-2 text-center text-sm text-muted-foreground'>
-											No employees available
+											Không có nhân viên khả dụng
 										</div>
 									)}
 								</SelectContent>
@@ -124,10 +124,10 @@ export function AssignDeliveryDialog({
 						onClick={() => onOpenChange(false)}
 						disabled={isPending}
 					>
-						Cancel
+						Hủy
 					</Button>
 					<Button onClick={handleSubmit} disabled={isPending}>
-						{isPending ? 'Assigning...' : 'Assign Delivery'}
+						{isPending ? 'Đang phân công...' : 'Phân công'}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

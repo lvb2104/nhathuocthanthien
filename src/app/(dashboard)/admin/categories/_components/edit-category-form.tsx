@@ -18,7 +18,7 @@ import { toast } from 'react-toastify';
 import { z } from 'zod';
 
 const updateCategorySchema = z.object({
-	name: z.string().min(1, { message: 'Category name is required' }),
+	name: z.string().min(1, { message: 'Vui lòng nhập tên danh mục' }),
 });
 
 type EditCategoryFormProps = {
@@ -42,10 +42,10 @@ export default function EditCategoryForm({
 	async function onSubmit(data: UpdateCategoryRequest) {
 		try {
 			await mutateAsync({ id: category.id, request: data });
-			toast.success('Category updated successfully');
+			toast.success('Đã cập nhật danh mục thành công');
 			onSuccess?.();
 		} catch (error: any) {
-			toast.error(error?.message || 'Error updating category');
+			toast.error(error?.message || 'Lỗi khi cập nhật danh mục');
 		}
 	}
 
@@ -57,9 +57,9 @@ export default function EditCategoryForm({
 					name='name'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Category Name</FormLabel>
+							<FormLabel>Tên danh mục *</FormLabel>
 							<FormControl>
-								<Input placeholder='Enter category name' {...field} />
+								<Input placeholder='Nhập tên danh mục' {...field} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -67,7 +67,7 @@ export default function EditCategoryForm({
 				/>
 				<div className='flex justify-end gap-2'>
 					<Button type='submit' disabled={isPending}>
-						{isPending ? 'Updating...' : 'Update'}
+						{isPending ? 'Đang cập nhật...' : 'Cập nhật'}
 					</Button>
 				</div>
 			</form>

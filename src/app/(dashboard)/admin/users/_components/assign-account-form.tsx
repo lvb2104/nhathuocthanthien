@@ -26,13 +26,13 @@ import { z } from 'zod';
 
 const assignAccountSchema = z
 	.object({
-		fullName: z.string().min(1, { message: 'Full name is required' }),
-		email: z.string().email({ message: 'Invalid email address' }),
+		fullName: z.string().min(1, { message: 'Vui lòng nhập họ và tên' }),
+		email: z.string().email({ message: 'Địa chỉ email không hợp lệ' }),
 		password: z
 			.string()
-			.min(8, { message: 'Password must be at least 8 characters' }),
+			.min(8, { message: 'Mật khẩu phải có ít nhất 8 ký tự' }),
 		phone: z.string().optional(),
-		roleId: z.number({ message: 'Role is required' }),
+		roleId: z.number({ message: 'Vui lòng chọn vai trò' }),
 		hireDate: z.string().optional(),
 		licenseNumber: z.string().optional(),
 	})
@@ -45,7 +45,7 @@ const assignAccountSchema = z
 			return true;
 		},
 		{
-			message: 'Hire date is required for Employee and Pharmacist roles',
+			message: 'Vui lòng nhập ngày vào làm cho Nhân viên và Dược sĩ',
 			path: ['hireDate'],
 		},
 	)
@@ -58,7 +58,7 @@ const assignAccountSchema = z
 			return true;
 		},
 		{
-			message: 'License number is required for Pharmacist role',
+			message: 'Vui lòng nhập số giấy phép cho Dược sĩ',
 			path: ['licenseNumber'],
 		},
 	);
@@ -92,11 +92,11 @@ export default function AssignAccountForm({
 	async function onSubmit(data: AssignAccountRequest) {
 		try {
 			await mutateAsync(data);
-			toast.success('User account created successfully');
+			toast.success('Đã tạo tài khoản thành công');
 			form.reset();
 			onSuccess?.();
 		} catch (error: any) {
-			toast.error(error?.message || 'Error creating user account');
+			toast.error(error?.message || 'Lỗi khi tạo tài khoản');
 		}
 	}
 
@@ -108,9 +108,9 @@ export default function AssignAccountForm({
 					name='fullName'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Full Name *</FormLabel>
+							<FormLabel>Họ và tên *</FormLabel>
 							<FormControl>
-								<Input placeholder='Enter full name' {...field} />
+								<Input placeholder='Nhập họ và tên' {...field} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -124,7 +124,7 @@ export default function AssignAccountForm({
 						<FormItem>
 							<FormLabel>Email *</FormLabel>
 							<FormControl>
-								<Input type='email' placeholder='Enter email' {...field} />
+								<Input type='email' placeholder='Nhập email' {...field} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -136,13 +136,9 @@ export default function AssignAccountForm({
 					name='password'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Password *</FormLabel>
+							<FormLabel>Mật khẩu *</FormLabel>
 							<FormControl>
-								<Input
-									type='password'
-									placeholder='Enter password'
-									{...field}
-								/>
+								<Input type='password' placeholder='Nhập mật khẩu' {...field} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -154,9 +150,9 @@ export default function AssignAccountForm({
 					name='phone'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Phone</FormLabel>
+							<FormLabel>Số điện thoại</FormLabel>
 							<FormControl>
-								<Input placeholder='Enter phone number' {...field} />
+								<Input placeholder='Nhập số điện thoại' {...field} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -168,21 +164,21 @@ export default function AssignAccountForm({
 					name='roleId'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Role *</FormLabel>
+							<FormLabel>Vai trò *</FormLabel>
 							<Select
 								onValueChange={value => field.onChange(Number(value))}
 								value={field.value?.toString()}
 							>
 								<FormControl>
 									<SelectTrigger>
-										<SelectValue placeholder='Select a role' />
+										<SelectValue placeholder='Chọn vai trò' />
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
-									<SelectItem value='1'>Customer</SelectItem>
-									<SelectItem value='2'>Admin</SelectItem>
-									<SelectItem value='3'>Pharmacist</SelectItem>
-									<SelectItem value='4'>Employee</SelectItem>
+									<SelectItem value='1'>Khách hàng</SelectItem>
+									<SelectItem value='2'>Quản trị viên</SelectItem>
+									<SelectItem value='3'>Dược sĩ</SelectItem>
+									<SelectItem value='4'>Nhân viên giao hàng</SelectItem>
 								</SelectContent>
 							</Select>
 							<FormMessage />
@@ -196,7 +192,7 @@ export default function AssignAccountForm({
 						name='hireDate'
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Hire Date *</FormLabel>
+								<FormLabel>Ngày vào làm *</FormLabel>
 								<FormControl>
 									<Input type='date' {...field} value={field.value || ''} />
 								</FormControl>
@@ -212,10 +208,10 @@ export default function AssignAccountForm({
 						name='licenseNumber'
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>License Number *</FormLabel>
+								<FormLabel>Số giấy phép *</FormLabel>
 								<FormControl>
 									<Input
-										placeholder='Enter license number'
+										placeholder='Nhập số giấy phép'
 										{...field}
 										value={field.value || ''}
 									/>
@@ -228,7 +224,7 @@ export default function AssignAccountForm({
 
 				<div className='flex justify-end gap-2'>
 					<Button type='submit' disabled={isPending}>
-						{isPending ? 'Creating...' : 'Create Account'}
+						{isPending ? 'Đang tạo...' : 'Tạo tài khoản'}
 					</Button>
 				</div>
 			</form>

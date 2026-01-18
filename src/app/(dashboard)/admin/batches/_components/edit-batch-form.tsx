@@ -80,7 +80,7 @@ export default function EditBatchForm({
 
 		// If no changes were made
 		if (Object.keys(requestData).length === 0) {
-			toast.info('No changes detected');
+			toast.info('Không có thay đổi nào được phát hiện');
 			return;
 		}
 
@@ -90,7 +90,7 @@ export default function EditBatchForm({
 				{
 					onError: (error: any) => {
 						toast.error(
-							error?.message || 'Error updating batch. Please try again.',
+							error?.message || 'Lỗi khi cập nhật lô hàng. Vui lòng thử lại.',
 						);
 					},
 				},
@@ -100,8 +100,8 @@ export default function EditBatchForm({
 				}
 			}),
 			{
-				pending: 'Updating batch...',
-				success: 'Batch updated successfully',
+				pending: 'Đang cập nhật lô hàng...',
+				success: 'Đã cập nhật lô hàng thành công',
 			},
 		);
 	}
@@ -114,12 +114,12 @@ export default function EditBatchForm({
 			>
 				{/* Product (Read-only) */}
 				<div className='space-y-2'>
-					<label className='text-sm font-medium'>Product</label>
+					<label className='text-sm font-medium'>Sản phẩm</label>
 					<div className='p-3 bg-muted rounded-md text-sm'>
-						{initialBatch.product?.name || 'Unknown Product'}
+						{initialBatch.product?.name || 'Sản phẩm không xác định'}
 					</div>
 					<p className='text-xs text-muted-foreground'>
-						Product cannot be changed after batch creation
+						Sản phẩm không thể thay đổi sau khi tạo lô hàng
 					</p>
 				</div>
 
@@ -129,9 +129,9 @@ export default function EditBatchForm({
 					name='batchCode'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Batch Code</FormLabel>
+							<FormLabel>Mã lô hàng</FormLabel>
 							<FormControl>
-								<Input placeholder='LOT-2025-001' type='text' {...field} />
+								<Input placeholder='Nhập mã lô hàng' type='text' {...field} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -144,12 +144,12 @@ export default function EditBatchForm({
 					name='quantity'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Quantity</FormLabel>
+							<FormLabel>Số lượng</FormLabel>
 							<FormControl>
 								<Input placeholder='100' type='number' {...field} />
 							</FormControl>
 							<p className='text-xs text-muted-foreground'>
-								Changing quantity will create a stock movement record
+								Thay đổi số lượng sẽ tạo bản ghi biến động kho
 							</p>
 							<FormMessage />
 						</FormItem>
@@ -162,7 +162,7 @@ export default function EditBatchForm({
 					name='expiryDate'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Expiry Date</FormLabel>
+							<FormLabel>Ngày hết hạn</FormLabel>
 							<FormControl>
 								<Input type='date' {...field} />
 							</FormControl>
@@ -177,7 +177,7 @@ export default function EditBatchForm({
 					name='receivedDate'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Received Date</FormLabel>
+							<FormLabel>Ngày nhập hàng</FormLabel>
 							<FormControl>
 								<Input type='date' {...field} />
 							</FormControl>
@@ -192,10 +192,10 @@ export default function EditBatchForm({
 					name='note'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Note</FormLabel>
+							<FormLabel>Ghi chú</FormLabel>
 							<FormControl>
 								<Textarea
-									placeholder='Additional notes about this batch...'
+									placeholder='Nhập thông tin ghi chú cho lô hàng này...'
 									className='resize-none'
 									{...field}
 								/>
@@ -206,9 +206,9 @@ export default function EditBatchForm({
 				/>
 
 				<LoadingButton
-					text='Update Batch'
+					text='Cập nhật lô hàng'
 					isLoading={isPending}
-					loadingText='Updating...'
+					loadingText='Đang cập nhật...'
 				/>
 			</form>
 		</Form>
