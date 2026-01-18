@@ -159,7 +159,7 @@ export function OrdersTable({
 
 	useEffect(() => {
 		if (isOrdersError) {
-			toast.error('Error loading orders');
+			toast.error('Lỗi khi tải đơn hàng');
 		}
 	}, [isOrdersError]);
 
@@ -287,7 +287,7 @@ export function OrdersTable({
 		},
 		{
 			accessorKey: 'id',
-			header: 'Order ID',
+			header: 'Mã đơn',
 			cell: ({ row }) => {
 				return <div className='font-medium'>#{row.getValue('id')}</div>;
 			},
@@ -295,7 +295,7 @@ export function OrdersTable({
 		},
 		{
 			accessorKey: 'user.fullName',
-			header: 'Customer',
+			header: 'Khách hàng',
 			cell: ({ row }) => {
 				const user = row.original.user;
 				return (
@@ -312,7 +312,7 @@ export function OrdersTable({
 		},
 		{
 			accessorKey: 'orderDate',
-			header: 'Order Date',
+			header: 'Ngày đặt',
 			cell: ({ row }) => {
 				const date = row.getValue('orderDate') as string;
 				return <div className='text-sm'>{formatDate(date)}</div>;
@@ -320,7 +320,7 @@ export function OrdersTable({
 		},
 		{
 			accessorKey: 'status',
-			header: 'Status',
+			header: 'Trạng thái',
 			cell: ({ row }) => {
 				const status = row.getValue('status') as OrderStatus;
 				return (
@@ -335,7 +335,7 @@ export function OrdersTable({
 		},
 		{
 			accessorKey: 'payment.status',
-			header: 'Payment',
+			header: 'Thanh toán',
 			cell: ({ row }) => {
 				const payment = row.original.payment;
 				const status = payment?.status || PaymentStatus.PENDING;
@@ -351,7 +351,7 @@ export function OrdersTable({
 		},
 		{
 			accessorKey: 'finalAmount',
-			header: 'Total',
+			header: 'Tổng cộng',
 			cell: ({ row }) => {
 				const amount = row.getValue('finalAmount') as string;
 				return (
@@ -361,13 +361,13 @@ export function OrdersTable({
 		},
 		{
 			id: 'delivery',
-			header: 'Delivery',
+			header: 'Giao hàng',
 			cell: ({ row }) => {
 				const delivery = (row.original as any).delivery;
 				if (!delivery) {
 					return (
 						<Badge variant='secondary' className='w-fit'>
-							Not Assigned
+							Chưa giao
 						</Badge>
 					);
 				}
@@ -405,23 +405,23 @@ export function OrdersTable({
 							size='icon'
 						>
 							<IconDotsVertical />
-							<span className='sr-only'>Open menu</span>
+							<span className='sr-only'>Mở menu</span>
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align='end' className='w-40'>
 						<DropdownMenuItem onClick={() => handleViewDetails(row.original)}>
 							<Eye className='mr-2 size-4' />
-							View Details
+							Xem chi tiết
 						</DropdownMenuItem>
 						<DropdownMenuItem onClick={() => handleUpdateStatus(row.original)}>
-							Update Status
+							Cập nhật trạng thái
 						</DropdownMenuItem>
 						{row.original.status === OrderStatus.CONFIRMED &&
 							!(row.original as any).delivery && (
 								<DropdownMenuItem
 									onClick={() => handleAssignDelivery(row.original)}
 								>
-									Assign Delivery
+									Gán giao hàng
 								</DropdownMenuItem>
 							)}
 						<DropdownMenuSeparator />
@@ -430,7 +430,7 @@ export function OrdersTable({
 							onClick={() => handleCancel(row.original.id)}
 							disabled={row.original.status === OrderStatus.CANCELLED}
 						>
-							Cancel Order
+							Hủy đơn hàng
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -468,9 +468,9 @@ export function OrdersTable({
 				setData(prevData => prevData.filter(item => item.id !== id));
 			}),
 			{
-				pending: 'Cancelling order...',
-				success: 'Order cancelled successfully',
-				error: 'Error cancelling order. Please try again.',
+				pending: 'Đang hủy đơn hàng...',
+				success: 'Đã hủy đơn hàng thành công',
+				error: 'Lỗi khi hủy đơn hàng. Vui lòng thử lại.',
 			},
 		);
 	}
@@ -490,9 +490,9 @@ export function OrdersTable({
 				setCancelPopoverOpen(false);
 			}),
 			{
-				pending: `Cancelling ${selectedIds.length} order(s)...`,
-				success: `${selectedIds.length} order(s) cancelled successfully`,
-				error: 'Error cancelling orders. Please try again.',
+				pending: `Đang hủy ${selectedIds.length} đơn hàng...`,
+				success: `Đã hủy ${selectedIds.length} đơn hàng thành công`,
+				error: 'Lỗi khi hủy đơn hàng. Vui lòng thử lại.',
 			},
 		);
 	}
@@ -500,7 +500,7 @@ export function OrdersTable({
 	if (isOrdersPending) {
 		return (
 			<div className='flex h-48 w-full items-center justify-center'>
-				Loading orders...
+				Đang tải đơn hàng...
 			</div>
 		);
 	}
@@ -514,7 +514,7 @@ export function OrdersTable({
 					<div className='relative'>
 						<Search className='absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
 						<Input
-							placeholder='Search orders...'
+							placeholder='Tìm kiếm đơn hàng...'
 							value={searchInput}
 							onChange={e => setSearchInput(e.target.value)}
 							className='pl-9'
@@ -533,15 +533,15 @@ export function OrdersTable({
 						}}
 					>
 						<SelectTrigger>
-							<SelectValue placeholder='All Status' />
+							<SelectValue placeholder='Tất cả trạng thái' />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value='all'>All Status</SelectItem>
-							<SelectItem value={OrderStatus.PENDING}>Pending</SelectItem>
-							<SelectItem value={OrderStatus.CONFIRMED}>Confirmed</SelectItem>
-							<SelectItem value={OrderStatus.SHIPPED}>Shipped</SelectItem>
-							<SelectItem value={OrderStatus.DELIVERED}>Delivered</SelectItem>
-							<SelectItem value={OrderStatus.CANCELLED}>Cancelled</SelectItem>
+							<SelectItem value='all'>Tất cả trạng thái</SelectItem>
+							<SelectItem value={OrderStatus.PENDING}>Chờ xử lý</SelectItem>
+							<SelectItem value={OrderStatus.CONFIRMED}>Đã xác nhận</SelectItem>
+							<SelectItem value={OrderStatus.SHIPPED}>Đang giao</SelectItem>
+							<SelectItem value={OrderStatus.DELIVERED}>Đã giao</SelectItem>
+							<SelectItem value={OrderStatus.CANCELLED}>Đã hủy</SelectItem>
 						</SelectContent>
 					</Select>
 
@@ -558,21 +558,25 @@ export function OrdersTable({
 						}}
 					>
 						<SelectTrigger>
-							<SelectValue placeholder='All Payment Status' />
+							<SelectValue placeholder='Tất cả thanh toán' />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value='all'>All Payment Status</SelectItem>
-							<SelectItem value={PaymentStatus.PENDING}>Pending</SelectItem>
-							<SelectItem value={PaymentStatus.PAID}>Paid</SelectItem>
-							<SelectItem value={PaymentStatus.FAILED}>Failed</SelectItem>
-							<SelectItem value={PaymentStatus.REFUNDED}>Refunded</SelectItem>
+							<SelectItem value='all'>Tất cả thanh toán</SelectItem>
+							<SelectItem value={PaymentStatus.PENDING}>
+								Chờ thanh toán
+							</SelectItem>
+							<SelectItem value={PaymentStatus.PAID}>Đã thanh toán</SelectItem>
+							<SelectItem value={PaymentStatus.FAILED}>Thất bại</SelectItem>
+							<SelectItem value={PaymentStatus.REFUNDED}>
+								Đã hoàn tiền
+							</SelectItem>
 						</SelectContent>
 					</Select>
 
 					{/* Date Range - From */}
 					<Input
 						type='date'
-						placeholder='From date'
+						placeholder='Từ ngày'
 						value={fromDateInput}
 						onChange={e => setFromDateInput(e.target.value)}
 					/>
@@ -582,7 +586,7 @@ export function OrdersTable({
 				<div className='flex items-center gap-4'>
 					<Input
 						type='date'
-						placeholder='To date'
+						placeholder='Đến ngày'
 						value={toDateInput}
 						onChange={e => setToDateInput(e.target.value)}
 						className='max-w-xs'
@@ -595,7 +599,7 @@ export function OrdersTable({
 						className='ml-auto'
 					>
 						<X className='size-4' />
-						Clear Filters
+						Xóa bộ lọc
 					</Button>
 				</div>
 			</div>
@@ -616,7 +620,7 @@ export function OrdersTable({
 										className='cursor-pointer'
 									>
 										<span>
-											Cancel ({table.getFilteredSelectedRowModel().rows.length})
+											Hủy ({table.getFilteredSelectedRowModel().rows.length})
 										</span>
 									</Button>
 								</PopoverTrigger>
@@ -624,7 +628,7 @@ export function OrdersTable({
 									<div className='space-y-4'>
 										<div className='space-y-2'>
 											<h4 className='font-medium leading-none'>
-												Cancel orders?
+												Hủy đơn hàng?
 											</h4>
 											<p className='text-sm text-muted-foreground'>
 												You are about to cancel{' '}
@@ -634,7 +638,7 @@ export function OrdersTable({
 											<div className='max-h-32 overflow-y-auto rounded-md bg-muted p-2 text-xs'>
 												{table.getFilteredSelectedRowModel().rows.map(row => (
 													<div key={row.original.id} className='truncate py-1'>
-														• Order #{row.original.id}
+														• Đơn #{row.original.id}
 													</div>
 												))}
 											</div>
@@ -645,14 +649,14 @@ export function OrdersTable({
 												size='sm'
 												onClick={() => setCancelPopoverOpen(false)}
 											>
-												Cancel
+												Hủy
 											</Button>
 											<Button
 												variant='destructive'
 												size='sm'
 												onClick={handleCancelMultiple}
 											>
-												Confirm
+												Xác nhận
 											</Button>
 										</div>
 									</div>
@@ -666,8 +670,8 @@ export function OrdersTable({
 						<DropdownMenuTrigger asChild>
 							<Button variant='outline' size='sm'>
 								<IconLayoutColumns />
-								<span className='hidden lg:inline'>Customize Columns</span>
-								<span className='lg:hidden'>Columns</span>
+								<span className='hidden lg:inline'>Tùy chỉnh cột</span>
+								<span className='lg:hidden'>Cột</span>
 								<IconChevronDown />
 							</Button>
 						</DropdownMenuTrigger>
@@ -705,15 +709,15 @@ export function OrdersTable({
 									return await refreshOrders();
 								},
 								{
-									pending: 'Refreshing orders...',
-									success: 'Orders refreshed',
-									error: 'Error refreshing orders',
+									pending: 'Đang làm mới...',
+									success: 'Đã làm mới đơn hàng',
+									error: 'Lỗi khi làm mới đơn hàng',
 								},
 							);
 						}}
 					>
 						<RefreshCcw />
-						<span className='hidden lg:inline'>Refresh</span>
+						<span className='hidden lg:inline'>Làm mới</span>
 					</Button>
 				</div>
 			</div>
@@ -761,7 +765,7 @@ export function OrdersTable({
 									colSpan={columns.length}
 									className='h-24 text-center'
 								>
-									No results.
+									Không có kết quả.
 								</TableCell>
 							</TableRow>
 						)}
@@ -772,13 +776,13 @@ export function OrdersTable({
 			<div className='flex items-center justify-between px-4 lg:px-6'>
 				<div className='text-muted-foreground hidden flex-1 text-sm lg:flex'>
 					{table.getFilteredSelectedRowModel().rows.length} of{' '}
-					{response?.pagination?.totalItems ?? 0} row(s) selected.
+					{response?.pagination?.totalItems ?? 0} hàng đã chọn.
 				</div>
 				<div className='flex w-full items-center gap-8 lg:w-fit'>
 					{/* Page size selector */}
 					<div className='hidden items-center gap-2 lg:flex'>
 						<Label htmlFor='rows-per-page' className='text-sm font-medium'>
-							Rows per page
+							Hàng mỗi trang
 						</Label>
 						<Select
 							value={`${apiParams.limit}`}

@@ -20,14 +20,14 @@ import { z } from 'zod';
 
 const createPromotionSchema = z
 	.object({
-		code: z.string().min(1, { message: 'Promotion code is required' }),
-		description: z.string().min(1, { message: 'Description is required' }),
+		code: z.string().min(1, { message: 'Vui lòng nhập mã khuyến mãi' }),
+		description: z.string().min(1, { message: 'Vui lòng nhập mô tả' }),
 		discountPercent: z
 			.number()
-			.min(0, { message: 'Discount percent must be at least 0' })
-			.max(100, { message: 'Discount percent cannot exceed 100' }),
-		startDate: z.string().min(1, { message: 'Start date is required' }),
-		endDate: z.string().min(1, { message: 'End date is required' }),
+			.min(0, { message: 'Phần trăm giảm giá phải ít nhất là 0' })
+			.max(100, { message: 'Phần trăm giảm giá không thể vượt quá 100' }),
+		startDate: z.string().min(1, { message: 'Vui lòng chọn ngày bắt đầu' }),
+		endDate: z.string().min(1, { message: 'Vui lòng chọn ngày kết thúc' }),
 	})
 	.refine(
 		data => {
@@ -36,7 +36,7 @@ const createPromotionSchema = z
 			return end >= start;
 		},
 		{
-			message: 'End date must be after start date',
+			message: 'Ngày kết thúc phải sau hoặc bằng ngày bắt đầu',
 			path: ['endDate'],
 		},
 	);
@@ -64,11 +64,11 @@ export default function CreatePromotionForm({
 	async function onSubmit(data: CreatePromotionRequest) {
 		try {
 			await mutateAsync(data);
-			toast.success('Promotion created successfully');
+			toast.success('Đã tạo chương trình khuyến mãi thành công');
 			form.reset();
 			onSuccess?.();
 		} catch (error: any) {
-			toast.error(error?.message || 'Error creating promotion');
+			toast.error(error?.message || 'Lỗi khi tạo chương trình khuyến mãi');
 		}
 	}
 
@@ -80,10 +80,10 @@ export default function CreatePromotionForm({
 					name='code'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Promotion Code</FormLabel>
+							<FormLabel>Mã khuyến mãi *</FormLabel>
 							<FormControl>
 								<Input
-									placeholder='Enter promotion code (e.g., SAVE20)'
+									placeholder='Nhập mã khuyến mãi (Ví dụ: GIAMGIA20)'
 									{...field}
 								/>
 							</FormControl>
@@ -97,10 +97,10 @@ export default function CreatePromotionForm({
 					name='description'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Description</FormLabel>
+							<FormLabel>Mô tả *</FormLabel>
 							<FormControl>
 								<Textarea
-									placeholder='Enter promotion description'
+									placeholder='Nhập mô tả chương trình khuyến mãi'
 									className='resize-none'
 									{...field}
 								/>
@@ -115,13 +115,13 @@ export default function CreatePromotionForm({
 					name='discountPercent'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Discount Percent (%)</FormLabel>
+							<FormLabel>Phần trăm giảm giá (%) *</FormLabel>
 							<FormControl>
 								<Input
 									type='number'
 									min={0}
 									max={100}
-									placeholder='Enter discount percent (0-100)'
+									placeholder='Nhập phần trăm giảm giá (0-100)'
 									{...field}
 									onChange={e =>
 										field.onChange(parseFloat(e.target.value) || 0)
@@ -139,7 +139,7 @@ export default function CreatePromotionForm({
 					name='startDate'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Start Date</FormLabel>
+							<FormLabel>Ngày bắt đầu *</FormLabel>
 							<FormControl>
 								<Input type='date' {...field} />
 							</FormControl>
@@ -153,7 +153,7 @@ export default function CreatePromotionForm({
 					name='endDate'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>End Date</FormLabel>
+							<FormLabel>Ngày kết thúc *</FormLabel>
 							<FormControl>
 								<Input type='date' {...field} />
 							</FormControl>
@@ -164,7 +164,7 @@ export default function CreatePromotionForm({
 
 				<div className='flex justify-end gap-2'>
 					<Button type='submit' disabled={isPending}>
-						{isPending ? 'Creating...' : 'Create Promotion'}
+						{isPending ? 'Đang tạo...' : 'Tạo khuyến mãi'}
 					</Button>
 				</div>
 			</form>

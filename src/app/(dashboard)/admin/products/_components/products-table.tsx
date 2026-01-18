@@ -168,7 +168,7 @@ export function ProductsTable({
 
 	useEffect(() => {
 		if (isProductsError) {
-			toast.error('Error loading products');
+			toast.error('Lỗi khi tải sản phẩm');
 		}
 	}, [isProductsError]);
 
@@ -232,7 +232,7 @@ export function ProductsTable({
 		},
 		{
 			accessorKey: 'name',
-			header: 'Name',
+			header: 'Tên',
 			cell: ({ row }) => {
 				return <div className='font-medium'>{row.getValue('name')}</div>;
 			},
@@ -240,7 +240,7 @@ export function ProductsTable({
 		},
 		{
 			accessorKey: 'description',
-			header: 'Description',
+			header: 'Mô tả',
 			cell: ({ row }) => {
 				const description = row.getValue('description') as string;
 				return (
@@ -252,7 +252,7 @@ export function ProductsTable({
 		},
 		{
 			accessorKey: 'price',
-			header: 'Price',
+			header: 'Giá',
 			cell: ({ row }) => {
 				const price = row.getValue('price') as number;
 				return <div className='text-right'>{price}</div>;
@@ -260,7 +260,7 @@ export function ProductsTable({
 		},
 		{
 			accessorKey: 'manufacturer',
-			header: 'Manufacturer',
+			header: 'Nhà sản xuất',
 			cell: ({ row }) => {
 				const manufacturer = row.getValue('manufacturer') as string;
 				return <div className='text-sm'>{manufacturer}</div>;
@@ -268,12 +268,12 @@ export function ProductsTable({
 		},
 		{
 			accessorKey: 'category.name',
-			header: 'Category',
+			header: 'Danh mục',
 			cell: ({ row }) => {
 				const category = (row.original as any).category?.name;
 				return (
 					<Badge variant='secondary' className='w-fit'>
-						{category || 'Uncategorized'}
+						{category || 'Chưa phân loại'}
 					</Badge>
 				);
 			},
@@ -289,19 +289,19 @@ export function ProductsTable({
 							size='icon'
 						>
 							<IconDotsVertical />
-							<span className='sr-only'>Open menu</span>
+							<span className='sr-only'>Mở menu</span>
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align='end' className='w-32'>
 						<DropdownMenuItem onClick={() => handleEdit(row.original)}>
-							Edit
+							Chỉnh sửa
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem
 							variant='destructive'
 							onClick={() => handleDelete(row.original.id)}
 						>
-							Delete
+							Xóa
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -338,15 +338,15 @@ export function ProductsTable({
 			mutateAsync(id, {
 				onError: (error: any) => {
 					toast.error(
-						error?.message || 'Error deleting product. Please try again.',
+						error?.message || 'Lỗi khi xóa sản phẩm. Vui lòng thử lại.',
 					);
 				},
 			}).then(() => {
 				setData(prevData => prevData.filter(item => item.id !== id));
 			}),
 			{
-				pending: 'Deleting product...',
-				success: 'Product deleted successfully',
+				pending: 'Đang xóa sản phẩm...',
+				success: 'Đã xóa sản phẩm thành công',
 			},
 		);
 	}
@@ -364,7 +364,7 @@ export function ProductsTable({
 						onError: (error: any) => {
 							toast.error(
 								error?.message ||
-									`Error deleting product with ID ${id}. Please try again.`,
+									`Lỗi khi xóa sản phẩm có ID ${id}. Vui lòng thử lại.`,
 							);
 						},
 					}),
@@ -377,9 +377,9 @@ export function ProductsTable({
 				setDeletePopoverOpen(false);
 			}),
 			{
-				pending: `Deleting ${selectedIds.length} product(s)...`,
-				success: `${selectedIds.length} product(s) deleted successfully`,
-				error: 'Error deleting products. Please try again.',
+				pending: `Đang xóa ${selectedIds.length} sản phẩm...`,
+				success: `Đã xóa ${selectedIds.length} sản phẩm thành công`,
+				error: 'Lỗi khi xóa sản phẩm. Vui lòng thử lại.',
 			},
 		);
 	}
@@ -387,7 +387,7 @@ export function ProductsTable({
 	if (isProductsPending) {
 		return (
 			<div className='flex h-48 w-full items-center justify-center'>
-				Loading products...
+				Đang tải sản phẩm...
 			</div>
 		);
 	}
@@ -401,7 +401,7 @@ export function ProductsTable({
 					<div className='relative'>
 						<Search className='absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
 						<Input
-							placeholder='Search products...'
+							placeholder='Tìm kiếm sản phẩm...'
 							value={searchInput}
 							onChange={e => setSearchInput(e.target.value)}
 							className='pl-9'
@@ -420,10 +420,10 @@ export function ProductsTable({
 						}}
 					>
 						<SelectTrigger>
-							<SelectValue placeholder='All Categories' />
+							<SelectValue placeholder='Tất cả danh mục' />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value='all'>All Categories</SelectItem>
+							<SelectItem value='all'>Tất cả danh mục</SelectItem>
 							{(initialCategories?.data || []).map(cat => (
 								<SelectItem key={cat.id} value={cat.id.toString()}>
 									{cat.name}
@@ -435,7 +435,7 @@ export function ProductsTable({
 					{/* Price From */}
 					<Input
 						type='number'
-						placeholder='Min price'
+						placeholder='Giá tối thiểu'
 						value={priceFromInput}
 						onChange={e => setPriceFromInput(e.target.value)}
 					/>
@@ -443,7 +443,7 @@ export function ProductsTable({
 					{/* Price To */}
 					<Input
 						type='number'
-						placeholder='Max price'
+						placeholder='Giá tối đa'
 						value={priceToInput}
 						onChange={e => setPriceToInput(e.target.value)}
 					/>
@@ -467,7 +467,7 @@ export function ProductsTable({
 							htmlFor='show-deleted'
 							className='text-sm font-medium cursor-pointer'
 						>
-							Show deleted products
+							Hiển thị sản phẩm đã xóa
 						</Label>
 					</div>
 
@@ -478,7 +478,7 @@ export function ProductsTable({
 						className='ml-auto'
 					>
 						<X className='size-4' />
-						Clear Filters
+						Xóa bộ lọc
 					</Button>
 				</div>
 			</div>
@@ -498,20 +498,18 @@ export function ProductsTable({
 									className='cursor-pointer'
 								>
 									<span>
-										Delete ({table.getFilteredSelectedRowModel().rows.length})
+										Xóa ({table.getFilteredSelectedRowModel().rows.length})
 									</span>
 								</Button>
 							</PopoverTrigger>
 							<PopoverContent className='w-80'>
 								<div className='space-y-4'>
 									<div className='space-y-2'>
-										<h4 className='font-medium leading-none'>
-											Delete products?
-										</h4>
+										<h4 className='font-medium leading-none'>Xóa sản phẩm?</h4>
 										<p className='text-sm text-muted-foreground'>
-											You are about to delete{' '}
-											{table.getFilteredSelectedRowModel().rows.length}{' '}
-											product(s). This action cannot be undone.
+											Bạn sắp xóa{' '}
+											{table.getFilteredSelectedRowModel().rows.length} sản
+											phẩm. Hành động này không thể hoàn tác.
 										</p>
 										<div className='max-h-32 overflow-y-auto rounded-md bg-muted p-2 text-xs'>
 											{table.getFilteredSelectedRowModel().rows.map(row => (
@@ -530,14 +528,14 @@ export function ProductsTable({
 											size='sm'
 											onClick={() => setDeletePopoverOpen(false)}
 										>
-											Cancel
+											Hủy
 										</Button>
 										<Button
 											variant='destructive'
 											size='sm'
 											onClick={handleDeleteMultiple}
 										>
-											Delete
+											Xóa
 										</Button>
 									</div>
 								</div>
@@ -550,8 +548,8 @@ export function ProductsTable({
 						<DropdownMenuTrigger asChild>
 							<Button variant='outline' size='sm'>
 								<IconLayoutColumns />
-								<span className='hidden lg:inline'>Customize Columns</span>
-								<span className='lg:hidden'>Columns</span>
+								<span className='hidden lg:inline'>Tùy chỉnh cột</span>
+								<span className='lg:hidden'>Cột</span>
 								<IconChevronDown />
 							</Button>
 						</DropdownMenuTrigger>
@@ -589,15 +587,15 @@ export function ProductsTable({
 									return await refreshProducts();
 								},
 								{
-									pending: 'Refreshing products...',
-									success: 'Products refreshed',
-									error: 'Error refreshing products',
+									pending: 'Đang làm mới...',
+									success: 'Đã làm mới sản phẩm',
+									error: 'Lỗi khi làm mới sản phẩm',
 								},
 							);
 						}}
 					>
 						<RefreshCcw />
-						<span className='hidden lg:inline'>Refresh</span>
+						<span className='hidden lg:inline'>Làm mới</span>
 					</Button>
 					<Button
 						variant='outline'
@@ -606,7 +604,7 @@ export function ProductsTable({
 						onClick={handleCreate}
 					>
 						<IconPlus />
-						<span className='hidden lg:inline'>Add Product</span>
+						<span className='hidden lg:inline'>Thêm sản phẩm</span>
 					</Button>
 				</div>
 			</div>
@@ -654,7 +652,7 @@ export function ProductsTable({
 									colSpan={columns.length}
 									className='h-24 text-center'
 								>
-									No results.
+									Không có kết quả.
 								</TableCell>
 							</TableRow>
 						)}
@@ -665,13 +663,13 @@ export function ProductsTable({
 			<div className='flex items-center justify-between px-4 lg:px-6'>
 				<div className='text-muted-foreground hidden flex-1 text-sm lg:flex'>
 					{table.getFilteredSelectedRowModel().rows.length} of{' '}
-					{response?.pagination?.totalItems ?? 0} row(s) selected.
+					{response?.pagination?.totalItems ?? 0} hàng đã chọn.
 				</div>
 				<div className='flex w-full items-center gap-8 lg:w-fit'>
 					{/* Page size selector */}
 					<div className='hidden items-center gap-2 lg:flex'>
 						<Label htmlFor='rows-per-page' className='text-sm font-medium'>
-							Rows per page
+							Hàng mỗi trang
 						</Label>
 						<Select
 							value={`${apiParams.limit}`}
@@ -698,8 +696,8 @@ export function ProductsTable({
 
 					{/* Page info */}
 					<div className='flex w-fit items-center justify-center text-sm font-medium'>
-						Page {response?.pagination?.page ?? 1} of{' '}
-						{response?.pagination?.totalPages ?? 1} • Total:{' '}
+						Trang {response?.pagination?.page ?? 1} /{' '}
+						{response?.pagination?.totalPages ?? 1} • Tổng:{' '}
 						{response?.pagination?.totalItems ?? 0}
 					</div>
 
@@ -711,7 +709,7 @@ export function ProductsTable({
 							onClick={() => setApiParams(prev => ({ ...prev, page: 1 }))}
 							disabled={apiParams.page === 1}
 						>
-							<span className='sr-only'>Go to first page</span>
+							<span className='sr-only'>Đến trang đầu</span>
 							<IconChevronsLeft />
 						</Button>
 						<Button
@@ -726,7 +724,7 @@ export function ProductsTable({
 							}
 							disabled={(apiParams.page ?? 1) === 1}
 						>
-							<span className='sr-only'>Go to previous page</span>
+							<span className='sr-only'>Đến trang trước</span>
 							<IconChevronLeft />
 						</Button>
 						<Button
@@ -740,7 +738,7 @@ export function ProductsTable({
 								(apiParams.page ?? 1) >= (response?.pagination?.totalPages ?? 1)
 							}
 						>
-							<span className='sr-only'>Go to next page</span>
+							<span className='sr-only'>Đến trang sau</span>
 							<IconChevronRight />
 						</Button>
 						<Button
@@ -757,7 +755,7 @@ export function ProductsTable({
 								(apiParams.page ?? 1) >= (response?.pagination?.totalPages ?? 1)
 							}
 						>
-							<span className='sr-only'>Go to last page</span>
+							<span className='sr-only'>Đến trang cuối</span>
 							<IconChevronsRight />
 						</Button>
 					</div>
@@ -768,10 +766,9 @@ export function ProductsTable({
 			<Sheet open={isEditOpen} onOpenChange={handleEditSheetOpenChange}>
 				<SheetContent className='overflow-y-auto w-full sm:max-w-2xl'>
 					<SheetHeader className='px-6'>
-						<SheetTitle>Edit Product</SheetTitle>
+						<SheetTitle>Chỉnh sửa sản phẩm</SheetTitle>
 						<SheetDescription>
-							Make changes to the product here. Click save when you&apos;re
-							done.
+							Thay đổi thông tin sản phẩm tại đây. Nhấn lưu khi bạn hoàn tất.
 						</SheetDescription>
 					</SheetHeader>
 					{selectedProduct && (
@@ -792,10 +789,8 @@ export function ProductsTable({
 			<Sheet open={isCreateOpen} onOpenChange={handleCreateSheetOpenChange}>
 				<SheetContent className='overflow-y-auto w-full sm:max-w-2xl'>
 					<SheetHeader className='px-6'>
-						<SheetTitle>Create Product</SheetTitle>
-						<SheetDescription>
-							Add a new product to your inventory.
-						</SheetDescription>
+						<SheetTitle>Tạo sản phẩm mới</SheetTitle>
+						<SheetDescription>Thêm sản phẩm mới vào kho hàng.</SheetDescription>
 					</SheetHeader>
 					<CreateProductForm
 						key={createFormKey}

@@ -47,7 +47,7 @@ export function UpdateDeliveryStatusDialog({
 
 	const handleSubmit = async () => {
 		if (selectedStatus === delivery.status) {
-			toast.info('Status is already set to this value');
+			toast.info('Trạng thái đã được thiết lập giá trị này');
 			return;
 		}
 
@@ -59,9 +59,9 @@ export function UpdateDeliveryStatusDialog({
 				onOpenChange(false);
 			}),
 			{
-				pending: 'Updating delivery status...',
-				success: 'Delivery status updated successfully',
-				error: 'Error updating delivery status',
+				pending: 'Đang cập nhật trạng thái giao hàng...',
+				success: 'Cập nhật trạng thái giao hàng thành công',
+				error: 'Lỗi khi cập nhật trạng thái giao hàng',
 			},
 		);
 	};
@@ -85,44 +85,59 @@ export function UpdateDeliveryStatusDialog({
 		}
 	};
 
+	const getStatusLabel = (status: DeliveryStatus) => {
+		switch (status) {
+			case DeliveryStatus.ASSIGNED:
+				return 'Đã phân công';
+			case DeliveryStatus.SHIPPING:
+				return 'Đang giao hàng';
+			case DeliveryStatus.DELIVERED:
+				return 'Đã giao hàng';
+			case DeliveryStatus.CANCELLED:
+				return 'Đã hủy';
+			default:
+				return status;
+		}
+	};
+
 	const availableStatuses = getAvailableStatuses();
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className='sm:max-w-[425px]'>
 				<DialogHeader>
-					<DialogTitle>Update Delivery Status</DialogTitle>
+					<DialogTitle>Cập nhật trạng thái giao hàng</DialogTitle>
 					<DialogDescription>
-						Update the status for delivery #{delivery.id} (Order #
+						Cập nhật trạng thái cho chuyến giao hàng #{delivery.id} (Đơn hàng #
 						{delivery.orderId}).
 					</DialogDescription>
 				</DialogHeader>
 				<div className='grid gap-4 py-4'>
 					<div className='grid gap-2'>
-						<Label htmlFor='status'>New Status</Label>
+						<Label htmlFor='status'>Trạng thái mới</Label>
 						<Select
 							value={selectedStatus}
 							onValueChange={setSelectedStatus as (value: string) => void}
 						>
 							<SelectTrigger id='status'>
-								<SelectValue placeholder='Select status' />
+								<SelectValue placeholder='Chọn trạng thái' />
 							</SelectTrigger>
 							<SelectContent>
 								{availableStatuses.map(status => (
 									<SelectItem key={status} value={status}>
-										<span className='capitalize'>{status}</span>
+										<span>{getStatusLabel(status)}</span>
 									</SelectItem>
 								))}
 							</SelectContent>
 						</Select>
 						<p className='text-xs text-muted-foreground'>
 							{delivery.status === DeliveryStatus.ASSIGNED &&
-								'You can mark this delivery as shipping once you start the delivery.'}
+								'Bạn có thể đánh dấu là đang giao hàng khi bắt đầu chuyến đi.'}
 							{delivery.status === DeliveryStatus.SHIPPING &&
-								'Mark as delivered when the package is handed to the customer, or cancel if needed.'}
+								'Đánh dấu đã giao hàng khi kiện hàng đã đến tay khách hàng, hoặc hủy nếu cần.'}
 							{(delivery.status === DeliveryStatus.DELIVERED ||
 								delivery.status === DeliveryStatus.CANCELLED) &&
-								'This delivery status cannot be changed.'}
+								'Trạng thái giao hàng này không thể thay đổi.'}
 						</p>
 					</div>
 				</div>
@@ -132,7 +147,7 @@ export function UpdateDeliveryStatusDialog({
 						onClick={() => onOpenChange(false)}
 						disabled={isPending}
 					>
-						Cancel
+						Hủy
 					</Button>
 					<Button
 						onClick={handleSubmit}
@@ -143,7 +158,7 @@ export function UpdateDeliveryStatusDialog({
 							delivery.status === DeliveryStatus.CANCELLED
 						}
 					>
-						{isPending ? 'Updating...' : 'Update Status'}
+						{isPending ? 'Đang cập nhật...' : 'Cập nhật trạng thái'}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

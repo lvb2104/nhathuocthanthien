@@ -162,7 +162,7 @@ export function BatchesTable({
 
 	useEffect(() => {
 		if (isBatchesError) {
-			toast.error('Error loading batches');
+			toast.error('Lỗi khi tải lô hàng');
 		}
 	}, [isBatchesError]);
 
@@ -222,7 +222,7 @@ export function BatchesTable({
 		},
 		{
 			accessorKey: 'batchCode',
-			header: 'Batch Code',
+			header: 'Mã lô',
 			cell: ({ row }) => {
 				return (
 					<div className='font-medium'>
@@ -234,19 +234,19 @@ export function BatchesTable({
 		},
 		{
 			accessorKey: 'product.name',
-			header: 'Product',
+			header: 'Sản phẩm',
 			cell: ({ row }) => {
 				const productName = row.original.product?.name;
 				return (
 					<div className='max-w-[200px] truncate text-sm'>
-						{productName || 'Unknown'}
+						{productName || 'Không rõ'}
 					</div>
 				);
 			},
 		},
 		{
 			accessorKey: 'quantity',
-			header: 'Quantity',
+			header: 'Số lượng',
 			cell: ({ row }) => {
 				const quantity = row.getValue('quantity') as number;
 				return <div className='text-right'>{quantity}</div>;
@@ -254,7 +254,7 @@ export function BatchesTable({
 		},
 		{
 			accessorKey: 'expiryDate',
-			header: 'Expiry Date',
+			header: 'Ngày hết hạn',
 			cell: ({ row }) => {
 				const expiryDate = row.getValue('expiryDate') as string;
 				const isExpired = isPast(new Date(expiryDate));
@@ -265,7 +265,7 @@ export function BatchesTable({
 						</span>
 						{isExpired && (
 							<Badge variant='destructive' className='text-xs'>
-								Expired
+								Hết hạn
 							</Badge>
 						)}
 					</div>
@@ -274,7 +274,7 @@ export function BatchesTable({
 		},
 		{
 			accessorKey: 'receivedDate',
-			header: 'Received Date',
+			header: 'Ngày nhận',
 			cell: ({ row }) => {
 				const receivedDate = row.getValue('receivedDate') as string;
 				if (!receivedDate) return <div className='text-sm'>-</div>;
@@ -287,7 +287,7 @@ export function BatchesTable({
 		},
 		{
 			accessorKey: 'status',
-			header: 'Status',
+			header: 'Trạng thái',
 			cell: ({ row }) => {
 				const status = row.getValue('status') as string;
 				return (
@@ -311,15 +311,15 @@ export function BatchesTable({
 							size='icon'
 						>
 							<IconDotsVertical />
-							<span className='sr-only'>Open menu</span>
+							<span className='sr-only'>Mở menu</span>
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align='end' className='w-32'>
 						<DropdownMenuItem onClick={() => handleEdit(row.original)}>
-							Edit
+							Chỉnh sửa
 						</DropdownMenuItem>
 						<DropdownMenuItem onClick={() => handleDispose(row.original.id)}>
-							Dispose
+							Hủy bỏ
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -365,7 +365,7 @@ export function BatchesTable({
 				{
 					onError: (error: any) => {
 						toast.error(
-							error?.message || 'Error disposing batch. Please try again.',
+							error?.message || 'Lỗi khi hủy bỏ lô hàng. Vui lòng thử lại.',
 						);
 					},
 				},
@@ -375,8 +375,8 @@ export function BatchesTable({
 				setBatchToDispose(null);
 			}),
 			{
-				pending: 'Disposing batch...',
-				success: 'Batch disposed successfully',
+				pending: 'Đang hủy bỏ lô hàng...',
+				success: 'Đã hủy bỏ lô hàng thành công',
 			},
 		);
 	}
@@ -384,7 +384,7 @@ export function BatchesTable({
 	if (isBatchesPending) {
 		return (
 			<div className='flex h-48 w-full items-center justify-center'>
-				Loading batches...
+				Đang tải lô hàng...
 			</div>
 		);
 	}
@@ -398,7 +398,7 @@ export function BatchesTable({
 					<div className='relative'>
 						<Search className='absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
 						<Input
-							placeholder='Search by batch code...'
+							placeholder='Tìm kiếm theo mã lô...'
 							value={searchInput}
 							onChange={e => setSearchInput(e.target.value)}
 							className='pl-9'
@@ -417,10 +417,10 @@ export function BatchesTable({
 						}}
 					>
 						<SelectTrigger>
-							<SelectValue placeholder='All Products' />
+							<SelectValue placeholder='Tất cả sản phẩm' />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value='all'>All Products</SelectItem>
+							<SelectItem value='all'>Tất cả sản phẩm</SelectItem>
 							{(initialProducts?.data || []).map(product => (
 								<SelectItem key={product.id} value={product.id.toString()}>
 									{product.name}
@@ -441,12 +441,12 @@ export function BatchesTable({
 						}}
 					>
 						<SelectTrigger>
-							<SelectValue placeholder='All Statuses' />
+							<SelectValue placeholder='Tất cả trạng thái' />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value='all'>All Statuses</SelectItem>
-							<SelectItem value='active'>Active</SelectItem>
-							<SelectItem value='disposed'>Disposed</SelectItem>
+							<SelectItem value='all'>Tất cả trạng thái</SelectItem>
+							<SelectItem value='active'>Đang hoạt động</SelectItem>
+							<SelectItem value='disposed'>Đã hủy</SelectItem>
 						</SelectContent>
 					</Select>
 
@@ -467,7 +467,7 @@ export function BatchesTable({
 							htmlFor='show-expired'
 							className='text-sm font-medium cursor-pointer'
 						>
-							Show expired only
+							Chỉ hiển thị đã hết hạn
 						</Label>
 					</div>
 				</div>
@@ -481,7 +481,7 @@ export function BatchesTable({
 						className='ml-auto'
 					>
 						<X className='size-4' />
-						Clear Filters
+						Xóa bộ lọc
 					</Button>
 				</div>
 			</div>
@@ -494,8 +494,8 @@ export function BatchesTable({
 						<DropdownMenuTrigger asChild>
 							<Button variant='outline' size='sm'>
 								<IconLayoutColumns />
-								<span className='hidden lg:inline'>Customize Columns</span>
-								<span className='lg:hidden'>Columns</span>
+								<span className='hidden lg:inline'>Tùy chỉnh cột</span>
+								<span className='lg:hidden'>Cột</span>
 								<IconChevronDown />
 							</Button>
 						</DropdownMenuTrigger>
@@ -533,15 +533,15 @@ export function BatchesTable({
 									return await refreshBatches();
 								},
 								{
-									pending: 'Refreshing batches...',
-									success: 'Batches refreshed',
-									error: 'Error refreshing batches',
+									pending: 'Đang làm mới...',
+									success: 'Đã làm mới lô hàng',
+									error: 'Lỗi khi làm mới lô hàng',
 								},
 							);
 						}}
 					>
 						<RefreshCcw />
-						<span className='hidden lg:inline'>Refresh</span>
+						<span className='hidden lg:inline'>Làm mới</span>
 					</Button>
 					<Button
 						variant='outline'
@@ -550,7 +550,7 @@ export function BatchesTable({
 						onClick={handleCreate}
 					>
 						<IconPlus />
-						<span className='hidden lg:inline'>Add Batch</span>
+						<span className='hidden lg:inline'>Thêm lô hàng</span>
 					</Button>
 				</div>
 			</div>
@@ -598,7 +598,7 @@ export function BatchesTable({
 									colSpan={columns.length}
 									className='h-24 text-center'
 								>
-									No results.
+									Không có kết quả.
 								</TableCell>
 							</TableRow>
 						)}
@@ -609,13 +609,13 @@ export function BatchesTable({
 			<div className='flex items-center justify-between px-4 lg:px-6'>
 				<div className='text-muted-foreground hidden flex-1 text-sm lg:flex'>
 					{table.getFilteredSelectedRowModel().rows.length} of{' '}
-					{response?.pagination?.totalItems ?? 0} row(s) selected.
+					{response?.pagination?.totalItems ?? 0} hàng đã chọn.
 				</div>
 				<div className='flex w-full items-center gap-8 lg:w-fit'>
 					{/* Page size selector */}
 					<div className='hidden items-center gap-2 lg:flex'>
 						<Label htmlFor='rows-per-page' className='text-sm font-medium'>
-							Rows per page
+							Hàng mỗi trang
 						</Label>
 						<Select
 							value={`${apiParams.limit}`}
@@ -642,8 +642,8 @@ export function BatchesTable({
 
 					{/* Page info */}
 					<div className='flex w-fit items-center justify-center text-sm font-medium'>
-						Page {response?.pagination?.page ?? 1} of{' '}
-						{response?.pagination?.totalPages ?? 1} • Total:{' '}
+						Trang {response?.pagination?.page ?? 1} /{' '}
+						{response?.pagination?.totalPages ?? 1} • Tổng:{' '}
 						{response?.pagination?.totalItems ?? 0}
 					</div>
 
@@ -655,7 +655,7 @@ export function BatchesTable({
 							onClick={() => setApiParams(prev => ({ ...prev, page: 1 }))}
 							disabled={apiParams.page === 1}
 						>
-							<span className='sr-only'>Go to first page</span>
+							<span className='sr-only'>Đến trang đầu</span>
 							<IconChevronsLeft />
 						</Button>
 						<Button
@@ -670,7 +670,7 @@ export function BatchesTable({
 							}
 							disabled={(apiParams.page ?? 1) === 1}
 						>
-							<span className='sr-only'>Go to previous page</span>
+							<span className='sr-only'>Đến trang trước</span>
 							<IconChevronLeft />
 						</Button>
 						<Button
@@ -684,7 +684,7 @@ export function BatchesTable({
 								(apiParams.page ?? 1) >= (response?.pagination?.totalPages ?? 1)
 							}
 						>
-							<span className='sr-only'>Go to next page</span>
+							<span className='sr-only'>Đến trang sau</span>
 							<IconChevronRight />
 						</Button>
 						<Button
@@ -701,7 +701,7 @@ export function BatchesTable({
 								(apiParams.page ?? 1) >= (response?.pagination?.totalPages ?? 1)
 							}
 						>
-							<span className='sr-only'>Go to last page</span>
+							<span className='sr-only'>Đến trang cuối</span>
 							<IconChevronsRight />
 						</Button>
 					</div>
@@ -712,9 +712,9 @@ export function BatchesTable({
 			<Sheet open={isEditOpen} onOpenChange={handleEditSheetOpenChange}>
 				<SheetContent className='overflow-y-auto w-full sm:max-w-2xl'>
 					<SheetHeader className='px-6'>
-						<SheetTitle>Edit Batch</SheetTitle>
+						<SheetTitle>Chỉnh sửa lô hàng</SheetTitle>
 						<SheetDescription>
-							Make changes to the batch here. Click save when you&apos;re done.
+							Thay đổi thông tin lô hàng. Nhấn lưu khi hoàn tất.
 						</SheetDescription>
 					</SheetHeader>
 					{selectedBatch && (
@@ -735,10 +735,8 @@ export function BatchesTable({
 			<Sheet open={isCreateOpen} onOpenChange={handleCreateSheetOpenChange}>
 				<SheetContent className='overflow-y-auto w-full sm:max-w-2xl'>
 					<SheetHeader className='px-6'>
-						<SheetTitle>Create Batch</SheetTitle>
-						<SheetDescription>
-							Add a new batch to the inventory.
-						</SheetDescription>
+						<SheetTitle>Tạo lô hàng mới</SheetTitle>
+						<SheetDescription>Thêm lô hàng mới vào kho.</SheetDescription>
 					</SheetHeader>
 					<CreateBatchForm
 						key={createFormKey}
@@ -754,10 +752,10 @@ export function BatchesTable({
 			<AlertDialog open={disposeDialogOpen} onOpenChange={setDisposeDialogOpen}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Dispose batch?</AlertDialogTitle>
+						<AlertDialogTitle>Hủy bỏ lô hàng?</AlertDialogTitle>
 						<AlertDialogDescription>
-							Are you sure you want to mark this batch as disposed? This will
-							update the batch status and create a stock movement record.
+							Bạn có chắc muốn đánh dấu lô hàng này là đã hủy? Điều này sẽ cập
+							nhật trạng thái lô hàng và tạo bản ghi di chuy ển kho.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
@@ -767,13 +765,13 @@ export function BatchesTable({
 								setBatchToDispose(null);
 							}}
 						>
-							Cancel
+							Hủy
 						</AlertDialogCancel>
 						<AlertDialogAction
 							onClick={confirmDispose}
 							className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
 						>
-							Dispose
+							Xác nhận hủy
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

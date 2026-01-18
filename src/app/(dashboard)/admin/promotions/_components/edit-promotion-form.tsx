@@ -22,22 +22,25 @@ const updatePromotionSchema = z
 	.object({
 		code: z
 			.string()
-			.min(1, { message: 'Promotion code is required' })
+			.min(1, { message: 'Vui lòng nhập mã khuyến mãi' })
 			.optional(),
 		description: z
 			.string()
-			.min(1, { message: 'Description is required' })
+			.min(1, { message: 'Vui lòng nhập mô tả' })
 			.optional(),
 		discountPercent: z
 			.number()
-			.min(0, { message: 'Discount percent must be at least 0' })
-			.max(100, { message: 'Discount percent cannot exceed 100' })
+			.min(0, { message: 'Phần trăm giảm giá phải ít nhất là 0' })
+			.max(100, { message: 'Phần trăm giảm giá không thể vượt quá 100' })
 			.optional(),
 		startDate: z
 			.string()
-			.min(1, { message: 'Start date is required' })
+			.min(1, { message: 'Vui lòng chọn ngày bắt đầu' })
 			.optional(),
-		endDate: z.string().min(1, { message: 'End date is required' }).optional(),
+		endDate: z
+			.string()
+			.min(1, { message: 'Vui lòng chọn ngày kết thúc' })
+			.optional(),
 	})
 	.refine(
 		data => {
@@ -49,7 +52,7 @@ const updatePromotionSchema = z
 			return true;
 		},
 		{
-			message: 'End date must be after start date',
+			message: 'Ngày kết thúc phải sau hoặc bằng ngày bắt đầu',
 			path: ['endDate'],
 		},
 	);
@@ -83,10 +86,10 @@ export default function EditPromotionForm({
 	async function onSubmit(data: UpdatePromotionRequest) {
 		try {
 			await mutateAsync({ id: promotion.id, request: data });
-			toast.success('Promotion updated successfully');
+			toast.success('Đã cập nhật chương trình khuyến mãi thành công');
 			onSuccess?.();
 		} catch (error: any) {
-			toast.error(error?.message || 'Error updating promotion');
+			toast.error(error?.message || 'Lỗi khi cập nhật chương trình khuyến mãi');
 		}
 	}
 
@@ -98,10 +101,10 @@ export default function EditPromotionForm({
 					name='code'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Promotion Code</FormLabel>
+							<FormLabel>Mã khuyến mãi *</FormLabel>
 							<FormControl>
 								<Input
-									placeholder='Enter promotion code (e.g., SAVE20)'
+									placeholder='Nhập mã khuyến mãi (Ví dụ: GIAMGIA20)'
 									{...field}
 								/>
 							</FormControl>
@@ -115,10 +118,10 @@ export default function EditPromotionForm({
 					name='description'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Description</FormLabel>
+							<FormLabel>Mô tả *</FormLabel>
 							<FormControl>
 								<Textarea
-									placeholder='Enter promotion description'
+									placeholder='Nhập mô tả chương trình khuyến mãi'
 									className='resize-none'
 									{...field}
 								/>
@@ -133,13 +136,13 @@ export default function EditPromotionForm({
 					name='discountPercent'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Discount Percent (%)</FormLabel>
+							<FormLabel>Phần trăm giảm giá (%) *</FormLabel>
 							<FormControl>
 								<Input
 									type='number'
 									min={0}
 									max={100}
-									placeholder='Enter discount percent (0-100)'
+									placeholder='Nhập phần trăm giảm giá (0-100)'
 									{...field}
 									onChange={e =>
 										field.onChange(parseFloat(e.target.value) || 0)
@@ -157,7 +160,7 @@ export default function EditPromotionForm({
 					name='startDate'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Start Date</FormLabel>
+							<FormLabel>Ngày bắt đầu *</FormLabel>
 							<FormControl>
 								<Input type='date' {...field} />
 							</FormControl>
@@ -171,7 +174,7 @@ export default function EditPromotionForm({
 					name='endDate'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>End Date</FormLabel>
+							<FormLabel>Ngày kết thúc *</FormLabel>
 							<FormControl>
 								<Input type='date' {...field} />
 							</FormControl>
@@ -182,7 +185,7 @@ export default function EditPromotionForm({
 
 				<div className='flex justify-end gap-2'>
 					<Button type='submit' disabled={isPending}>
-						{isPending ? 'Updating...' : 'Update Promotion'}
+						{isPending ? 'Đang cập nhật...' : 'Cập nhật khuyến mãi'}
 					</Button>
 				</div>
 			</form>

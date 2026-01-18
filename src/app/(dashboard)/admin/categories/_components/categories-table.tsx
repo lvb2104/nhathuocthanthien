@@ -136,7 +136,7 @@ export function CategoriesTable({
 
 	useEffect(() => {
 		if (isCategoriesError) {
-			toast.error('Error loading categories');
+			toast.error('Lỗi khi tải danh mục');
 		}
 	}, [isCategoriesError]);
 
@@ -193,7 +193,7 @@ export function CategoriesTable({
 		},
 		{
 			accessorKey: 'name',
-			header: 'Category Name',
+			header: 'Tên danh mục',
 			cell: ({ row }) => {
 				return <div className='font-medium'>{row.getValue('name')}</div>;
 			},
@@ -211,19 +211,19 @@ export function CategoriesTable({
 							size='icon'
 						>
 							<IconDotsVertical />
-							<span className='sr-only'>Open menu</span>
+							<span className='sr-only'>Mở menu</span>
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align='end' className='w-32'>
 						<DropdownMenuItem onClick={() => handleEdit(row.original)}>
-							Edit
+							Chỉnh sửa
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem
 							variant='destructive'
 							onClick={() => handleDelete(row.original.id)}
 						>
-							Delete
+							Xóa
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -257,11 +257,11 @@ export function CategoriesTable({
 		mutateAsync(id, {
 			onSuccess: () => {
 				setData(prevData => prevData.filter(item => item.id !== id));
-				toast.success('Category deleted successfully');
+				toast.success('Đã xóa danh mục thành công');
 			},
 			onError: (error: any) => {
 				toast.error(
-					error?.message || 'Error deleting category. Please try again.',
+					error?.message || 'Lỗi khi xóa danh mục. Vui lòng thử lại.',
 				);
 			},
 		});
@@ -279,7 +279,7 @@ export function CategoriesTable({
 					onError: (error: any) => {
 						toast.error(
 							error?.message ||
-								`Error deleting category ID ${id}. Please try again.`,
+								`Lỗi khi xóa danh mục ID ${id}. Vui lòng thử lại.`,
 						);
 					},
 				}),
@@ -291,17 +291,17 @@ export function CategoriesTable({
 				);
 				setRowSelection({});
 				setDeletePopoverOpen(false);
-				toast.success(`${selectedIds.length} categories deleted successfully`);
+				toast.success(`Đã xóa ${selectedIds.length} danh mục thành công`);
 			})
 			.catch(() => {
-				toast.error('Error deleting categories. Please try again.');
+				toast.error('Lỗi khi xóa danh mục. Vui lòng thử lại.');
 			});
 	}
 
 	if (isCategoriesPending) {
 		return (
 			<div className='flex h-48 w-full items-center justify-center'>
-				Loading categories...
+				Đang tải danh mục...
 			</div>
 		);
 	}
@@ -315,7 +315,7 @@ export function CategoriesTable({
 					<div className='relative flex-1'>
 						<Search className='absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
 						<Input
-							placeholder='Search categories...'
+							placeholder='Tìm kiếm danh mục...'
 							value={searchInput}
 							onChange={e => setSearchInput(e.target.value)}
 							className='pl-9'
@@ -329,7 +329,7 @@ export function CategoriesTable({
 						className='ml-auto'
 					>
 						<X className='size-4' />
-						Clear Filters
+						Xóa bộ lọc
 					</Button>
 				</div>
 			</div>
@@ -349,20 +349,18 @@ export function CategoriesTable({
 									className='cursor-pointer'
 								>
 									<span>
-										Delete ({table.getFilteredSelectedRowModel().rows.length})
+										Xóa ({table.getFilteredSelectedRowModel().rows.length})
 									</span>
 								</Button>
 							</PopoverTrigger>
 							<PopoverContent className='w-80'>
 								<div className='space-y-4'>
 									<div className='space-y-2'>
-										<h4 className='font-medium leading-none'>
-											Delete categories?
-										</h4>
+										<h4 className='font-medium leading-none'>Xóa danh mục?</h4>
 										<p className='text-sm text-muted-foreground'>
-											You are about to delete{' '}
-											{table.getFilteredSelectedRowModel().rows.length}{' '}
-											categories. This action cannot be undone.
+											Bạn sắp xóa{' '}
+											{table.getFilteredSelectedRowModel().rows.length} danh
+											mục. Hành động này không thể hoàn tác.
 										</p>
 										<div className='max-h-32 overflow-y-auto rounded-md bg-muted p-2 text-xs'>
 											{table.getFilteredSelectedRowModel().rows.map(row => (
@@ -378,14 +376,14 @@ export function CategoriesTable({
 											size='sm'
 											onClick={() => setDeletePopoverOpen(false)}
 										>
-											Cancel
+											Hủy
 										</Button>
 										<Button
 											variant='destructive'
 											size='sm'
 											onClick={handleDeleteMultiple}
 										>
-											Delete
+											Xóa
 										</Button>
 									</div>
 								</div>
@@ -398,8 +396,8 @@ export function CategoriesTable({
 						<DropdownMenuTrigger asChild>
 							<Button variant='outline' size='sm'>
 								<IconLayoutColumns />
-								<span className='hidden lg:inline'>Customize Columns</span>
-								<span className='lg:hidden'>Columns</span>
+								<span className='hidden lg:inline'>Tùy chỉnh cột</span>
+								<span className='lg:hidden'>Cột</span>
 								<IconChevronDown />
 							</Button>
 						</DropdownMenuTrigger>
@@ -437,15 +435,15 @@ export function CategoriesTable({
 									return await refreshCategories();
 								},
 								{
-									pending: 'Refreshing categories...',
-									success: 'Categories refreshed',
-									error: 'Error refreshing categories',
+									pending: 'Đang làm mới...',
+									success: 'Đã làm mới danh mục',
+									error: 'Lỗi khi làm mới danh mục',
 								},
 							);
 						}}
 					>
 						<RefreshCcw />
-						<span className='hidden lg:inline'>Refresh</span>
+						<span className='hidden lg:inline'>Làm mới</span>
 					</Button>
 					<Button
 						variant='outline'
@@ -454,7 +452,7 @@ export function CategoriesTable({
 						onClick={handleCreate}
 					>
 						<IconPlus />
-						<span className='hidden lg:inline'>Add Category</span>
+						<span className='hidden lg:inline'>Thêm danh mục</span>
 					</Button>
 				</div>
 			</div>
@@ -508,7 +506,7 @@ export function CategoriesTable({
 									colSpan={columns.length}
 									className='h-24 text-center'
 								>
-									No results.
+									Không có kết quả.
 								</TableCell>
 							</TableRow>
 						)}
@@ -519,13 +517,13 @@ export function CategoriesTable({
 			<div className='flex items-center justify-between px-4 lg:px-6'>
 				<div className='text-muted-foreground hidden flex-1 text-sm lg:flex'>
 					{table.getFilteredSelectedRowModel().rows.length} of{' '}
-					{response?.pagination?.totalItems ?? 0} row(s) selected.
+					{response?.pagination?.totalItems ?? 0} hàng đã chọn.
 				</div>
 				<div className='flex w-full items-center gap-8 lg:w-fit'>
 					{/* Page size selector */}
 					<div className='hidden items-center gap-2 lg:flex'>
 						<Label htmlFor='rows-per-page' className='text-sm font-medium'>
-							Rows per page
+							Hàng mỗi trang
 						</Label>
 						<Select
 							value={`${apiParams.limit}`}
@@ -552,8 +550,8 @@ export function CategoriesTable({
 
 					{/* Page info */}
 					<div className='flex w-fit items-center justify-center text-sm font-medium'>
-						Page {response?.pagination?.page ?? 1} of{' '}
-						{response?.pagination?.totalPages ?? 1} • Total:{' '}
+						Trang {response?.pagination?.page ?? 1} /{' '}
+						{response?.pagination?.totalPages ?? 1} • Tổng:{' '}
 						{response?.pagination?.totalItems ?? 0}
 					</div>
 
@@ -565,7 +563,7 @@ export function CategoriesTable({
 							onClick={() => setApiParams(prev => ({ ...prev, page: 1 }))}
 							disabled={apiParams.page === 1}
 						>
-							<span className='sr-only'>Go to first page</span>
+							<span className='sr-only'>Đến trang đầu</span>
 							<IconChevronsLeft />
 						</Button>
 						<Button
@@ -580,7 +578,7 @@ export function CategoriesTable({
 							}
 							disabled={(apiParams.page ?? 1) === 1}
 						>
-							<span className='sr-only'>Go to previous page</span>
+							<span className='sr-only'>Đến trang trước</span>
 							<IconChevronLeft />
 						</Button>
 						<Button
@@ -594,7 +592,7 @@ export function CategoriesTable({
 								(apiParams.page ?? 1) >= (response?.pagination?.totalPages ?? 1)
 							}
 						>
-							<span className='sr-only'>Go to next page</span>
+							<span className='sr-only'>Đến trang sau</span>
 							<IconChevronRight />
 						</Button>
 						<Button
@@ -611,7 +609,7 @@ export function CategoriesTable({
 								(apiParams.page ?? 1) >= (response?.pagination?.totalPages ?? 1)
 							}
 						>
-							<span className='sr-only'>Go to last page</span>
+							<span className='sr-only'>Đến trang cuối</span>
 							<IconChevronsRight />
 						</Button>
 					</div>
@@ -622,9 +620,9 @@ export function CategoriesTable({
 			<Sheet open={isEditOpen} onOpenChange={handleEditSheetOpenChange}>
 				<SheetContent className='overflow-y-auto w-full sm:max-w-2xl'>
 					<SheetHeader className='px-6'>
-						<SheetTitle>Edit Category</SheetTitle>
+						<SheetTitle>Chỉnh sửa danh mục</SheetTitle>
 						<SheetDescription>
-							Make changes to the category here. Click update when done.
+							Thay đổi thông tin danh mục. Nhấn cập nhật khi hoàn tất.
 						</SheetDescription>
 					</SheetHeader>
 					{selectedCategory && (
@@ -644,10 +642,8 @@ export function CategoriesTable({
 			<Sheet open={isCreateOpen} onOpenChange={handleCreateSheetOpenChange}>
 				<SheetContent className='overflow-y-auto w-full sm:max-w-2xl'>
 					<SheetHeader className='px-6'>
-						<SheetTitle>Create New Category</SheetTitle>
-						<SheetDescription>
-							Add a new category to the system.
-						</SheetDescription>
+						<SheetTitle>Tạo danh mục mới</SheetTitle>
+						<SheetDescription>Thêm danh mục mới vào hệ thống.</SheetDescription>
 					</SheetHeader>
 					<CreateCategoryForm
 						key={createFormKey}

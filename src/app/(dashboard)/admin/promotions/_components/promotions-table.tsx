@@ -119,7 +119,7 @@ export function PromotionsTable({
 
 	useEffect(() => {
 		if (isPromotionsError) {
-			toast.error('Error loading promotions');
+			toast.error('Lỗi khi tải khuyến mãi');
 		}
 	}, [isPromotionsError]);
 
@@ -144,7 +144,7 @@ export function PromotionsTable({
 
 	const formatDate = (dateString: string) => {
 		const date = new Date(dateString);
-		return date.toLocaleDateString('en-US', {
+		return date.toLocaleDateString('vi-VN', {
 			year: 'numeric',
 			month: 'short',
 			day: 'numeric',
@@ -157,12 +157,12 @@ export function PromotionsTable({
 		const end = new Date(promotion.endDate);
 
 		if (now < start) {
-			return <Badge variant='secondary'>Upcoming</Badge>;
+			return <Badge variant='secondary'>Sắp diễn ra</Badge>;
 		}
 		if (now > end) {
-			return <Badge variant='outline'>Expired</Badge>;
+			return <Badge variant='outline'>Hết hạn</Badge>;
 		}
-		return <Badge variant='default'>Active</Badge>;
+		return <Badge variant='default'>Đang hoạt động</Badge>;
 	};
 
 	const columns: ColumnDef<Promotion>[] = [
@@ -194,7 +194,7 @@ export function PromotionsTable({
 		},
 		{
 			accessorKey: 'code',
-			header: 'Code',
+			header: 'Mã',
 			cell: ({ row }) => {
 				return (
 					<div className='font-medium font-mono'>{row.getValue('code')}</div>
@@ -204,7 +204,7 @@ export function PromotionsTable({
 		},
 		{
 			accessorKey: 'description',
-			header: 'Description',
+			header: 'Mô tả',
 			cell: ({ row }) => {
 				const description = row.getValue('description') as string;
 				return (
@@ -216,7 +216,7 @@ export function PromotionsTable({
 		},
 		{
 			accessorKey: 'discountPercent',
-			header: 'Discount',
+			header: 'Giảm giá',
 			cell: ({ row }) => {
 				const discount = row.getValue('discountPercent') as number;
 				return <div className='text-right font-semibold'>{discount}%</div>;
@@ -224,7 +224,7 @@ export function PromotionsTable({
 		},
 		{
 			accessorKey: 'startDate',
-			header: 'Start Date',
+			header: 'Ngày bắt đầu',
 			cell: ({ row }) => {
 				return (
 					<div className='text-sm'>{formatDate(row.getValue('startDate'))}</div>
@@ -233,7 +233,7 @@ export function PromotionsTable({
 		},
 		{
 			accessorKey: 'endDate',
-			header: 'End Date',
+			header: 'Ngày kết thúc',
 			cell: ({ row }) => {
 				return (
 					<div className='text-sm'>{formatDate(row.getValue('endDate'))}</div>
@@ -242,7 +242,7 @@ export function PromotionsTable({
 		},
 		{
 			id: 'status',
-			header: 'Status',
+			header: 'Trạng thái',
 			cell: ({ row }) => {
 				return getStatusBadge(row.original);
 			},
@@ -258,19 +258,19 @@ export function PromotionsTable({
 							size='icon'
 						>
 							<IconDotsVertical />
-							<span className='sr-only'>Open menu</span>
+							<span className='sr-only'>Mở menu</span>
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align='end' className='w-32'>
 						<DropdownMenuItem onClick={() => handleEdit(row.original)}>
-							Edit
+							Chỉnh sửa
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem
 							variant='destructive'
 							onClick={() => handleDelete(row.original.id)}
 						>
-							Delete
+							Xóa
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -305,11 +305,11 @@ export function PromotionsTable({
 		mutateAsync(id, {
 			onSuccess: () => {
 				setData(prevData => prevData.filter(item => item.id !== id));
-				toast.success('Promotion deleted successfully');
+				toast.success('Đã xóa khuyến mãi thành công');
 			},
 			onError: (error: any) => {
 				toast.error(
-					error?.message || 'Error deleting promotion. Please try again.',
+					error?.message || 'Lỗi khi xóa khuyến mãi. Vui lòng thử lại.',
 				);
 			},
 		});
@@ -327,7 +327,7 @@ export function PromotionsTable({
 					onError: (error: any) => {
 						toast.error(
 							error?.message ||
-								`Error deleting promotion ID ${id}. Please try again.`,
+								`Lỗi khi xóa khuyến mãi ID ${id}. Vui lòng thử lại.`,
 						);
 					},
 				}),
@@ -339,17 +339,17 @@ export function PromotionsTable({
 				);
 				setRowSelection({});
 				setDeletePopoverOpen(false);
-				toast.success(`${selectedIds.length} promotions deleted successfully`);
+				toast.success(`Đã xóa ${selectedIds.length} khuyến mãi thành công`);
 			})
 			.catch(() => {
-				toast.error('Error deleting promotions. Please try again.');
+				toast.error('Lỗi khi xóa khuyến mãi. Vui lòng thử lại.');
 			});
 	}
 
 	if (isPromotionsPending) {
 		return (
 			<div className='flex h-48 w-full items-center justify-center'>
-				Loading promotions...
+				Đang tải khuyến mãi...
 			</div>
 		);
 	}
@@ -370,7 +370,7 @@ export function PromotionsTable({
 									className='cursor-pointer'
 								>
 									<span>
-										Delete ({table.getFilteredSelectedRowModel().rows.length})
+										Xóa ({table.getFilteredSelectedRowModel().rows.length})
 									</span>
 								</Button>
 							</PopoverTrigger>
@@ -378,12 +378,12 @@ export function PromotionsTable({
 								<div className='space-y-4'>
 									<div className='space-y-2'>
 										<h4 className='font-medium leading-none'>
-											Delete promotions?
+											Xóa khuyến mãi?
 										</h4>
 										<p className='text-sm text-muted-foreground'>
-											You are about to delete{' '}
-											{table.getFilteredSelectedRowModel().rows.length}{' '}
-											promotions. This action cannot be undone.
+											Bạn sắp xóa{' '}
+											{table.getFilteredSelectedRowModel().rows.length} khuyến
+											mãi. Hành động này không thể hoàn tác.
 										</p>
 										<div className='max-h-32 overflow-y-auto rounded-md bg-muted p-2 text-xs'>
 											{table.getFilteredSelectedRowModel().rows.map(row => (
@@ -399,14 +399,14 @@ export function PromotionsTable({
 											size='sm'
 											onClick={() => setDeletePopoverOpen(false)}
 										>
-											Cancel
+											Hủy
 										</Button>
 										<Button
 											variant='destructive'
 											size='sm'
 											onClick={handleDeleteMultiple}
 										>
-											Delete
+											Xóa
 										</Button>
 									</div>
 								</div>
@@ -419,8 +419,8 @@ export function PromotionsTable({
 						<DropdownMenuTrigger asChild>
 							<Button variant='outline' size='sm'>
 								<IconLayoutColumns />
-								<span className='hidden lg:inline'>Customize Columns</span>
-								<span className='lg:hidden'>Columns</span>
+								<span className='hidden lg:inline'>Tùy chỉnh cột</span>
+								<span className='lg:hidden'>Cột</span>
 								<IconChevronDown />
 							</Button>
 						</DropdownMenuTrigger>
@@ -458,15 +458,15 @@ export function PromotionsTable({
 									return await refreshPromotions();
 								},
 								{
-									pending: 'Refreshing promotions...',
-									success: 'Promotions refreshed',
-									error: 'Error refreshing promotions',
+									pending: 'Đang làm mới...',
+									success: 'Đã làm mới khuyến mãi',
+									error: 'Lỗi khi làm mới khuyến mãi',
 								},
 							);
 						}}
 					>
 						<RefreshCcw />
-						<span className='hidden lg:inline'>Refresh</span>
+						<span className='hidden lg:inline'>Làm mới</span>
 					</Button>
 					<Button
 						variant='outline'
@@ -475,7 +475,7 @@ export function PromotionsTable({
 						onClick={handleCreate}
 					>
 						<IconPlus />
-						<span className='hidden lg:inline'>Add Promotion</span>
+						<span className='hidden lg:inline'>Thêm khuyến mãi</span>
 					</Button>
 				</div>
 			</div>
@@ -523,7 +523,7 @@ export function PromotionsTable({
 									colSpan={columns.length}
 									className='h-24 text-center'
 								>
-									No results.
+									Không có kết quả.
 								</TableCell>
 							</TableRow>
 						)}
@@ -534,12 +534,12 @@ export function PromotionsTable({
 			<div className='flex items-center justify-between px-4 lg:px-6'>
 				<div className='text-muted-foreground hidden flex-1 text-sm lg:flex'>
 					{table.getFilteredSelectedRowModel().rows.length} /{' '}
-					{table.getFilteredRowModel().rows.length} row(s) selected.
+					{table.getFilteredRowModel().rows.length} hàng đã chọn.
 				</div>
 				<div className='flex w-full items-center gap-8 lg:w-fit'>
 					<div className='hidden items-center gap-2 lg:flex'>
 						<Label htmlFor='rows-per-page' className='text-sm font-medium'>
-							Rows per page
+							Hàng mỗi trang
 						</Label>
 						<Select
 							value={`${table.getState().pagination.pageSize}`}
@@ -562,7 +562,7 @@ export function PromotionsTable({
 						</Select>
 					</div>
 					<div className='flex w-fit items-center justify-center text-sm font-medium'>
-						Page {table.getState().pagination.pageIndex + 1} of{' '}
+						Trang {table.getState().pagination.pageIndex + 1} /{' '}
 						{table.getPageCount()}
 					</div>
 					<div className='ml-auto flex items-center gap-2 lg:ml-0'>
@@ -572,7 +572,7 @@ export function PromotionsTable({
 							onClick={() => table.setPageIndex(0)}
 							disabled={!table.getCanPreviousPage()}
 						>
-							<span className='sr-only'>Go to first page</span>
+							<span className='sr-only'>Đến trang đầu</span>
 							<IconChevronsLeft />
 						</Button>
 						<Button
@@ -582,7 +582,7 @@ export function PromotionsTable({
 							onClick={() => table.previousPage()}
 							disabled={!table.getCanPreviousPage()}
 						>
-							<span className='sr-only'>Go to previous page</span>
+							<span className='sr-only'>Đến trang trước</span>
 							<IconChevronLeft />
 						</Button>
 						<Button
@@ -592,7 +592,7 @@ export function PromotionsTable({
 							onClick={() => table.nextPage()}
 							disabled={!table.getCanNextPage()}
 						>
-							<span className='sr-only'>Go to next page</span>
+							<span className='sr-only'>Đến trang sau</span>
 							<IconChevronRight />
 						</Button>
 						<Button
@@ -602,7 +602,7 @@ export function PromotionsTable({
 							onClick={() => table.setPageIndex(table.getPageCount() - 1)}
 							disabled={!table.getCanNextPage()}
 						>
-							<span className='sr-only'>Go to last page</span>
+							<span className='sr-only'>Đến trang cuối</span>
 							<IconChevronsRight />
 						</Button>
 					</div>
@@ -613,9 +613,9 @@ export function PromotionsTable({
 			<Sheet open={isEditOpen} onOpenChange={handleEditSheetOpenChange}>
 				<SheetContent className='overflow-y-auto w-full sm:max-w-2xl'>
 					<SheetHeader className='px-6'>
-						<SheetTitle>Edit Promotion</SheetTitle>
+						<SheetTitle>Chỉnh sửa khuyến mãi</SheetTitle>
 						<SheetDescription>
-							Make changes to the promotion here. Click update when done.
+							Thay đổi thông tin khuyến mãi. Nhấn cập nhật khi hoàn tất.
 						</SheetDescription>
 					</SheetHeader>
 					{selectedPromotion && (
@@ -635,9 +635,9 @@ export function PromotionsTable({
 			<Sheet open={isCreateOpen} onOpenChange={handleCreateSheetOpenChange}>
 				<SheetContent className='overflow-y-auto w-full sm:max-w-2xl'>
 					<SheetHeader className='px-6'>
-						<SheetTitle>Create New Promotion</SheetTitle>
+						<SheetTitle>Tạo khuyến mãi mới</SheetTitle>
 						<SheetDescription>
-							Add a new promotion to the system.
+							Thêm khuyến mãi mới vào hệ thống.
 						</SheetDescription>
 					</SheetHeader>
 					<CreatePromotionForm

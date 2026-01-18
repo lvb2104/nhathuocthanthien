@@ -76,7 +76,7 @@ export function EmployeeDeliveriesTable({
 
 	useEffect(() => {
 		if (isError) {
-			toast.error('Error loading deliveries');
+			toast.error('Lỗi khi tải danh sách giao hàng');
 		}
 	}, [isError]);
 
@@ -131,7 +131,7 @@ export function EmployeeDeliveriesTable({
 	const columns: ColumnDef<Delivery>[] = [
 		{
 			accessorKey: 'id',
-			header: 'Delivery ID',
+			header: 'Mã vận đơn',
 			cell: ({ row }) => {
 				return <div className='font-medium'>#{row.getValue('id')}</div>;
 			},
@@ -139,7 +139,7 @@ export function EmployeeDeliveriesTable({
 		},
 		{
 			accessorKey: 'orderId',
-			header: 'Order ID',
+			header: 'Mã đơn hàng',
 			cell: ({ row }) => {
 				const orderId = row.getValue('orderId') as number;
 				return <div className='font-medium text-primary'>#{orderId}</div>;
@@ -147,7 +147,7 @@ export function EmployeeDeliveriesTable({
 		},
 		{
 			accessorKey: 'status',
-			header: 'Status',
+			header: 'Trạng thái',
 			cell: ({ row }) => {
 				const status = row.getValue('status') as DeliveryStatus;
 				return (
@@ -162,7 +162,7 @@ export function EmployeeDeliveriesTable({
 		},
 		{
 			accessorKey: 'order.finalAmount',
-			header: 'Total Amount',
+			header: 'Tổng tiền',
 			cell: ({ row }) => {
 				const amount = row.original.order?.finalAmount;
 				if (!amount) return <div className='text-sm'>N/A</div>;
@@ -175,7 +175,7 @@ export function EmployeeDeliveriesTable({
 		},
 		{
 			accessorKey: 'updatedAt',
-			header: 'Last Updated',
+			header: 'Cập nhật cuối',
 			cell: ({ row }) => {
 				const date = row.getValue('updatedAt') as string;
 				return <div className='text-sm'>{formatDate(date)}</div>;
@@ -192,7 +192,7 @@ export function EmployeeDeliveriesTable({
 							size='icon'
 						>
 							<IconDotsVertical />
-							<span className='sr-only'>Open menu</span>
+							<span className='sr-only'>Mở menu</span>
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align='end' className='w-40'>
@@ -203,7 +203,7 @@ export function EmployeeDeliveriesTable({
 								row.original.status === DeliveryStatus.CANCELLED
 							}
 						>
-							Update Status
+							Cập nhật trạng thái
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -231,7 +231,7 @@ export function EmployeeDeliveriesTable({
 	if (isPending) {
 		return (
 			<div className='flex h-48 w-full items-center justify-center'>
-				Loading deliveries...
+				Đang tải danh sách giao hàng...
 			</div>
 		);
 	}
@@ -249,22 +249,20 @@ export function EmployeeDeliveriesTable({
 							}}
 						>
 							<SelectTrigger>
-								<SelectValue placeholder='All Status' />
+								<SelectValue placeholder='Tất cả trạng thái' />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value='all'>All Status</SelectItem>
+								<SelectItem value='all'>Tất cả trạng thái</SelectItem>
 								<SelectItem value={DeliveryStatus.ASSIGNED}>
-									Assigned
+									Đã phân công
 								</SelectItem>
 								<SelectItem value={DeliveryStatus.SHIPPING}>
-									Shipping
+									Đang giao hàng
 								</SelectItem>
 								<SelectItem value={DeliveryStatus.DELIVERED}>
-									Delivered
+									Đã giao hàng
 								</SelectItem>
-								<SelectItem value={DeliveryStatus.CANCELLED}>
-									Cancelled
-								</SelectItem>
+								<SelectItem value={DeliveryStatus.CANCELLED}>Đã hủy</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>
@@ -278,8 +276,8 @@ export function EmployeeDeliveriesTable({
 							<DropdownMenuTrigger asChild>
 								<Button variant='outline' size='sm'>
 									<IconLayoutColumns />
-									<span className='hidden lg:inline'>Customize Columns</span>
-									<span className='lg:hidden'>Columns</span>
+									<span className='hidden lg:inline'>Tùy chỉnh cột</span>
+									<span className='lg:hidden'>Cột</span>
 									<IconChevronDown />
 								</Button>
 							</DropdownMenuTrigger>
@@ -317,15 +315,15 @@ export function EmployeeDeliveriesTable({
 										return await refreshDeliveries();
 									},
 									{
-										pending: 'Refreshing deliveries...',
-										success: 'Deliveries refreshed',
-										error: 'Error refreshing deliveries',
+										pending: 'Đang làm mới...',
+										success: 'Đã làm mới danh sách',
+										error: 'Lỗi khi làm mới danh sách',
 									},
 								);
 							}}
 						>
 							<RefreshCcw />
-							<span className='hidden lg:inline'>Refresh</span>
+							<span className='hidden lg:inline'>Làm mới</span>
 						</Button>
 					</div>
 				</div>
@@ -370,7 +368,7 @@ export function EmployeeDeliveriesTable({
 										colSpan={columns.length}
 										className='h-24 text-center'
 									>
-										No deliveries assigned.
+										Chưa được phân công giao hàng.
 									</TableCell>
 								</TableRow>
 							)}
@@ -380,7 +378,7 @@ export function EmployeeDeliveriesTable({
 
 				<div className='flex items-center justify-between px-4 lg:px-6'>
 					<div className='text-muted-foreground hidden flex-1 text-sm lg:flex'>
-						{data.length} delivery(ies) total.
+						Tổng cộng {data.length} chuyến giao hàng.
 					</div>
 				</div>
 			</div>

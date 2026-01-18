@@ -31,7 +31,6 @@ import {
 	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
@@ -125,7 +124,7 @@ export function UsersTable({
 
 	useEffect(() => {
 		if (isUsersError) {
-			toast.error('Error loading users');
+			toast.error('Lỗi khi tải người dùng');
 		}
 	}, [isUsersError]);
 
@@ -190,7 +189,7 @@ export function UsersTable({
 		},
 		{
 			accessorKey: 'fullName',
-			header: 'Full Name',
+			header: 'Họ và tên',
 			cell: ({ row }) => {
 				return <div className='font-medium'>{row.getValue('fullName')}</div>;
 			},
@@ -206,7 +205,7 @@ export function UsersTable({
 		},
 		{
 			accessorKey: 'phone',
-			header: 'Phone',
+			header: 'Số điện thoại',
 			cell: ({ row }) => {
 				const phone = row.getValue('phone') as string;
 				return <div className='text-sm'>{phone || 'N/A'}</div>;
@@ -214,7 +213,7 @@ export function UsersTable({
 		},
 		{
 			accessorKey: 'roles.name',
-			header: 'Role',
+			header: 'Vai trò',
 			cell: ({ row }) => {
 				const role = (row.original as any).roles?.name;
 				return (
@@ -226,7 +225,7 @@ export function UsersTable({
 		},
 		{
 			id: 'emailStatus',
-			header: 'Email Status',
+			header: 'Xác thực Email',
 			cell: ({ row }) => {
 				const isVerified = row.original.isActive;
 				return (
@@ -234,14 +233,14 @@ export function UsersTable({
 						variant={isVerified ? 'default' : 'secondary'}
 						className='w-fit'
 					>
-						{isVerified ? 'Verified' : 'Unverified'}
+						{isVerified ? 'Đã xác thực' : 'Chưa xác thực'}
 					</Badge>
 				);
 			},
 		},
 		{
 			id: 'accountStatus',
-			header: 'Account Status',
+			header: 'Trạng thái tài khoản',
 			cell: ({ row }) => {
 				const isLocked = isUserLocked(row.original);
 				return (
@@ -249,7 +248,7 @@ export function UsersTable({
 						variant={isLocked ? 'destructive' : 'default'}
 						className='w-fit'
 					>
-						{isLocked ? 'Locked' : 'Active'}
+						{isLocked ? 'Đã khóa' : 'Đang hoạt động'}
 					</Badge>
 				);
 			},
@@ -267,7 +266,7 @@ export function UsersTable({
 								size='icon'
 							>
 								<IconDotsVertical />
-								<span className='sr-only'>Open menu</span>
+								<span className='sr-only'>Mở menu</span>
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align='end' className='w-32'>
@@ -275,14 +274,14 @@ export function UsersTable({
 								<DropdownMenuItem
 									onClick={() => handleRestore(row.original.id)}
 								>
-									Restore
+									Khôi phục
 								</DropdownMenuItem>
 							) : (
 								<DropdownMenuItem
 									variant='destructive'
 									onClick={() => handleLock(row.original.id)}
 								>
-									Lock
+									Khóa
 								</DropdownMenuItem>
 							)}
 						</DropdownMenuContent>
@@ -320,9 +319,9 @@ export function UsersTable({
 				setData(prevData => prevData.filter(item => item.id !== id));
 			}),
 			{
-				pending: 'Locking user...',
-				success: 'User locked successfully',
-				error: 'Error locking user. Please try again.',
+				pending: 'Đang khóa người dùng...',
+				success: 'Đã khóa người dùng thành công',
+				error: 'Lỗi khi khóa người dùng. Vui lòng thử lại.',
 			},
 		);
 	}
@@ -333,9 +332,9 @@ export function UsersTable({
 				setData(prevData => prevData.filter(item => item.id !== id));
 			}),
 			{
-				pending: 'Restoring user...',
-				success: 'User restored successfully',
-				error: 'Error restoring user. Please try again.',
+				pending: 'Đang khôi phục người dùng...',
+				success: 'Đã khôi phục người dùng thành công',
+				error: 'Lỗi khi khôi phục người dùng. Vui lòng thử lại.',
 			},
 		);
 	}
@@ -356,9 +355,9 @@ export function UsersTable({
 				setLockPopoverOpen(false);
 			}),
 			{
-				pending: `Locking ${selectedIds.length} user(s)...`,
-				success: `${selectedIds.length} user(s) locked successfully`,
-				error: 'Error locking users. Please try again.',
+				pending: `Đang khóa ${selectedIds.length} người dùng...`,
+				success: `Đã khóa ${selectedIds.length} người dùng thành công`,
+				error: 'Lỗi khi khóa người dùng. Vui lòng thử lại.',
 			},
 		);
 	}
@@ -378,9 +377,9 @@ export function UsersTable({
 				setRowSelection({});
 			}),
 			{
-				pending: `Restoring ${selectedIds.length} user(s)...`,
-				success: `${selectedIds.length} user(s) restored successfully`,
-				error: 'Error restoring users. Please try again.',
+				pending: `Đang khôi phục ${selectedIds.length} người dùng...`,
+				success: `Đã khôi phục ${selectedIds.length} người dùng thành công`,
+				error: 'Lỗi khi khôi phục người dùng. Vui lòng thử lại.',
 			},
 		);
 	}
@@ -388,7 +387,7 @@ export function UsersTable({
 	if (isUsersPending) {
 		return (
 			<div className='flex h-48 w-full items-center justify-center'>
-				Loading users...
+				Đang tải người dùng...
 			</div>
 		);
 	}
@@ -402,7 +401,7 @@ export function UsersTable({
 					<div className='relative'>
 						<Search className='absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
 						<Input
-							placeholder='Search by email or name...'
+							placeholder='Tìm theo email hoặc tên...'
 							value={searchInput}
 							onChange={e => setSearchInput(e.target.value)}
 							className='pl-9'
@@ -421,14 +420,16 @@ export function UsersTable({
 						}}
 					>
 						<SelectTrigger>
-							<SelectValue placeholder='All Roles' />
+							<SelectValue placeholder='Tất cả vai trò' />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value='all'>All Roles</SelectItem>
-							<SelectItem value={UserRole.CUSTOMER}>Customer</SelectItem>
-							<SelectItem value={UserRole.ADMIN}>Admin</SelectItem>
-							<SelectItem value={UserRole.PHARMACIST}>Pharmacist</SelectItem>
-							<SelectItem value={UserRole.EMPLOYEE}>Employee</SelectItem>
+							<SelectItem value='all'>Tất cả vai trò</SelectItem>
+							<SelectItem value={UserRole.CUSTOMER}>Khách hàng</SelectItem>
+							<SelectItem value={UserRole.ADMIN}>Quản trị viên</SelectItem>
+							<SelectItem value={UserRole.PHARMACIST}>Dược sĩ</SelectItem>
+							<SelectItem value={UserRole.EMPLOYEE}>
+								Nhân viên giao hàng
+							</SelectItem>
 						</SelectContent>
 					</Select>
 
@@ -455,12 +456,12 @@ export function UsersTable({
 						}}
 					>
 						<SelectTrigger>
-							<SelectValue placeholder='All Status' />
+							<SelectValue placeholder='Tất cả trạng thái' />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value='all'>All Status</SelectItem>
-							<SelectItem value='verified'>Verified</SelectItem>
-							<SelectItem value='unverified'>Unverified</SelectItem>
+							<SelectItem value='all'>Tất cả trạng thái</SelectItem>
+							<SelectItem value='verified'>Đã xác thực</SelectItem>
+							<SelectItem value='unverified'>Chưa xác thực</SelectItem>
 						</SelectContent>
 					</Select>
 
@@ -481,7 +482,7 @@ export function UsersTable({
 							htmlFor='include-deleted'
 							className='text-sm font-medium cursor-pointer'
 						>
-							Include deleted users
+							Bao gồm người dùng đã bị xóa
 						</Label>
 					</div>
 				</div>
@@ -495,7 +496,7 @@ export function UsersTable({
 						className='ml-auto'
 					>
 						<X className='size-4' />
-						Clear Filters
+						Xóa bộ lọc
 					</Button>
 				</div>
 			</div>
@@ -526,19 +527,18 @@ export function UsersTable({
 													size='sm'
 													className='cursor-pointer'
 												>
-													<span>Lock ({activeUsers.length})</span>
+													<span>Khóa ({activeUsers.length})</span>
 												</Button>
 											</PopoverTrigger>
 											<PopoverContent className='w-80'>
 												<div className='space-y-4'>
 													<div className='space-y-2'>
 														<h4 className='font-medium leading-none'>
-															Lock users?
+															Khóa người dùng?
 														</h4>
 														<p className='text-sm text-muted-foreground'>
-															You are about to lock {activeUsers.length}{' '}
-															user(s). They will no longer be able to access the
-															system.
+															Bạn sắp khóa {activeUsers.length} người dùng. Họ
+															sẽ không còn quyền truy cập hệ thống.
 														</p>
 														<div className='max-h-32 overflow-y-auto rounded-md bg-muted p-2 text-xs'>
 															{activeUsers.map(row => (
@@ -558,14 +558,14 @@ export function UsersTable({
 															size='sm'
 															onClick={() => setLockPopoverOpen(false)}
 														>
-															Cancel
+															Hủy
 														</Button>
 														<Button
 															variant='destructive'
 															size='sm'
 															onClick={handleLockMultiple}
 														>
-															Lock
+															Khóa
 														</Button>
 													</div>
 												</div>
@@ -579,7 +579,7 @@ export function UsersTable({
 											className='cursor-pointer'
 											onClick={handleRestoreMultiple}
 										>
-											<span>Restore ({lockedUsers.length})</span>
+											<span>Khôi phục ({lockedUsers.length})</span>
 										</Button>
 									)}
 								</>
@@ -591,8 +591,8 @@ export function UsersTable({
 						<DropdownMenuTrigger asChild>
 							<Button variant='outline' size='sm'>
 								<IconLayoutColumns />
-								<span className='hidden lg:inline'>Customize Columns</span>
-								<span className='lg:hidden'>Columns</span>
+								<span className='hidden lg:inline'>Tùy chỉnh cột</span>
+								<span className='lg:hidden'>Cột</span>
 								<IconChevronDown />
 							</Button>
 						</DropdownMenuTrigger>
@@ -630,15 +630,15 @@ export function UsersTable({
 									return await refreshUsers();
 								},
 								{
-									pending: 'Refreshing users...',
-									success: 'Users refreshed',
-									error: 'Error refreshing users',
+									pending: 'Đang làm mới...',
+									success: 'Đã làm mới người dùng',
+									error: 'Lỗi khi làm mới người dùng',
 								},
 							);
 						}}
 					>
 						<RefreshCcw />
-						<span className='hidden lg:inline'>Refresh</span>
+						<span className='hidden lg:inline'>Làm mới</span>
 					</Button>
 					<Button
 						variant='outline'
@@ -647,7 +647,7 @@ export function UsersTable({
 						onClick={handleCreate}
 					>
 						<IconPlus />
-						<span className='hidden lg:inline'>Add User</span>
+						<span className='hidden lg:inline'>Thêm người dùng</span>
 					</Button>
 				</div>
 			</div>
@@ -695,7 +695,7 @@ export function UsersTable({
 									colSpan={columns.length}
 									className='h-24 text-center'
 								>
-									No results.
+									Không có kết quả.
 								</TableCell>
 							</TableRow>
 						)}
@@ -705,14 +705,14 @@ export function UsersTable({
 
 			<div className='flex items-center justify-between px-4 lg:px-6'>
 				<div className='text-muted-foreground hidden flex-1 text-sm lg:flex'>
-					{table.getFilteredSelectedRowModel().rows.length} of{' '}
-					{response?.pagination?.totalItems ?? 0} row(s) selected.
+					{table.getFilteredSelectedRowModel().rows.length} hàng đã chọn. Tổng
+					cộng {response?.pagination?.totalItems ?? 0} hàng.
 				</div>
 				<div className='flex w-full items-center gap-8 lg:w-fit'>
 					{/* Page size selector */}
 					<div className='hidden items-center gap-2 lg:flex'>
 						<Label htmlFor='rows-per-page' className='text-sm font-medium'>
-							Rows per page
+							Hàng mỗi trang
 						</Label>
 						<Select
 							value={`${apiParams.limit}`}
@@ -739,8 +739,8 @@ export function UsersTable({
 
 					{/* Page info */}
 					<div className='flex w-fit items-center justify-center text-sm font-medium'>
-						Page {response?.pagination?.page ?? 1} of{' '}
-						{response?.pagination?.totalPages ?? 1} • Total:{' '}
+						Trang {response?.pagination?.page ?? 1} /{' '}
+						{response?.pagination?.totalPages ?? 1} • Tổng:{' '}
 						{response?.pagination?.totalItems ?? 0}
 					</div>
 
@@ -752,7 +752,7 @@ export function UsersTable({
 							onClick={() => setApiParams(prev => ({ ...prev, page: 1 }))}
 							disabled={apiParams.page === 1}
 						>
-							<span className='sr-only'>Go to first page</span>
+							<span className='sr-only'>Đến trang đầu</span>
 							<IconChevronsLeft />
 						</Button>
 						<Button
@@ -767,7 +767,7 @@ export function UsersTable({
 							}
 							disabled={(apiParams.page ?? 1) === 1}
 						>
-							<span className='sr-only'>Go to previous page</span>
+							<span className='sr-only'>Đến trang trước</span>
 							<IconChevronLeft />
 						</Button>
 						<Button
@@ -781,7 +781,7 @@ export function UsersTable({
 								(apiParams.page ?? 1) >= (response?.pagination?.totalPages ?? 1)
 							}
 						>
-							<span className='sr-only'>Go to next page</span>
+							<span className='sr-only'>Đến trang sau</span>
 							<IconChevronRight />
 						</Button>
 						<Button
@@ -798,7 +798,7 @@ export function UsersTable({
 								(apiParams.page ?? 1) >= (response?.pagination?.totalPages ?? 1)
 							}
 						>
-							<span className='sr-only'>Go to last page</span>
+							<span className='sr-only'>Đến trang cuối</span>
 							<IconChevronsRight />
 						</Button>
 					</div>
@@ -809,9 +809,9 @@ export function UsersTable({
 			<Sheet open={isCreateOpen} onOpenChange={handleCreateSheetOpenChange}>
 				<SheetContent className='overflow-y-auto w-full sm:max-w-2xl'>
 					<SheetHeader className='px-6'>
-						<SheetTitle>Create User Account</SheetTitle>
+						<SheetTitle>Cấp tài khoản mới</SheetTitle>
 						<SheetDescription>
-							Assign a new account to a user. Required fields are marked with *.
+							Cấp tài khoản mới cho nhân viên hoặc dược sĩ.
 						</SheetDescription>
 					</SheetHeader>
 					<AssignAccountForm

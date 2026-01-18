@@ -43,7 +43,7 @@ export function UpdateStatusDialog({
 
 	const handleSubmit = async () => {
 		if (selectedStatus === currentStatus) {
-			toast.info('Please select a different status');
+			toast.info('Vui lòng chọn một trạng thái khác');
 			return;
 		}
 
@@ -55,9 +55,9 @@ export function UpdateStatusDialog({
 				onSuccess?.();
 			}),
 			{
-				pending: 'Updating order status...',
-				success: 'Order status updated successfully',
-				error: 'Error updating order status',
+				pending: 'Đang cập nhật trạng thái đơn hàng...',
+				success: 'Đã cập nhật trạng thái đơn hàng thành công',
+				error: 'Lỗi khi cập nhật trạng thái đơn hàng',
 			},
 		);
 	};
@@ -66,28 +66,34 @@ export function UpdateStatusDialog({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className='sm:max-w-[425px]'>
 				<DialogHeader>
-					<DialogTitle>Update Order Status</DialogTitle>
+					<DialogTitle>Cập nhật trạng thái đơn hàng</DialogTitle>
 					<DialogDescription>
-						Change the status of order #{orderId}. Click save when you&apos;re
-						done.
+						Thay đổi trạng thái của đơn hàng #{orderId}. Nhấn lưu khi bạn hoàn
+						tất.
 					</DialogDescription>
 				</DialogHeader>
 				<div className='grid gap-4 py-4'>
 					<div className='grid gap-2'>
-						<Label htmlFor='status'>Order Status</Label>
+						<Label htmlFor='status'>Trạng thái đơn hàng</Label>
 						<Select
 							value={selectedStatus}
 							onValueChange={value => setSelectedStatus(value as OrderStatus)}
 						>
 							<SelectTrigger id='status'>
-								<SelectValue placeholder='Select status' />
+								<SelectValue placeholder='Chọn trạng thái' />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value={OrderStatus.PENDING}>Pending</SelectItem>
-								<SelectItem value={OrderStatus.CONFIRMED}>Confirmed</SelectItem>
-								<SelectItem value={OrderStatus.SHIPPED}>Shipped</SelectItem>
-								<SelectItem value={OrderStatus.DELIVERED}>Delivered</SelectItem>
-								<SelectItem value={OrderStatus.CANCELLED}>Cancelled</SelectItem>
+								<SelectItem value={OrderStatus.PENDING}>Chờ xử lý</SelectItem>
+								<SelectItem value={OrderStatus.CONFIRMED}>
+									Đã xác nhận
+								</SelectItem>
+								<SelectItem value={OrderStatus.SHIPPED}>
+									Đang giao hàng
+								</SelectItem>
+								<SelectItem value={OrderStatus.DELIVERED}>
+									Đã giao hàng
+								</SelectItem>
+								<SelectItem value={OrderStatus.CANCELLED}>Đã hủy</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>
@@ -98,10 +104,10 @@ export function UpdateStatusDialog({
 						onClick={() => onOpenChange(false)}
 						disabled={isPending}
 					>
-						Cancel
+						Hủy
 					</Button>
 					<Button onClick={handleSubmit} disabled={isPending}>
-						{isPending ? 'Updating...' : 'Save Changes'}
+						{isPending ? 'Đang cập nhật...' : 'Lưu thay đổi'}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

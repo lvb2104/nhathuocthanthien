@@ -41,7 +41,7 @@ export function NavDocuments({
 
 	return (
 		<SidebarGroup className='group-data-[collapsible=icon]:hidden'>
-			<SidebarGroupLabel>Documents</SidebarGroupLabel>
+			<SidebarGroupLabel>Tài liệu</SidebarGroupLabel>
 			<SidebarMenu>
 				{items.map(item => (
 					<SidebarMenuItem key={item.name}>
@@ -64,7 +64,7 @@ export function NavDocuments({
 									className='data-[state=open]:bg-accent rounded-sm'
 								>
 									<IconDots />
-									<span className='sr-only'>More</span>
+									<span className='sr-only'>Thêm</span>
 								</SidebarMenuAction>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent
@@ -74,16 +74,16 @@ export function NavDocuments({
 							>
 								<DropdownMenuItem>
 									<IconFolder />
-									<span>Open</span>
+									<span>Mở</span>
 								</DropdownMenuItem>
 								<DropdownMenuItem>
 									<IconShare3 />
-									<span>Share</span>
+									<span>Chia sẻ</span>
 								</DropdownMenuItem>
 								<DropdownMenuSeparator />
 								<DropdownMenuItem variant='destructive'>
 									<IconTrash />
-									<span>Delete</span>
+									<span>Xóa</span>
 								</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>
@@ -92,7 +92,7 @@ export function NavDocuments({
 				<SidebarMenuItem>
 					<SidebarMenuButton className='text-sidebar-foreground/70'>
 						<IconDots className='text-sidebar-foreground/70' />
-						<span>More</span>
+						<span>Xem thêm</span>
 					</SidebarMenuButton>
 				</SidebarMenuItem>
 			</SidebarMenu>

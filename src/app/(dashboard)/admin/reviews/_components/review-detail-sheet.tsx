@@ -10,8 +10,7 @@ import {
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Star } from 'lucide-react';
+import { Star, Package, User, MessageSquare, Calendar } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import Link from 'next/link';
@@ -54,12 +53,12 @@ export function ReviewDetailSheet({
 					comment: comment || undefined,
 				},
 			});
-			toast.success('Review updated successfully');
+			toast.success('Đã cập nhật đánh giá thành công');
 			setIsEditing(false);
 			onSuccess?.();
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (error) {
-			toast.error('Failed to update review');
+			toast.error('Cập nhật đánh giá thất bại');
 		}
 	};
 
@@ -93,77 +92,100 @@ export function ReviewDetailSheet({
 
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
-			<SheetContent className='sm:max-w-[540px] overflow-y-auto'>
-				<SheetHeader>
-					<SheetTitle>Review Details</SheetTitle>
-					<SheetDescription>View and edit review information</SheetDescription>
+			<SheetContent className='w-full overflow-y-auto sm:max-w-2xl p-6'>
+				<SheetHeader className='mb-6'>
+					<SheetTitle>Chi tiết đánh giá</SheetTitle>
+					<SheetDescription>
+						Xem và chỉnh sửa thông tin đánh giá
+					</SheetDescription>
 				</SheetHeader>
 
 				{isLoading ? (
 					<div className='flex items-center justify-center py-8'>
-						Loading review details...
+						Đang tải chi tiết đánh giá...
 					</div>
 				) : review ? (
-					<div className='space-y-6 py-6'>
+					<div className='space-y-6'>
 						{/* Review ID */}
-						<div className='space-y-2'>
-							<Label className='text-muted-foreground'>Review ID</Label>
+						<div className='pb-5 border-b'>
+							<h3 className='font-semibold text-sm text-gray-900 mb-2 flex items-center gap-2'>
+								<Star size={16} className='text-green-600' />
+								Mã đánh giá
+							</h3>
 							<div className='font-medium'>#{review.id}</div>
 						</div>
 
 						{/* Product */}
-						<div className='space-y-2'>
-							<Label className='text-muted-foreground'>Product</Label>
-							<div>
-								<Link
-									href={routes.products.detail(review.productId)}
-									className='text-primary hover:underline font-medium'
-									target='_blank'
-								>
-									Product #{review.productId}
-								</Link>
-							</div>
+						<div className='pb-5 border-b'>
+							<h3 className='font-semibold text-sm text-gray-900 mb-2 flex items-center gap-2'>
+								<Package size={16} className='text-green-600' />
+								Sản phẩm
+							</h3>
+							<Link
+								href={routes.products.detail(review.productId)}
+								className='text-primary hover:underline font-medium'
+								target='_blank'
+							>
+								Sản phẩm #{review.productId}
+							</Link>
 						</div>
 
 						{/* User */}
-						<div className='space-y-2'>
-							<Label className='text-muted-foreground'>User</Label>
-							<div>
-								<div className='font-medium'>
-									{review.user?.fullName || 'N/A'}
+						<div className='pb-5 border-b'>
+							<h3 className='font-semibold text-sm text-gray-900 mb-2 flex items-center gap-2'>
+								<User size={16} className='text-green-600' />
+								Người dùng
+							</h3>
+							<div className='bg-gray-50 rounded-lg p-4 space-y-2.5 text-xs'>
+								<div className='flex gap-2'>
+									<span className='font-medium text-gray-600 w-28 flex-shrink-0'>
+										Tên:
+									</span>
+									<span className='text-gray-900'>
+										{review.user?.fullName || 'N/A'}
+									</span>
 								</div>
-								<div className='text-sm text-muted-foreground'>
-									User ID: #{review.userId}
+								<div className='flex gap-2'>
+									<span className='font-medium text-gray-600 w-28 flex-shrink-0'>
+										Mã người dùng:
+									</span>
+									<span className='text-gray-900'>#{review.userId}</span>
 								</div>
 							</div>
 						</div>
 
 						{/* Rating */}
-						<div className='space-y-2'>
-							<Label className='text-muted-foreground'>Rating</Label>
+						<div className='pb-5 border-b'>
+							<h3 className='font-semibold text-sm text-gray-900 mb-2 flex items-center gap-2'>
+								<Star size={16} className='text-green-600' />
+								Đánh giá
+							</h3>
 							<div>{renderStars(review.rating)}</div>
 						</div>
 
 						{/* Comment */}
-						<div className='space-y-2'>
-							<Label className='text-muted-foreground'>Comment</Label>
+						<div className='pb-5 border-b'>
+							<h3 className='font-semibold text-sm text-gray-900 mb-2 flex items-center gap-2'>
+								<MessageSquare size={16} className='text-green-600' />
+								Nhận xét
+							</h3>
 							{isEditing ? (
 								<Textarea
 									value={comment}
 									onChange={e => setComment(e.target.value)}
-									placeholder='No comment provided'
+									placeholder='Không có nhận xét'
 									rows={6}
 									className='resize-none'
 								/>
 							) : (
-								<div className='rounded-md border p-3 bg-muted/50 min-h-[100px]'>
+								<div className='rounded-md bg-gray-50 p-4 min-h-[100px]'>
 									{review.comment ? (
-										<p className='text-sm whitespace-pre-wrap'>
+										<p className='text-sm whitespace-pre-wrap text-gray-900'>
 											{review.comment}
 										</p>
 									) : (
 										<p className='text-sm text-muted-foreground italic'>
-											No comment provided
+											Không có nhận xét
 										</p>
 									)}
 								</div>
@@ -171,27 +193,41 @@ export function ReviewDetailSheet({
 						</div>
 
 						{/* Dates */}
-						<div className='grid grid-cols-2 gap-4'>
-							<div className='space-y-2'>
-								<Label className='text-muted-foreground'>Created At</Label>
-								<div className='text-sm'>{formatDate(review.createdAt)}</div>
-							</div>
-							<div className='space-y-2'>
-								<Label className='text-muted-foreground'>Updated At</Label>
-								<div className='text-sm'>{formatDate(review.updatedAt)}</div>
+						<div className='pb-5 border-b'>
+							<h3 className='font-semibold text-sm text-gray-900 mb-4 flex items-center gap-2'>
+								<Calendar size={16} className='text-green-600' />
+								Thông tin thời gian
+							</h3>
+							<div className='bg-gray-50 rounded-lg p-4 space-y-2.5 text-xs'>
+								<div className='flex gap-2'>
+									<span className='font-medium text-gray-600 w-28 flex-shrink-0'>
+										Ngày tạo:
+									</span>
+									<span className='text-gray-900'>
+										{formatDate(review.createdAt)}
+									</span>
+								</div>
+								<div className='flex gap-2'>
+									<span className='font-medium text-gray-600 w-28 flex-shrink-0'>
+										Ngày cập nhật:
+									</span>
+									<span className='text-gray-900'>
+										{formatDate(review.updatedAt)}
+									</span>
+								</div>
 							</div>
 						</div>
 
 						{/* Actions */}
-						<div className='flex gap-2 pt-4'>
+						<div className='pt-3'>
 							{isEditing ? (
-								<>
+								<div className='flex gap-2'>
 									<Button
 										onClick={handleSave}
 										disabled={isUpdating}
-										className='flex-1'
+										className='flex-1 h-10 text-sm bg-green-600 hover:bg-green-700'
 									>
-										{isUpdating ? 'Saving...' : 'Save Changes'}
+										{isUpdating ? 'Đang lưu...' : 'Lưu thay đổi'}
 									</Button>
 									<Button
 										variant='outline'
@@ -200,25 +236,33 @@ export function ReviewDetailSheet({
 											setIsEditing(false);
 										}}
 										disabled={isUpdating}
+										className='h-10 text-sm'
 									>
-										Cancel
+										Hủy
 									</Button>
-								</>
+								</div>
 							) : (
-								<>
-									<Button onClick={() => setIsEditing(true)} className='flex-1'>
-										Edit Comment
+								<div className='flex gap-2'>
+									<Button
+										onClick={() => setIsEditing(true)}
+										className='flex-1 h-10 text-sm bg-green-600 hover:bg-green-700'
+									>
+										Chỉnh sửa nhận xét
 									</Button>
-									<Button variant='outline' onClick={() => onOpenChange(false)}>
-										Close
+									<Button
+										variant='outline'
+										onClick={() => onOpenChange(false)}
+										className='h-10 text-sm'
+									>
+										Đóng
 									</Button>
-								</>
+								</div>
 							)}
 						</div>
 					</div>
 				) : (
 					<div className='flex items-center justify-center py-8 text-muted-foreground'>
-						Review not found
+						Đánh giá không tìm thấy
 					</div>
 				)}
 			</SheetContent>

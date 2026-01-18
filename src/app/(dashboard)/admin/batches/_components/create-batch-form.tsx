@@ -40,7 +40,7 @@ export default function CreateBatchForm({
 
 	useEffect(() => {
 		if (isError) {
-			toast.error('Error fetching products');
+			toast.error('Lỗi khi tải danh sách sản phẩm');
 		}
 	}, [isError]);
 
@@ -70,7 +70,7 @@ export default function CreateBatchForm({
 			mutateAsync(requestData, {
 				onError: (error: any) => {
 					toast.error(
-						error?.message || 'Error creating batch. Please try again.',
+						error?.message || 'Lỗi khi tạo lô hàng. Vui lòng thử lại.',
 					);
 				},
 			}).then(() => {
@@ -80,8 +80,8 @@ export default function CreateBatchForm({
 				}
 			}),
 			{
-				pending: 'Creating batch...',
-				success: 'Batch created successfully',
+				pending: 'Đang tạo lô hàng...',
+				success: 'Đã tạo lô hàng thành công',
 			},
 		);
 	}
@@ -98,11 +98,11 @@ export default function CreateBatchForm({
 					name='productId'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Product</FormLabel>
+							<FormLabel>Sản phẩm *</FormLabel>
 							<Select onValueChange={field.onChange} value={field.value}>
 								<FormControl>
 									<SelectTrigger>
-										<SelectValue placeholder='Select a product' />
+										<SelectValue placeholder='Chọn sản phẩm' />
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
@@ -124,10 +124,10 @@ export default function CreateBatchForm({
 					name='batchCode'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Batch Code (Optional)</FormLabel>
+							<FormLabel>Mã lô hàng (Tùy chọn)</FormLabel>
 							<FormControl>
 								<Input
-									placeholder='LOT-2025-001 (auto-generated if not provided)'
+									placeholder='Nhập mã lô hàng (Ví dụ: LH-2025-001)'
 									type='text'
 									{...field}
 								/>
@@ -143,7 +143,7 @@ export default function CreateBatchForm({
 					name='quantity'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Quantity</FormLabel>
+							<FormLabel>Số lượng *</FormLabel>
 							<FormControl>
 								<Input placeholder='100' type='number' {...field} />
 							</FormControl>
@@ -158,7 +158,7 @@ export default function CreateBatchForm({
 					name='expiryDate'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Expiry Date</FormLabel>
+							<FormLabel>Ngày hết hạn *</FormLabel>
 							<FormControl>
 								<Input type='date' {...field} />
 							</FormControl>
@@ -173,7 +173,7 @@ export default function CreateBatchForm({
 					name='receivedDate'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Received Date (Optional)</FormLabel>
+							<FormLabel>Ngày nhập hàng (Tùy chọn)</FormLabel>
 							<FormControl>
 								<Input type='date' {...field} />
 							</FormControl>
@@ -188,10 +188,10 @@ export default function CreateBatchForm({
 					name='note'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Note (Optional)</FormLabel>
+							<FormLabel>Ghi chú (Tùy chọn)</FormLabel>
 							<FormControl>
 								<Textarea
-									placeholder='Additional notes about this batch...'
+									placeholder='Nhập thông tin ghi chú cho lô hàng này...'
 									className='resize-none'
 									{...field}
 								/>
@@ -202,9 +202,9 @@ export default function CreateBatchForm({
 				/>
 
 				<LoadingButton
-					text='Create Batch'
+					text='Tạo lô hàng'
 					isLoading={isPending}
-					loadingText='Creating...'
+					loadingText='Đang tạo...'
 				/>
 			</form>
 		</Form>

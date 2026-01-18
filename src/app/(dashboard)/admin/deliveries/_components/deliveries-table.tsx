@@ -92,7 +92,7 @@ export function DeliveriesTable({
 
 	useEffect(() => {
 		if (isError) {
-			toast.error('Error loading deliveries');
+			toast.error('Lỗi khi tải giao hàng');
 		}
 	}, [isError]);
 
@@ -147,7 +147,7 @@ export function DeliveriesTable({
 	const columns: ColumnDef<Delivery>[] = [
 		{
 			accessorKey: 'id',
-			header: 'Delivery ID',
+			header: 'Mã giao hàng',
 			cell: ({ row }) => {
 				return <div className='font-medium'>#{row.getValue('id')}</div>;
 			},
@@ -155,7 +155,7 @@ export function DeliveriesTable({
 		},
 		{
 			accessorKey: 'orderId',
-			header: 'Order ID',
+			header: 'Mã đơn',
 			cell: ({ row }) => {
 				const orderId = row.getValue('orderId') as number;
 				return (
@@ -170,7 +170,7 @@ export function DeliveriesTable({
 		},
 		{
 			accessorKey: 'employee.fullName',
-			header: 'Employee',
+			header: 'Nhân viên',
 			cell: ({ row }) => {
 				const employee = row.original.employee;
 				return (
@@ -189,7 +189,7 @@ export function DeliveriesTable({
 		},
 		{
 			accessorKey: 'status',
-			header: 'Status',
+			header: 'Trạng thái',
 			cell: ({ row }) => {
 				const status = row.getValue('status') as DeliveryStatus;
 				return (
@@ -204,7 +204,7 @@ export function DeliveriesTable({
 		},
 		{
 			accessorKey: 'updatedAt',
-			header: 'Last Updated',
+			header: 'Cập nhật cuối',
 			cell: ({ row }) => {
 				const date = row.getValue('updatedAt') as string;
 				return <div className='text-sm'>{formatDate(date)}</div>;
@@ -221,7 +221,7 @@ export function DeliveriesTable({
 							size='icon'
 						>
 							<IconDotsVertical />
-							<span className='sr-only'>Open menu</span>
+							<span className='sr-only'>Mở menu</span>
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align='end' className='w-40'>
@@ -229,7 +229,7 @@ export function DeliveriesTable({
 							<Link
 								href={`${routes.admin.orders.main}?orderId=${row.original.orderId}`}
 							>
-								View Order
+								Xem đơn hàng
 							</Link>
 						</DropdownMenuItem>
 						{/* TODO: Add update status and reassign employee actions */}
@@ -261,7 +261,7 @@ export function DeliveriesTable({
 	if (isPending) {
 		return (
 			<div className='flex h-48 w-full items-center justify-center'>
-				Loading deliveries...
+				Đang tải giao hàng...
 			</div>
 		);
 	}
@@ -274,7 +274,7 @@ export function DeliveriesTable({
 					<div className='relative'>
 						<Search className='absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
 						<Input
-							placeholder='Search by employee...'
+							placeholder='Tìm kiếm theo nhân viên...'
 							value={searchInput}
 							onChange={e => setSearchInput(e.target.value)}
 							className='pl-9'
@@ -292,24 +292,20 @@ export function DeliveriesTable({
 						}}
 					>
 						<SelectTrigger>
-							<SelectValue placeholder='All Status' />
+							<SelectValue placeholder='Tất cả trạng thái' />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value='all'>All Status</SelectItem>
-							<SelectItem value={DeliveryStatus.ASSIGNED}>Assigned</SelectItem>
-							<SelectItem value={DeliveryStatus.SHIPPING}>Shipping</SelectItem>
-							<SelectItem value={DeliveryStatus.DELIVERED}>
-								Delivered
-							</SelectItem>
-							<SelectItem value={DeliveryStatus.CANCELLED}>
-								Cancelled
-							</SelectItem>
+							<SelectItem value='all'>Tất cả trạng thái</SelectItem>
+							<SelectItem value={DeliveryStatus.ASSIGNED}>Đã giao</SelectItem>
+							<SelectItem value={DeliveryStatus.SHIPPING}>Đang giao</SelectItem>
+							<SelectItem value={DeliveryStatus.DELIVERED}>Hoàn tất</SelectItem>
+							<SelectItem value={DeliveryStatus.CANCELLED}>Đã hủy</SelectItem>
 						</SelectContent>
 					</Select>
 
 					<Button variant='outline' size='sm' onClick={clearFilters}>
 						<X className='size-4' />
-						Clear Filters
+						Xóa bộ lọc
 					</Button>
 				</div>
 			</div>
@@ -322,8 +318,8 @@ export function DeliveriesTable({
 						<DropdownMenuTrigger asChild>
 							<Button variant='outline' size='sm'>
 								<IconLayoutColumns />
-								<span className='hidden lg:inline'>Customize Columns</span>
-								<span className='lg:hidden'>Columns</span>
+								<span className='hidden lg:inline'>Tùy chỉnh cột</span>
+								<span className='lg:hidden'>Cột</span>
 								<IconChevronDown />
 							</Button>
 						</DropdownMenuTrigger>
@@ -361,15 +357,15 @@ export function DeliveriesTable({
 									return await refreshDeliveries();
 								},
 								{
-									pending: 'Refreshing deliveries...',
-									success: 'Deliveries refreshed',
-									error: 'Error refreshing deliveries',
+									pending: 'Đang làm mới...',
+									success: 'Đã làm mới giao hàng',
+									error: 'Lỗi khi làm mới giao hàng',
 								},
 							);
 						}}
 					>
 						<RefreshCcw />
-						<span className='hidden lg:inline'>Refresh</span>
+						<span className='hidden lg:inline'>Làm mới</span>
 					</Button>
 				</div>
 			</div>
@@ -414,7 +410,7 @@ export function DeliveriesTable({
 									colSpan={columns.length}
 									className='h-24 text-center'
 								>
-									No results.
+									Không có kết quả.
 								</TableCell>
 							</TableRow>
 						)}
@@ -424,12 +420,12 @@ export function DeliveriesTable({
 
 			<div className='flex items-center justify-between px-4 lg:px-6'>
 				<div className='text-muted-foreground hidden flex-1 text-sm lg:flex'>
-					{response?.pagination?.totalItems ?? 0} delivery(ies) total.
+					{response?.pagination?.totalItems ?? 0} giao hàng.
 				</div>
 				<div className='flex w-full items-center gap-8 lg:w-fit'>
 					<div className='hidden items-center gap-2 lg:flex'>
 						<Label htmlFor='rows-per-page' className='text-sm font-medium'>
-							Rows per page
+							Hàng mỗi trang
 						</Label>
 						<Select
 							value={`${apiParams.limit}`}
@@ -455,8 +451,8 @@ export function DeliveriesTable({
 					</div>
 
 					<div className='flex w-fit items-center justify-center text-sm font-medium'>
-						Page {response?.pagination?.page ?? 1} of{' '}
-						{response?.pagination?.totalPages ?? 1} • Total:{' '}
+						Trang {response?.pagination?.page ?? 1} /{' '}
+						{response?.pagination?.totalPages ?? 1} • Tổng:{' '}
 						{response?.pagination?.totalItems ?? 0}
 					</div>
 
@@ -467,7 +463,7 @@ export function DeliveriesTable({
 							onClick={() => setApiParams(prev => ({ ...prev, page: 1 }))}
 							disabled={apiParams.page === 1}
 						>
-							<span className='sr-only'>Go to first page</span>
+							<span className='sr-only'>Đến trang đầu</span>
 							<IconChevronsLeft />
 						</Button>
 						<Button
@@ -482,7 +478,7 @@ export function DeliveriesTable({
 							}
 							disabled={(apiParams.page ?? 1) === 1}
 						>
-							<span className='sr-only'>Go to previous page</span>
+							<span className='sr-only'>Đến trang trước</span>
 							<IconChevronLeft />
 						</Button>
 						<Button
@@ -496,7 +492,7 @@ export function DeliveriesTable({
 								(apiParams.page ?? 1) >= (response?.pagination?.totalPages ?? 1)
 							}
 						>
-							<span className='sr-only'>Go to next page</span>
+							<span className='sr-only'>Đến trang sau</span>
 							<IconChevronRight />
 						</Button>
 						<Button
@@ -513,7 +509,7 @@ export function DeliveriesTable({
 								(apiParams.page ?? 1) >= (response?.pagination?.totalPages ?? 1)
 							}
 						>
-							<span className='sr-only'>Go to last page</span>
+							<span className='sr-only'>Đến trang cuối</span>
 							<IconChevronsRight />
 						</Button>
 					</div>
