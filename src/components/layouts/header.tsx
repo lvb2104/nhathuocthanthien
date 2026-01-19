@@ -120,6 +120,26 @@ function Header() {
 					<SearchBar />
 					{/* Cart and Order Tracking */}
 					<div className='flex items-center gap-4'>
+						{/* Prescription link for customers */}
+						{isCustomer && (
+							<Link
+								className='flex items-center cursor-pointer'
+								href={routes.user.prescriptions}
+							>
+								<div className='p-2 rounded'>
+									<Image
+										src='/icons/prescription.svg'
+										alt='Prescriptions'
+										width={30}
+										height={30}
+									/>
+								</div>
+								<div>
+									<div className='text-xs mb-[-2px]'>Gửi</div>
+									<div className='font-semibold'>Đơn thuốc</div>
+								</div>
+							</Link>
+						)}
 						<Link
 							className='flex items-center cursor-pointer'
 							href={

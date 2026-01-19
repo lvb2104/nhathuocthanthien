@@ -7,7 +7,8 @@
 - Use server axios to call API in server side to boost performance
 - Use client axios to call API in client side to make data fresh compared to server fetched data
 - Use stale time to prevent refetching data too often
-- Use initial data to prevent refetching data too often
+- placeholderData → Used for list/collection hooks (paginated data, filtered data)
+- initialData → Used for single item hooks (fetching by ID) and non-paginated user-specific data
 - Use query client to invalidate queries after mutation
 
 ## Visual

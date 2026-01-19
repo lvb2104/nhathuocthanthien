@@ -20,6 +20,11 @@ export type GetMyPrescriptionByIdResponse = Prescription;
 
 export type GetApprovedPrescriptionResponse = PaginatedResponse<Prescription>;
 
+export type ApprovedPrescriptionFilterParams = {
+	page?: number;
+	limit?: number;
+};
+
 export type GetAllPrescriptionsForPharmacistResponse =
 	PaginatedResponse<Prescription>;
 
@@ -47,7 +52,7 @@ export type CreatePrescriptionResponse = {
 // APPROVE PRESCRIPTION
 // ============================================================================
 export type ApprovePrescriptionRequest = {
-	items: { productId: number; quantity: number }[];
+	items: { product_id: number; quantity: number }[];
 };
 
 export type ApprovePrescriptionResponse = { message: string };
@@ -66,7 +71,7 @@ export type PrescriptionItem = {
 	product?: {
 		id: number;
 		name: string;
-		price: string;
+		price?: string;
 	};
 };
 
@@ -78,6 +83,11 @@ export type Prescription = {
 	items?: PrescriptionItem[];
 	pharmacistId?: number;
 	uploadedAt: string;
+	user?: {
+		id: number;
+		fullName: string;
+		email: string;
+	};
 	pharmacist?: {
 		id: number;
 		fullName: string;

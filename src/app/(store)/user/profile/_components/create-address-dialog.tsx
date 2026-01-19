@@ -22,19 +22,24 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useCreateShippingAddress } from '@/hooks';
+import { useCreateShippingAddress, useShippingAddresses } from '@/hooks';
 import { ShippingAddressSchema } from '@/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { z } from 'zod';
 import { Plus } from 'lucide-react';
+import { useEffect } from 'react';
 
 type CreateAddressFormData = z.infer<typeof ShippingAddressSchema>;
 
 export default function CreateAddressDialog() {
 	const [open, setOpen] = useState(false);
 	const { mutateAsync, isPending } = useCreateShippingAddress();
+	const { data: existingAddresses } = useShippingAddresses();
+
+	// Check if this will be the first address
+	const isFirstAddress = !existingAddresses || existingAddresses.length === 0;
 
 	const form = useForm<CreateAddressFormData>({
 		resolver: zodResolver(ShippingAddressSchema),
@@ -49,6 +54,13 @@ export default function CreateAddressDialog() {
 			isDefault: false,
 		},
 	});
+
+	// Auto-set isDefault to true when this is the first address
+	useEffect(() => {
+		if (open && isFirstAddress) {
+			form.setValue('isDefault', true);
+		}
+	}, [open, isFirstAddress, form]);
 
 	async function onSubmit(data: CreateAddressFormData) {
 		try {
