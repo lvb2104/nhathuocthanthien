@@ -67,3 +67,6 @@ export * from './prescriptions/use-my-prescriptions';
 export * from './prescriptions/use-my-prescription';
 export * from './prescriptions/use-create-prescription';
 export * from './prescriptions/use-approved-prescription';
+export * from './chats/use-chat-history';
+export * from './chats/use-pharmacist-chats';
+export * from './chats/use-chat-socket';

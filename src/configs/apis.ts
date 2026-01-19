@@ -100,4 +100,8 @@ export const apiEndpoints = {
 		markAsRead: (id: number) => `/notifications/${id}/read`,
 		markAllAsRead: '/notifications/read-all',
 	},
+	chats: {
+		getHistory: '/chats/history',
+		getPharmacistChats: '/chats/pharmacist',
+	},
 };
