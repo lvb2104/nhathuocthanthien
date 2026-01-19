@@ -8,6 +8,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/next';
 import AppProvider from '@/components/providers/app-provider';
 import CartProvider from '@/components/providers/cart-provider';
+import { ChatBubble } from '@/components/layouts/chat-bubble';
 
 // Metadata will show in the browser tab (title, description, icons)
 export const metadata: Metadata = {
@@ -16,6 +17,8 @@ export const metadata: Metadata = {
 		'Nền tảng đặt mua thuốc và sản phẩm chăm sóc sức khỏe trực tuyến hàng đầu Việt Nam',
 	icons: {
 		icon: '/images/favicon.png',
+		shortcut: '/images/favicon.png',
+		apple: '/images/favicon.png',
 	},
 };
 
@@ -30,6 +33,7 @@ export default function RootLayout({
 				<NextTopLoader color='#11DCE8' />
 				<AppProvider>
 					<CartProvider>{children}</CartProvider>
+					<ChatBubble />
 				</AppProvider>
 				<ScrollToTop />
 				<ToastContainer

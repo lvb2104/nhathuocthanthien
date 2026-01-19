@@ -10,3 +10,4 @@ export * from './delivery';
 export * from './batches';
 export * from './prescriptions';
 export * from './notifications';
+export * from './chats';
