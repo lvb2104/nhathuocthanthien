@@ -12,6 +12,7 @@ export const routes = {
 	user: {
 		profile: '/user/profile',
 		orders: '/user/orders',
+		prescriptions: '/user/prescriptions',
 		cart: '/user/cart',
 		payment: {
 			success: '/user/payment/success',

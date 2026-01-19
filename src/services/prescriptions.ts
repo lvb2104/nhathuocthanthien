@@ -10,6 +10,9 @@ import {
 	GetMyPrescriptionByIdResponse,
 	GetApprovedPrescriptionResponse,
 	GetAllPrescriptionsForPharmacistResponse,
+	MyPrescriptionsFilterParams,
+	ApprovedPrescriptionFilterParams,
+	PharmacistPrescriptionsFilterParams,
 } from '@/types';
 
 export async function createPrescription(
@@ -22,8 +25,12 @@ export async function createPrescription(
 	return res.data;
 }
 
-export async function getMyPrescriptions(): Promise<GetMyPrescriptionsResponse> {
-	const res = await axiosInstance.get(apiEndpoints.prescriptions.getMy);
+export async function getMyPrescriptions(
+	params?: MyPrescriptionsFilterParams,
+): Promise<GetMyPrescriptionsResponse> {
+	const res = await axiosInstance.get(apiEndpoints.prescriptions.getMy, {
+		params,
+	});
 	return res.data;
 }
 
@@ -34,14 +41,21 @@ export async function getMyPrescriptionById(
 	return res.data;
 }
 
-export async function getApprovedPrescription(): Promise<GetApprovedPrescriptionResponse> {
-	const res = await axiosInstance.get(apiEndpoints.prescriptions.getApproved);
+export async function getApprovedPrescription(
+	params?: ApprovedPrescriptionFilterParams,
+): Promise<GetApprovedPrescriptionResponse> {
+	const res = await axiosInstance.get(apiEndpoints.prescriptions.getApproved, {
+		params,
+	});
 	return res.data;
 }
 
-export async function getAllPrescriptionsForPharmacist(): Promise<GetAllPrescriptionsForPharmacistResponse> {
+export async function getAllPrescriptionsForPharmacist(
+	params?: PharmacistPrescriptionsFilterParams,
+): Promise<GetAllPrescriptionsForPharmacistResponse> {
 	const res = await axiosInstance.get(
 		apiEndpoints.prescriptions.getAllForPharmacist,
+		{ params },
 	);
 	return res.data;
 }
@@ -50,7 +64,7 @@ export async function approvePrescription(
 	id: number,
 	request: ApprovePrescriptionRequest,
 ): Promise<ApprovePrescriptionResponse> {
-	const res = await axiosInstance.post(
+	const res = await axiosInstance.patch(
 		apiEndpoints.prescriptions.approve(id),
 		request,
 	);
@@ -60,6 +74,6 @@ export async function approvePrescription(
 export async function rejectPrescription(
 	id: number,
 ): Promise<RejectPrescriptionResponse> {
-	const res = await axiosInstance.post(apiEndpoints.prescriptions.reject(id));
+	const res = await axiosInstance.patch(apiEndpoints.prescriptions.reject(id));
 	return res.data;
 }

@@ -1,14 +1,18 @@
 import { getAllPrescriptionsForPharmacist } from '@/services';
-import { GetAllPrescriptionsForPharmacistResponse } from '@/types';
+import {
+	GetAllPrescriptionsForPharmacistResponse,
+	PharmacistPrescriptionsFilterParams,
+} from '@/types';
 import { useQuery } from '@tanstack/react-query';
 
 export function usePharmacistPrescriptions(
-	initialData?: GetAllPrescriptionsForPharmacistResponse,
+	params?: PharmacistPrescriptionsFilterParams,
+	placeholderData?: GetAllPrescriptionsForPharmacistResponse,
 ) {
 	return useQuery({
-		queryKey: ['prescriptions', 'pharmacist'],
-		queryFn: () => getAllPrescriptionsForPharmacist(),
+		queryKey: ['prescriptions', 'pharmacist', params],
+		queryFn: () => getAllPrescriptionsForPharmacist(params),
 		staleTime: 1000 * 60 * 5,
-		initialData,
+		placeholderData,
 	});
 }

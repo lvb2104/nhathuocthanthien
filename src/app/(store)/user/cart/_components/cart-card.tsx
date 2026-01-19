@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { routes } from '@/configs/routes';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -90,7 +90,10 @@ function CartCard({
 	// Fetch shipping addresses with initial data from server
 	const { data: shippingAddressesResponse, isLoading: isLoadingAddresses } =
 		useShippingAddresses(initialShippingAddresses);
-	const shippingAddresses = shippingAddressesResponse || [];
+	const shippingAddresses = useMemo(
+		() => shippingAddressesResponse || [],
+		[shippingAddressesResponse],
+	);
 
 	// Create shipping address mutation
 	const createAddressMutation = useCreateShippingAddress();
@@ -128,6 +131,20 @@ function CartCard({
 			setAddressMode(AddressMode.CREATE);
 		}
 	}, [isLoadingAddresses, shippingAddresses.length]);
+
+	// Auto-select default address when addresses are loaded
+	useEffect(() => {
+		if (
+			!isLoadingAddresses &&
+			shippingAddresses.length > 0 &&
+			selectedAddressId === null
+		) {
+			// Find the default address or use the first one
+			const defaultAddress =
+				shippingAddresses.find(a => a.isDefault) || shippingAddresses[0];
+			setSelectedAddressId(defaultAddress.id);
+		}
+	}, [isLoadingAddresses, shippingAddresses, selectedAddressId]);
 
 	const handleApplyPromotion = () => {
 		if (!selectedPromotionId) {

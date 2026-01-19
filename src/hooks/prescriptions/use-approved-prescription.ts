@@ -1,14 +1,18 @@
 import { getApprovedPrescription } from '@/services';
-import { GetApprovedPrescriptionResponse } from '@/types';
+import {
+	GetApprovedPrescriptionResponse,
+	ApprovedPrescriptionFilterParams,
+} from '@/types';
 import { useQuery } from '@tanstack/react-query';
 
 export function useApprovedPrescription(
-	initialData?: GetApprovedPrescriptionResponse,
+	params?: ApprovedPrescriptionFilterParams,
+	placeholderData?: GetApprovedPrescriptionResponse,
 ) {
 	return useQuery({
-		queryKey: ['prescriptions', 'approved'],
-		queryFn: () => getApprovedPrescription(),
+		queryKey: ['prescriptions', 'approved', params],
+		queryFn: () => getApprovedPrescription(params),
 		staleTime: 1000 * 60 * 5,
-		initialData,
+		placeholderData,
 	});
 }
