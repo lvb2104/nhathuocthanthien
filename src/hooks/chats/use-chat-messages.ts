@@ -55,17 +55,7 @@ export function useChatMessages({
 				message,
 			};
 
-			// Optimistically add message to local state
-			const optimisticMessage: ChatMessage = {
-				id: Date.now(), // Temporary ID
-				customerId: userRole === ChatUserRole.CUSTOMER ? userId : receiverId,
-				pharmacistId:
-					userRole === ChatUserRole.PHARMACIST ? userId : receiverId,
-				message,
-				sentAt: new Date().toISOString(),
-			};
-
-			setMessages(prev => [...prev, optimisticMessage]);
+			// Send message via socket - backend will emit it back to us
 			socket.emit('send_message', payload);
 			console.log('[useChatMessages] Sent message:', payload);
 		},

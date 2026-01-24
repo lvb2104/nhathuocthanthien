@@ -100,7 +100,27 @@ export const navConfig = {
 			},
 		],
 	},
-	pharmacist: {},
+	pharmacist: {
+		navMain: [
+			{
+				title: 'Quản lý đơn thuốc',
+				url: routes.pharmacist.overview,
+				icon: IconFileWord,
+			},
+			{
+				title: 'Tin nhắn',
+				url: routes.pharmacist.chat,
+				icon: IconListDetails, // Using existing icon, can replace with MessageCircle later
+			},
+		],
+		navSecondary: [
+			{
+				title: 'Trợ giúp',
+				url: '/pharmacist/get-help',
+				icon: IconHelp,
+			},
+		],
+	},
 	employee: {
 		navMain: [
 			{

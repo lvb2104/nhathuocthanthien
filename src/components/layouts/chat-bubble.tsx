@@ -61,7 +61,7 @@ export function ChatBubble() {
 			// Fallback to default pharmacist ID 3 when no online pharmacists found
 			setConversations([
 				{
-					pharmacistId: 3,
+					pharmacistId: 13,
 					pharmacistName: 'Dược sĩ tư vấn',
 				},
 			]);
@@ -73,7 +73,6 @@ export function ChatBubble() {
 	// Check authentication status
 	const user = session?.user;
 	const isCustomer = user?.role === 'customer';
-	const userId = user?.id;
 	const isAuthenticated = !!user;
 
 	// Chat history for active conversation
@@ -93,11 +92,18 @@ export function ChatBubble() {
 		userRole: ChatUserRole.CUSTOMER,
 	});
 
-	// Combine history and socket messages
-	const allMessages = useMemo<ChatMessage[]>(
-		() => [...(chatHistory || []), ...socketMessages],
-		[chatHistory, socketMessages],
-	);
+	// Combine history and socket messages, deduplicate by ID (keep original order)
+	const allMessages = useMemo<ChatMessage[]>(() => {
+		const combined = [...(chatHistory || []), ...socketMessages];
+
+		// Deduplicate by ID while preserving order
+		const seen = new Set<number>();
+		return combined.filter(msg => {
+			if (seen.has(msg.id)) return false;
+			seen.add(msg.id);
+			return true;
+		});
+	}, [chatHistory, socketMessages]);
 
 	// Auto-scroll to bottom when new messages arrive
 	useEffect(() => {
@@ -304,7 +310,9 @@ export function ChatBubble() {
 								) : (
 									<>
 										{allMessages.map(msg => {
-											const isOwn = msg.customerId === userId;
+											// If senderId === customerId, then customer sent it (right side)
+											// If senderId === pharmacistId, then pharmacist sent it (left side)
+											const isOwn = msg.senderId === msg.customerId;
 
 											return (
 												<div

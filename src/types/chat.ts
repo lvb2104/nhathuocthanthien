@@ -13,6 +13,7 @@ export type ChatMessage = {
 	id: number;
 	customerId: number;
 	pharmacistId: number;
+	senderId: number; // ID of the user who sent this message
 	message: string;
 	sentAt: string;
 };
@@ -43,6 +44,7 @@ export type PharmacistChat = {
 	id: number;
 	customerId: number;
 	pharmacistId: number;
+	senderId: number;
 	message: string;
 	sentAt: string;
 	customer?: {
