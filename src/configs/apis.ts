@@ -11,6 +11,7 @@ export const apiEndpoints = {
 		signOut: '/auth/sign-out',
 	},
 	products: {
+		smartSearch: '/products/smart-search',
 		getMostSold: '/products/best-selling',
 		getAll: '/products',
 		getById: (id: number) => `/products/${id}`,
