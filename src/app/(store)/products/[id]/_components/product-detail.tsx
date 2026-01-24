@@ -92,8 +92,17 @@ function ProductDetail({
 	const mostSoldProducts = mostSoldResponse?.data || [];
 
 	// Fetch online pharmacists for consultation sidebar
-	const { data: onlinePharmacists, isPending: isPharmacistsPending } =
-		useOnlinePharmacists();
+	const { data: onlinePharmacists } = useOnlinePharmacists();
+
+	// Use first online pharmacist or default to Cao Thị Hương
+	const displayPharmacist = onlinePharmacists?.[0] || {
+		id: 13,
+		fullName: 'Cao Thị Hương',
+		phone: '0918893886',
+		isOnline: true,
+		avatarUrl: null,
+		licenseNumber: null,
+	};
 
 	if (isProductPending) return <Loading />;
 
@@ -766,136 +775,162 @@ function ProductDetail({
 							{/* Pharmacist Consultation Card */}
 							<div className='rounded-xl border border-neutral-200 bg-white p-6 shadow-sm'>
 								<div className='mb-4 flex items-center gap-3'>
-									<div className='flex h-12 w-12 items-center justify-center rounded-full bg-green-100'>
+									<div className='relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-full bg-neutral-100'>
+										{displayPharmacist.avatarUrl ? (
+											<Image
+												src={displayPharmacist.avatarUrl}
+												alt={displayPharmacist.fullName}
+												width={64}
+												height={64}
+												className='h-16 w-16 rounded-full object-cover'
+											/>
+										) : (
+											<div className='flex h-16 w-16 items-center justify-center rounded-full bg-green-100'>
+												<svg
+													className='h-8 w-8 text-green-600'
+													fill='none'
+													viewBox='0 0 24 24'
+													stroke='currentColor'
+												>
+													<path
+														strokeLinecap='round'
+														strokeLinejoin='round'
+														strokeWidth={2}
+														d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
+													/>
+												</svg>
+											</div>
+										)}
+									</div>
+									<div className='flex-1'>
+										<h3 className='mb-1 text-sm text-neutral-600'>
+											Tư vấn chuyên môn
+										</h3>
+										<p className='text-base font-bold text-neutral-900'>
+											Dược sĩ: {displayPharmacist.fullName}
+										</p>
+									</div>
+								</div>
+
+								{/* Phone Number Section */}
+								<div className='mb-4 rounded-lg bg-neutral-50 p-3'>
+									<div className='flex items-center gap-2'>
+										<div className='flex h-10 w-10 items-center justify-center rounded-full bg-green-600'>
+											<svg
+												className='h-5 w-5 text-white'
+												fill='currentColor'
+												viewBox='0 0 20 20'
+											>
+												<path d='M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z' />
+											</svg>
+										</div>
+										<div className='flex-1'>
+											<a
+												href={`tel:${displayPharmacist.phone || '0918893886'}`}
+												className='text-lg font-bold text-green-600 hover:underline'
+											>
+												{displayPharmacist.phone || '0918893886'}
+											</a>
+											<p className='text-xs text-neutral-500'>
+												{displayPharmacist.isOnline ? 'Đang Online' : 'Offline'}
+											</p>
+										</div>
+									</div>
+								</div>
+
+								{/* Trust Badges - Always visible */}
+								<div className='mb-4 space-y-2 text-sm text-neutral-600'>
+									<div className='flex items-start gap-2'>
 										<svg
-											className='h-6 w-6 text-green-600'
+											className='mt-0.5 h-4 w-4 flex-shrink-0 text-green-600'
 											fill='none'
-											viewBox='0 0 24 24'
 											stroke='currentColor'
+											viewBox='0 0 24 24'
 										>
 											<path
 												strokeLinecap='round'
 												strokeLinejoin='round'
 												strokeWidth={2}
-												d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
+												d='M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5'
 											/>
 										</svg>
+										<span className='text-xs'>Cam kết hàng chính hãng</span>
 									</div>
-									<div>
-										<h3 className='font-semibold text-neutral-900'>
-											Tư vấn chuyên môn
-										</h3>
-										<p className='text-xs text-neutral-500'>
-											{isPharmacistsPending
-												? 'Đang tải...'
-												: onlinePharmacists && onlinePharmacists.length > 0
-													? `${onlinePharmacists.length} dược sĩ đang trực tuyến`
-													: 'Không có dược sĩ trực tuyến'}
-										</p>
+									<div className='flex items-start gap-2'>
+										<svg
+											className='mt-0.5 h-4 w-4 flex-shrink-0 text-green-600'
+											fill='none'
+											stroke='currentColor'
+											viewBox='0 0 24 24'
+										>
+											<path
+												strokeLinecap='round'
+												strokeLinejoin='round'
+												strokeWidth={2}
+												d='M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'
+											/>
+										</svg>
+										<span className='text-xs'>Đổi trả hàng trong 30 ngày</span>
+									</div>
+									<div className='flex items-start gap-2'>
+										<svg
+											className='mt-0.5 h-4 w-4 flex-shrink-0 text-green-600'
+											fill='none'
+											stroke='currentColor'
+											viewBox='0 0 24 24'
+										>
+											<path
+												strokeLinecap='round'
+												strokeLinejoin='round'
+												strokeWidth={2}
+												d='M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'
+											/>
+										</svg>
+										<span className='text-xs'>
+											Xem hàng tại nhà, thanh toán
+										</span>
+									</div>
+									<div className='flex items-start gap-2'>
+										<svg
+											className='mt-0.5 h-4 w-4 flex-shrink-0 text-green-600'
+											fill='none'
+											stroke='currentColor'
+											viewBox='0 0 24 24'
+										>
+											<path
+												strokeLinecap='round'
+												strokeLinejoin='round'
+												strokeWidth={2}
+												d='M13 10V3L4 14h7v7l9-11h-7z'
+											/>
+										</svg>
+										<span className='text-xs'>Hà Nội ship ngay sau 2 giờ</span>
 									</div>
 								</div>
 
-								{isPharmacistsPending ? (
-									<div className='flex items-center justify-center py-8 text-sm text-neutral-500'>
-										Đang tải dược sĩ...
-									</div>
-								) : onlinePharmacists && onlinePharmacists.length > 0 ? (
-									<div className='space-y-3'>
-										{onlinePharmacists.slice(0, 3).map(pharmacist => (
-											<div
-												key={pharmacist.id}
-												className='flex items-center gap-3 rounded-lg border border-neutral-100 p-3 transition-colors hover:bg-neutral-50'
-											>
-												{pharmacist.avatarUrl ? (
-													<Image
-														src={pharmacist.avatarUrl}
-														alt={pharmacist.fullName}
-														className='h-10 w-10 rounded-full object-cover'
-													/>
-												) : (
-													<div className='flex h-10 w-10 items-center justify-center rounded-full bg-green-100'>
-														<svg
-															className='h-5 w-5 text-green-600'
-															fill='none'
-															viewBox='0 0 24 24'
-															stroke='currentColor'
-														>
-															<path
-																strokeLinecap='round'
-																strokeLinejoin='round'
-																strokeWidth={2}
-																d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
-															/>
-														</svg>
-													</div>
-												)}
-												<div className='flex-1 min-w-0'>
-													<p className='font-medium text-sm text-neutral-900 truncate'>
-														{pharmacist.fullName}
-													</p>
-													{pharmacist.licenseNumber && (
-														<p className='text-xs text-neutral-500 truncate'>
-															{pharmacist.licenseNumber}
-														</p>
-													)}
-												</div>
-												<span className='inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700'>
-													Online
-												</span>
-											</div>
-										))}
-										<Button
-											onClick={() => {
-												const firstPharmacist = onlinePharmacists[0];
-												if (firstPharmacist && typeof window !== 'undefined') {
-													const addChatFn = (
-														window as Window & {
-															addChatConversation?: (
-																id: number,
-																name: string,
-															) => void;
-														}
-													).addChatConversation;
-													if (addChatFn) {
-														addChatFn(
-															firstPharmacist.id,
-															firstPharmacist.fullName,
-														);
-													}
+								<Button
+									onClick={() => {
+										if (typeof window !== 'undefined') {
+											const addChatFn = (
+												window as Window & {
+													addChatConversation?: (
+														id: number,
+														name: string,
+													) => void;
 												}
-											}}
-											className='w-full rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-green-700'
-										>
-											Nhắn tin với dược sĩ
-										</Button>
-									</div>
-								) : (
-									<div className='py-6 text-center'>
-										<p className='text-sm text-neutral-500 mb-3'>
-											Nhắn tin với dược sĩ tư vấn
-										</p>
-										<Button
-											onClick={() => {
-												if (typeof window !== 'undefined') {
-													const addChatFn = (
-														window as Window & {
-															addChatConversation?: (
-																id: number,
-																name: string,
-															) => void;
-														}
-													).addChatConversation;
-													if (addChatFn) {
-														addChatFn(3, 'Dược sĩ tư vấn');
-													}
-												}
-											}}
-											className='w-full rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-green-700'
-										>
-											Bắt đầu trò chuyện
-										</Button>
-									</div>
-								)}
+											).addChatConversation;
+											if (addChatFn) {
+												addChatFn(
+													displayPharmacist.id,
+													displayPharmacist.fullName,
+												);
+											}
+										}
+									}}
+									className='w-full rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-green-700'
+								>
+									Nhắn tin với dược sĩ
+								</Button>
 							</div>
 
 							{/* Most Sold Products Widget */}

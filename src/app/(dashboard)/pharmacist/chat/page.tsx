@@ -4,11 +4,13 @@ export const dynamic = 'force-dynamic';
 
 export default async function PharmacistChatPage() {
 	return (
-		<div className='flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:px-6'>
-			<div className='flex items-center'>
+		<div className='absolute inset-0 flex flex-col gap-4 p-4 lg:gap-6 lg:px-6'>
+			<div className='flex items-center flex-shrink-0'>
 				<h1 className='text-lg font-semibold md:text-2xl'>Tin nhắn</h1>
 			</div>
-			<PharmacistChatInterface />
+			<div className='flex-1 min-h-0 overflow-hidden'>
+				<PharmacistChatInterface />
+			</div>
 		</div>
 	);
 }

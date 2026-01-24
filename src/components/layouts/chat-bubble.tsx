@@ -269,6 +269,8 @@ export function ChatBubble() {
 												<Image
 													src={conv.pharmacistAvatar}
 													alt={conv.pharmacistName}
+													width={40}
+													height={40}
 													className='w-10 h-10 rounded-full object-cover'
 												/>
 											) : (
