@@ -107,4 +107,13 @@ export const apiEndpoints = {
 		getHistory: '/chats/history',
 		getPharmacistChats: '/chats/pharmacist',
 	},
+	statistics: {
+		getOverview: '/statistics/overview',
+		getRevenue: '/statistics/revenue',
+		getTopProducts: '/statistics/products',
+		getInventory: '/statistics/inventory',
+		exportRevenue: '/statistics/export/revenue',
+		exportProducts: '/statistics/export/products',
+		exportInventory: '/statistics/export/inventory',
+	},
 };

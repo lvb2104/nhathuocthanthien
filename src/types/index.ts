@@ -12,3 +12,4 @@ export * from './user';
 export * from './notification';
 export * from './paginated-response';
 export * from './chat';
+export * from './statistics';
