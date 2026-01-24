@@ -11,3 +11,4 @@ export * from './batches';
 export * from './prescriptions';
 export * from './notifications';
 export * from './chats';
+export * from './statistics';

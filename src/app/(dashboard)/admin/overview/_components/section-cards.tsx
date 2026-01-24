@@ -1,104 +1,80 @@
-import { IconTrendingDown, IconTrendingUp } from '@tabler/icons-react';
+'use client';
 
-import { Badge } from '@/components/ui/badge';
+import {
+	IconPackage,
+	IconShoppingCart,
+	IconTrendingUp,
+	IconUsers,
+} from '@tabler/icons-react';
+import { useOverviewStatistics } from '@/hooks';
 import {
 	Card,
-	CardAction,
 	CardDescription,
-	CardFooter,
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
 
 export function SectionCards() {
+	const { data, isLoading } = useOverviewStatistics();
+
+	const stats = [
+		{
+			label: 'Tổng đơn hàng',
+			value: data?.data.totalOrders ?? 0,
+			icon: IconShoppingCart,
+			color: 'text-blue-600',
+		},
+		{
+			label: 'Tổng doanh thu',
+			value: new Intl.NumberFormat('vi-VN', {
+				style: 'currency',
+				currency: 'VND',
+			}).format(data?.data.totalRevenue ?? 0),
+			icon: IconTrendingUp,
+			color: 'text-green-600',
+		},
+		{
+			label: 'Tổng khách hàng',
+			value: data?.data.totalUsers ?? 0,
+			icon: IconUsers,
+			color: 'text-purple-600',
+		},
+		{
+			label: 'Tổng sản phẩm',
+			value: data?.data.totalProducts ?? 0,
+			icon: IconPackage,
+			color: 'text-orange-600',
+		},
+	];
+
 	return (
 		<div className='*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4'>
-			<Card className='@container/card'>
-				<CardHeader>
-					<CardDescription>Tổng doanh thu</CardDescription>
-					<CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-						$1,250.00
-					</CardTitle>
-					<CardAction>
-						<Badge variant='outline'>
-							<IconTrendingUp />
-							+12.5%
-						</Badge>
-					</CardAction>
-				</CardHeader>
-				<CardFooter className='flex-col items-start gap-1.5 text-sm'>
-					<div className='line-clamp-1 flex gap-2 font-medium'>
-						Tăng trưởng trong tháng này <IconTrendingUp className='size-4' />
-					</div>
-					<div className='text-muted-foreground'>
-						Khách truy cập trong 6 tháng qua
-					</div>
-				</CardFooter>
-			</Card>
-			<Card className='@container/card'>
-				<CardHeader>
-					<CardDescription>Khách hàng mới</CardDescription>
-					<CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-						1,234
-					</CardTitle>
-					<CardAction>
-						<Badge variant='outline'>
-							<IconTrendingDown />
-							-20%
-						</Badge>
-					</CardAction>
-				</CardHeader>
-				<CardFooter className='flex-col items-start gap-1.5 text-sm'>
-					<div className='line-clamp-1 flex gap-2 font-medium'>
-						Giảm 20% trong giai đoạn này <IconTrendingDown className='size-4' />
-					</div>
-					<div className='text-muted-foreground'>
-						Cần chú ý đến việc thu hút khách hàng
-					</div>
-				</CardFooter>
-			</Card>
-			<Card className='@container/card'>
-				<CardHeader>
-					<CardDescription>Tài khoản hoạt động</CardDescription>
-					<CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-						45,678
-					</CardTitle>
-					<CardAction>
-						<Badge variant='outline'>
-							<IconTrendingUp />
-							+12.5%
-						</Badge>
-					</CardAction>
-				</CardHeader>
-				<CardFooter className='flex-col items-start gap-1.5 text-sm'>
-					<div className='line-clamp-1 flex gap-2 font-medium'>
-						Tỷ lệ giữ chân người dùng tốt <IconTrendingUp className='size-4' />
-					</div>
-					<div className='text-muted-foreground'>
-						Mức độ tương tác vượt mục tiêu
-					</div>
-				</CardFooter>
-			</Card>
-			<Card className='@container/card'>
-				<CardHeader>
-					<CardDescription>Tỷ lệ tăng trưởng</CardDescription>
-					<CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-						4.5%
-					</CardTitle>
-					<CardAction>
-						<Badge variant='outline'>
-							<IconTrendingUp />
-							+4.5%
-						</Badge>
-					</CardAction>
-				</CardHeader>
-				<CardFooter className='flex-col items-start gap-1.5 text-sm'>
-					<div className='line-clamp-1 flex gap-2 font-medium'>
-						Hiệu suất tăng đều đặn <IconTrendingUp className='size-4' />
-					</div>
-					<div className='text-muted-foreground'>Đạt dự báo tăng trưởng</div>
-				</CardFooter>
-			</Card>
+			{stats.map((stat, index) => {
+				const Icon = stat.icon;
+				return (
+					<Card key={index} className='@container/card'>
+						<CardHeader>
+							<div className='flex items-start justify-between'>
+								<div className='flex-1'>
+									<CardDescription className='mb-2'>
+										{stat.label}
+									</CardDescription>
+									<CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
+										{isLoading ? (
+											<div className='bg-muted h-8 w-32 animate-pulse rounded' />
+										) : (
+											stat.value
+										)}
+									</CardTitle>
+								</div>
+								<div className={`rounded-lg bg-muted/50 p-2.5 ${stat.color}`}>
+									<Icon className='size-5' />
+								</div>
+							</div>
+						</CardHeader>
+					</Card>
+				);
+			})}
 		</div>
 	);
 }
