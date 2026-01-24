@@ -1,8 +1,13 @@
 import Loading from '@/app/loading';
 import ContentWrapper from '@/components/layouts/content-wrapper';
 import Hero from '@/components/layouts/hero';
-import ProductsWidget from '@/components/products-widget';
-import { serverGetProducts, serverGetCategories } from '@/services';
+import ProductsWidget from '@/components/widgets/products-widget';
+import MostSoldProductsWidget from '@/components/widgets/most-sold-products-widget';
+import {
+	serverGetProducts,
+	serverGetCategories,
+	serverGetMostSoldProducts,
+} from '@/services';
 import { Suspense } from 'react';
 import Image from 'next/image';
 import { app } from '@/configs/app';
@@ -16,14 +21,11 @@ async function StorePageContent({
 		const params = await searchParams; // Get query after ? in server component instead of using useSearchParams which is for client component
 		const searchQuery = params.search;
 
-		// Fetch products with or without search filter
-		const response = await serverGetProducts(
-			searchQuery ? { keyword: searchQuery } : { limit: 12 },
-		);
-		const products = response.data;
-
 		// If searching, show search results
 		if (searchQuery) {
+			const searchResponse = await serverGetProducts({ keyword: searchQuery });
+			const products = searchResponse.data;
+
 			return (
 				<main className='my-2.5'>
 					<ContentWrapper>
@@ -32,7 +34,7 @@ async function StorePageContent({
 								Kết quả tìm kiếm cho: &quot;{searchQuery}&quot;
 							</h1>
 							<p className='text-gray-600 mb-6'>
-								Tìm thấy {response.pagination.totalItems} sản phẩm
+								Tìm thấy {searchResponse.pagination.totalItems} sản phẩm
 							</p>
 							{products.length > 0 ? (
 								<div className='grid gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6'>
@@ -94,7 +96,9 @@ async function StorePageContent({
 			);
 		}
 
-		// Fetch categories for category-based widgets
+		// Default home page - fetch most sold products and categories
+		const mostSoldResponse = await serverGetMostSoldProducts({ limit: 12 });
+
 		const categoriesResponse = await serverGetCategories({ limit: 4 });
 		const categories = categoriesResponse.data;
 
@@ -110,7 +114,6 @@ async function StorePageContent({
 		// Emoji icons for categories
 		const emojis = ['💊', '🩺', '💉', '🧪'];
 
-		// Default home page view
 		return (
 			<main className='my-2.5'>
 				<ContentWrapper>
@@ -118,8 +121,8 @@ async function StorePageContent({
 					{/* Featured products section */}
 					<section>
 						{/* Most sold products */}
-						<ProductsWidget
-							initialProducts={response}
+						<MostSoldProductsWidget
+							initialProducts={mostSoldResponse}
 							title='🔥 Sản phẩm bán chạy'
 							params={{ limit: 12 }}
 						/>

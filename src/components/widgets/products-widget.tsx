@@ -41,10 +41,6 @@ function ProductsWidget({
 							className='cursor-pointer group flex h-full flex-col rounded-xl border border-neutral-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md'
 						>
 							<div className='relative'>
-								<span className='absolute left-2 top-2 rounded-sm bg-green-500 px-2 py-0.5 text-xs font-semibold text-white z-10'>
-									Yêu thích
-								</span>
-
 								<div className='relative h-44 w-full overflow-hidden rounded-t-xl bg-neutral-100'>
 									<Image
 										src={product.images[0]?.imageUrl || app.DEFAULT_IMAGE_URL}

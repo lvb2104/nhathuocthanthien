@@ -34,7 +34,8 @@ export default withAuth(
 			pathname.startsWith('/user') &&
 			role !== UserRole.CUSTOMER &&
 			role !== UserRole.ADMIN &&
-			role !== UserRole.PHARMACIST
+			role !== UserRole.PHARMACIST &&
+			role !== UserRole.EMPLOYEE
 		) {
 			// Redirect to sign-in with callback URL preserved
 			const signInUrl = new URL(routes.auth.signIn, req.url);

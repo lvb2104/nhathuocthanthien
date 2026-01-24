@@ -10,7 +10,27 @@ import {
 	UpdateProductRequest,
 	UpdateProductResponse,
 	ProductFilterParams,
+	MostSoldProductsFilterParams,
+	GetMostSoldProductsResponse,
 } from '@/types';
+
+export async function serverGetMostSoldProducts(
+	params?: MostSoldProductsFilterParams,
+): Promise<GetMostSoldProductsResponse> {
+	const res = await serverAxios.get(apiEndpoints.products.getMostSold, {
+		params,
+	});
+	return res.data;
+}
+
+export async function getMostSoldProducts(
+	params?: MostSoldProductsFilterParams,
+): Promise<GetMostSoldProductsResponse> {
+	const res = await axiosInstance.get(apiEndpoints.products.getMostSold, {
+		params,
+	});
+	return res.data;
+}
 
 export async function createProduct(
 	request: CreateProductRequest,

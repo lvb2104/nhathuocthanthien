@@ -14,12 +14,44 @@ export const axiosInstance = axios.create({
 // Prevent duplicate logout/toast when multiple requests hit 401 simultaneously
 let isHandlingAuthExpiry = false;
 
+// Cache the token to avoid calling getSession() on every request
+let cachedToken: string | null = null;
+let tokenPromise: Promise<string | null> | null = null;
+
+async function getAccessToken(): Promise<string | null> {
+	// If we're already fetching the token, wait for that promise
+	if (tokenPromise) {
+		return tokenPromise;
+	}
+
+	// If we have a cached token, return it
+	if (cachedToken) {
+		return cachedToken;
+	}
+
+	// Fetch the token (only once if multiple requests happen simultaneously)
+	tokenPromise = getSession()
+		.then(session => {
+			cachedToken = session?.accessToken ?? null;
+			return cachedToken;
+		})
+		.finally(() => {
+			tokenPromise = null;
+		});
+
+	return tokenPromise;
+}
+
+// Export function to clear cached token (useful after logout)
+export function clearCachedToken() {
+	cachedToken = null;
+	tokenPromise = null;
+}
+
 // request interceptor adds access token to the request before sending
 axiosInstance.interceptors.request.use(
-	// still need access token for backend APIs
 	async config => {
-		const session = await getSession();
-		const token = session?.accessToken;
+		const token = await getAccessToken();
 		if (token) {
 			config.headers.Authorization = `Bearer ${token}`;
 		}
@@ -40,6 +72,9 @@ axiosInstance.interceptors.response.use(
 			if (!isAuthEndpoint && originalRequest && !originalRequest._retry) {
 				originalRequest._retry = true;
 
+				// Clear cached token before trying to refresh
+				clearCachedToken();
+
 				try {
 					// This will call your NextAuth session endpoint.
 					// If the JWT is expired, jwt() -> refreshAccessToken() -> serverRefreshToken() will run.
@@ -47,6 +82,8 @@ axiosInstance.interceptors.response.use(
 					const accessToken = session?.accessToken;
 
 					if (accessToken) {
+						// Cache the new token
+						cachedToken = accessToken;
 						originalRequest.headers = originalRequest.headers || {};
 						originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 						return axiosInstance(originalRequest);
@@ -57,6 +94,7 @@ axiosInstance.interceptors.response.use(
 
 				if (!isHandlingAuthExpiry) {
 					isHandlingAuthExpiry = true;
+					clearCachedToken(); // Clear token before logout
 					toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
 					await signOut({ callbackUrl: routes.auth.signIn });
 					isHandlingAuthExpiry = false;

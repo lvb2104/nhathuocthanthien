@@ -14,7 +14,8 @@ export function useChatSocket({
 	userId,
 	receiverId,
 	userRole,
-	socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || '',
+	socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL ||
+		'https://pharmacy-retail.onrender.com',
 }: UseChatSocketOptions) {
 	const socketRef = useRef<Socket | null>(null);
 	const queryClient = useQueryClient();
@@ -25,6 +26,8 @@ export function useChatSocket({
 	useEffect(() => {
 		if (!userId || !socketUrl) return;
 
+		console.log('Connecting to socket URL:', socketUrl);
+
 		socketRef.current = io(socketUrl, {
 			transports: ['websocket'],
 		});
@@ -32,6 +35,7 @@ export function useChatSocket({
 		const socket = socketRef.current;
 
 		socket.on('connect', () => {
+			console.log('Socket connected:', socket.id);
 			setIsConnected(true);
 			// Join user's room
 			socket.emit('join_room', `user_${userId}`);
@@ -73,6 +77,17 @@ export function useChatSocket({
 				message,
 			};
 
+			// Optimistically add the message to local state
+			const optimisticMessage: ChatMessage = {
+				id: Date.now(), // Temporary ID
+				customerId: userRole === ChatUserRole.CUSTOMER ? userId : receiverId,
+				pharmacistId:
+					userRole === ChatUserRole.PHARMACIST ? userId : receiverId,
+				message,
+				sentAt: new Date().toISOString(),
+			};
+
+			setMessages(prev => [...prev, optimisticMessage]);
 			socketRef.current.emit('send_message', payload);
 		},
 		[userId, receiverId, userRole, isConnected],

@@ -3,7 +3,7 @@ import 'yet-another-react-lightbox/plugins/thumbnails.css';
 import { serverGetProductById, serverGetProducts } from '@/services';
 import { GetProductsResponse } from '@/types';
 import ProductDetail from './_components/product-detail';
-import ProductsWidget from '@/components/products-widget';
+import ProductsWidget from '@/components/widgets/products-widget';
 
 async function ProductDetailPage({
 	params,

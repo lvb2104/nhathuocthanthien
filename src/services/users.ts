@@ -12,6 +12,7 @@ import {
 	DeleteShippingAddressResponse,
 	GetAllUsersResponse,
 	GetDeletedUsersResponse,
+	GetOnlinePharmacistsResponse,
 	GetShippingAddressByIdResponse,
 	GetShippingAddressesResponse,
 	GetUserProfileResponse,
@@ -133,6 +134,12 @@ export async function lockUser(id: number): Promise<{ message: string }> {
 // Admin - Restore locked user
 export async function restoreUser(id: number): Promise<{ message: string }> {
 	const res = await axiosInstance.patch(apiEndpoints.users.restore(id));
+	return res.data;
+}
+
+// Get online pharmacists
+export async function getOnlinePharmacists(): Promise<GetOnlinePharmacistsResponse> {
+	const res = await axiosInstance.get(apiEndpoints.users.getOnlinePharmacists);
 	return res.data;
 }
 
