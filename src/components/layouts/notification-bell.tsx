@@ -3,6 +3,7 @@ import {
 	useNotifications,
 	useMarkNotificationRead,
 	useMarkAllNotificationsRead,
+	useNotificationSocket,
 } from '@/hooks';
 import { useSession } from 'next-auth/react';
 import {
@@ -18,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'react-toastify';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { useEffect, useState } from 'react';
 
 export function NotificationBell() {
 	const { data: session } = useSession();
@@ -26,6 +28,27 @@ export function NotificationBell() {
 	const { mutate: markAsRead } = useMarkNotificationRead();
 	const { mutate: markAllAsRead, isPending: isMarkingAllAsRead } =
 		useMarkAllNotificationsRead();
+
+	// Real-time socket notifications
+	const { notifications: socketNotifications } = useNotificationSocket();
+	const [shake, setShake] = useState(false);
+
+	// Show toast when new notification arrives via socket
+	useEffect(() => {
+		if (socketNotifications.length > 0) {
+			const latest = socketNotifications[socketNotifications.length - 1];
+
+			// Show toast notification
+			toast.info(`🔔 ${latest.message}`, {
+				position: 'top-right',
+				autoClose: 5000,
+			});
+
+			// Trigger shake animation
+			setShake(true);
+			setTimeout(() => setShake(false), 500);
+		}
+	}, [socketNotifications]);
 
 	if (!isAuthenticated) {
 		return null;
@@ -41,11 +64,7 @@ export function NotificationBell() {
 	const hasNotifications = (notifications?.length || 0) > 0;
 
 	function handleMarkAllAsRead() {
-		markAllAsRead(undefined, {
-			onSuccess: () => {
-				toast.success('Đã đánh dấu tất cả thông báo là đã đọc');
-			},
-		});
+		markAllAsRead(undefined);
 	}
 
 	function handleNotificationClick(id: number, isRead: boolean) {
@@ -57,7 +76,11 @@ export function NotificationBell() {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<button className='flex items-center cursor-pointer relative p-1 rounded hover:bg-white/10 transition-colors'>
+				<button
+					className={`flex items-center cursor-pointer relative p-1 rounded hover:bg-white/10 transition-colors ${
+						shake ? 'animate-shake' : ''
+					}`}
+				>
 					<Bell className='w-4 h-4 text-white' />
 					{unreadCount > 0 && (
 						<span className='absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1'>
@@ -118,10 +141,13 @@ export function NotificationBell() {
 									)}
 								</div>
 								<span className='text-xs text-muted-foreground'>
-									{formatDistanceToNow(new Date(notification.sentAt), {
-										addSuffix: true,
-										locale: vi,
-									})}
+									{notification.sentAt &&
+									!isNaN(new Date(notification.sentAt).getTime())
+										? formatDistanceToNow(new Date(notification.sentAt), {
+												addSuffix: true,
+												locale: vi,
+											})
+										: 'Vừa xong'}
 								</span>
 							</DropdownMenuItem>
 						))}

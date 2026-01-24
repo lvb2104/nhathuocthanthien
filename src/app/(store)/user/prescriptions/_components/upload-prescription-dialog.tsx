@@ -100,7 +100,7 @@ export default function UploadPrescriptionDialog({
 	return (
 		<Dialog open={open} onOpenChange={handleOpenChange}>
 			<DialogTrigger asChild>{children}</DialogTrigger>
-			<DialogContent className='sm:max-w-md'>
+			<DialogContent className='sm:max-w-lg'>
 				<DialogHeader>
 					<DialogTitle className='flex items-center gap-2'>
 						<FileImage className='text-green-600' size={20} />
@@ -108,7 +108,7 @@ export default function UploadPrescriptionDialog({
 					</DialogTitle>
 				</DialogHeader>
 
-				<div className='space-y-4'>
+				<div className='max-h-[70vh] overflow-y-auto space-y-4'>
 					{/* Upload Area */}
 					{!selectedFile ? (
 						<div
@@ -124,24 +124,39 @@ export default function UploadPrescriptionDialog({
 							</p>
 						</div>
 					) : (
-						<div className='relative'>
-							<div className='relative aspect-[4/3] w-full rounded-lg overflow-hidden bg-gray-100'>
+						<div className='space-y-3'>
+							{/* Image Preview */}
+							<div className='relative aspect-[3/2] w-full rounded-lg overflow-hidden bg-gray-100 border border-gray-200'>
 								<Image
 									src={previewUrl!}
 									alt='Prescription preview'
 									fill
 									className='object-contain'
 								/>
+								<button
+									onClick={handleClearFile}
+									className='absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all shadow-lg z-10'
+									aria-label='Xóa ảnh'
+								>
+									<X size={16} />
+								</button>
 							</div>
-							<button
-								onClick={handleClearFile}
-								className='absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors'
-							>
-								<X size={16} />
-							</button>
-							<p className='mt-2 text-sm text-gray-600 truncate'>
-								{selectedFile.name}
-							</p>
+
+							{/* File Info */}
+							<div className='flex items-center justify-between px-3 py-2 bg-gray-50 rounded-lg border border-gray-200'>
+								<div className='flex items-center gap-2'>
+									<FileImage
+										className='text-green-600 flex-shrink-0'
+										size={18}
+									/>
+									<span className='text-sm text-gray-700 font-medium'>
+										Ảnh đơn thuốc
+									</span>
+								</div>
+								<span className='text-xs text-gray-500 flex-shrink-0'>
+									{(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+								</span>
+							</div>
 						</div>
 					)}
 

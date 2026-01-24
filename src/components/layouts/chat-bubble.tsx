@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 import { MessageCircle, X, Send, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useChatHistory, useChatSocket, useOnlinePharmacists } from '@/hooks';
+import { useChatHistory, useChatMessages, useOnlinePharmacists } from '@/hooks';
 import { ChatMessage, ChatUserRole } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -82,14 +82,13 @@ export function ChatBubble() {
 		undefined,
 	);
 
-	// Socket connection
+	// Socket connection using new hook
 	const {
 		isConnected,
 		messages: socketMessages,
 		sendMessage,
 		clearMessages,
-	} = useChatSocket({
-		userId: userId || 0,
+	} = useChatMessages({
 		receiverId: activeConversation?.pharmacistId || 0,
 		userRole: ChatUserRole.CUSTOMER,
 	});
