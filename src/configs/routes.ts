@@ -47,7 +47,7 @@ export const routes = {
 		},
 	},
 	pharmacist: {
-		overview: '/pharmacist/overview',
+		overview: '/pharmacist',
 	},
 	employee: {
 		main: '/employee',

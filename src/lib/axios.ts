@@ -1,18 +1,13 @@
 'use client';
 import { app } from '@/configs/app';
-import { routes } from '@/configs/routes';
 import axios from 'axios';
-import { getSession, signOut } from 'next-auth/react';
-import { toast } from 'react-toastify';
+import { getSession } from 'next-auth/react';
 
 export const axiosInstance = axios.create({
 	baseURL: process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000/api',
 	timeout: app.AXIOS_TIMEOUT,
 	withCredentials: true,
 });
-
-// Prevent duplicate logout/toast when multiple requests hit 401 simultaneously
-let isHandlingAuthExpiry = false;
 
 // Cache the token to avoid calling getSession() on every request
 let cachedToken: string | null = null;
@@ -32,8 +27,18 @@ async function getAccessToken(): Promise<string | null> {
 	// Fetch the token (only once if multiple requests happen simultaneously)
 	tokenPromise = getSession()
 		.then(session => {
+			// Check if session has error (e.g., RefreshAccessTokenError)
+			if (session?.error) {
+				throw new Error(session.error as string);
+			}
+
 			cachedToken = session?.accessToken ?? null;
 			return cachedToken;
+		})
+		.catch(() => {
+			// Clear cache on error
+			cachedToken = null;
+			return null;
 		})
 		.finally(() => {
 			tokenPromise = null;
@@ -81,6 +86,11 @@ axiosInstance.interceptors.response.use(
 					const session = await getSession();
 					const accessToken = session?.accessToken;
 
+					// If session has error, don't retry - let SessionErrorHandler handle it
+					if (session?.error) {
+						return Promise.reject(error);
+					}
+
 					if (accessToken) {
 						// Cache the new token
 						cachedToken = accessToken;
@@ -89,15 +99,8 @@ axiosInstance.interceptors.response.use(
 						return axiosInstance(originalRequest);
 					}
 				} catch {
-					// fall through to signOut
-				}
-
-				if (!isHandlingAuthExpiry) {
-					isHandlingAuthExpiry = true;
-					clearCachedToken(); // Clear token before logout
-					toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
-					await signOut({ callbackUrl: routes.auth.signIn });
-					isHandlingAuthExpiry = false;
+					// Let SessionErrorHandler handle logout
+					return Promise.reject(error);
 				}
 			}
 		}
