@@ -11,6 +11,7 @@ export const apiEndpoints = {
 		signOut: '/auth/sign-out',
 	},
 	products: {
+		getMostSold: '/products/best-selling',
 		getAll: '/products',
 		getById: (id: number) => `/products/${id}`,
 		create: '/products',
@@ -42,6 +43,7 @@ export const apiEndpoints = {
 		updateProfile: '/users/me',
 		changePassword: '/users/change-password',
 		assignAccount: '/users/assign-account',
+		getOnlinePharmacists: '/users/pharmacists/online',
 		// Admin operations
 		getAll: '/users',
 		getLocked: '/users/locked',

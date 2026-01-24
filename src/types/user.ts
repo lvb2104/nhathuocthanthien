@@ -114,6 +114,18 @@ export type UserFilterParams = {
 export type GetDeletedUsersResponse = PaginatedResponse<UserInfo>;
 
 // ============================================================================
+// GET ONLINE PHARMACISTS
+// ============================================================================
+export type GetOnlinePharmacistsResponse = OnlinePharmacist[];
+
+export type OnlinePharmacist = {
+	id: number;
+	fullName: string;
+	avatarUrl: string | null;
+	licenseNumber: string | null;
+};
+
+// ============================================================================
 // MODELS
 // ============================================================================
 export type UserInfo = {

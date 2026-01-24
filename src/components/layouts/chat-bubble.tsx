@@ -5,17 +5,19 @@ import { useSession } from 'next-auth/react';
 import { MessageCircle, X, Send, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useChatHistory, useChatSocket } from '@/hooks';
+import { useChatHistory, useChatSocket, useOnlinePharmacists } from '@/hooks';
 import { ChatMessage, ChatUserRole } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
-
-// Default pharmacist ID - can be configured
-const DEFAULT_PHARMACIST_ID = 9;
+import Image from 'next/image';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
+import { routes } from '@/configs/routes';
 
 type Conversation = {
 	pharmacistId: number;
 	pharmacistName: string;
+	pharmacistAvatar?: string | null;
 	lastMessage?: string;
 	lastMessageTime?: string;
 	unreadCount?: number;
@@ -23,21 +25,56 @@ type Conversation = {
 
 export function ChatBubble() {
 	const { data: session } = useSession();
+	const router = useRouter();
 	const [isOpen, setIsOpen] = useState(false);
 	const [activeConversation, setActiveConversation] =
 		useState<Conversation | null>(null);
-	const [conversations, setConversations] = useState<Conversation[]>([
-		{
-			pharmacistId: DEFAULT_PHARMACIST_ID,
-			pharmacistName: 'Dược sĩ tư vấn',
-		},
-	]);
+	const [conversations, setConversations] = useState<Conversation[]>([]);
+
+	// Fetch online pharmacists
+	const { data: onlinePharmacists, isLoading: _isLoadingPharmacists } =
+		useOnlinePharmacists();
+
+	// Sync online pharmacists to conversations when they change
+	useEffect(() => {
+		if (onlinePharmacists && onlinePharmacists.length > 0) {
+			setConversations(prev => {
+				// Keep existing conversations that are still online, add new ones
+				const existingIds = new Set(prev.map(c => c.pharmacistId));
+				const onlineIds = new Set(onlinePharmacists.map(p => p.id));
+
+				// Filter existing to only keep those still online
+				const stillOnline = prev.filter(c => onlineIds.has(c.pharmacistId));
+
+				// Add new online pharmacists
+				const newPharmacists = onlinePharmacists
+					.filter(p => !existingIds.has(p.id))
+					.map(p => ({
+						pharmacistId: p.id,
+						pharmacistName: p.fullName,
+						pharmacistAvatar: p.avatarUrl,
+					}));
+
+				return [...stillOnline, ...newPharmacists];
+			});
+		} else if (onlinePharmacists && onlinePharmacists.length === 0) {
+			// Fallback to default pharmacist ID 3 when no online pharmacists found
+			setConversations([
+				{
+					pharmacistId: 3,
+					pharmacistName: 'Dược sĩ tư vấn',
+				},
+			]);
+		}
+	}, [onlinePharmacists]);
 	const [inputValue, setInputValue] = useState('');
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 
-	// Only show for authenticated customers
-	const isCustomer = session?.user?.role === 'customer';
-	const userId = session?.user?.id;
+	// Check authentication status
+	const user = session?.user;
+	const isCustomer = user?.role === 'customer';
+	const userId = user?.id;
+	const isAuthenticated = !!user;
 
 	// Chat history for active conversation
 	const { data: chatHistory, isLoading: isLoadingHistory } = useChatHistory(
@@ -89,15 +126,40 @@ export function ChatBubble() {
 		[handleSendMessage],
 	);
 
+	// Handler for opening chat - requires authentication
+	const handleOpenChat = useCallback(() => {
+		if (!isAuthenticated) {
+			toast.info('Vui lòng đăng nhập để sử dụng tính năng chat.');
+			router.push(
+				`${routes.auth.signIn}?callbackUrl=${encodeURIComponent(routes.home)}`,
+			);
+			return;
+		}
+
+		if (!isCustomer) {
+			toast.info('Chỉ tài khoản khách hàng mới có thể sử dụng tính năng chat.');
+			return;
+		}
+
+		setIsOpen(!isOpen);
+		if (!isOpen && conversations.length === 1) {
+			setActiveConversation(conversations[0]);
+		}
+	}, [isAuthenticated, isCustomer, isOpen, conversations, router]);
+
 	// Add pharmacist to conversations (called from product detail page)
 	const addConversation = useCallback(
 		(pharmacistId: number, pharmacistName: string) => {
+			const newConv = { pharmacistId, pharmacistName };
 			setConversations(prev => {
 				if (prev.some(c => c.pharmacistId === pharmacistId)) {
 					return prev;
 				}
-				return [...prev, { pharmacistId, pharmacistName }];
+				return [...prev, newConv];
 			});
+			// Open chat bubble and set this as active conversation
+			setIsOpen(true);
+			setActiveConversation(newConv);
 		},
 		[],
 	);
@@ -118,20 +180,13 @@ export function ChatBubble() {
 		};
 	}, [addConversation]);
 
-	if (!isCustomer || !userId) {
-		return null;
-	}
+	// Show chat bubble for all users, but only customers can actually use it
 
 	return (
 		<>
 			{/* Floating Chat Bubble Button */}
 			<button
-				onClick={() => {
-					setIsOpen(!isOpen);
-					if (!isOpen && conversations.length === 1) {
-						setActiveConversation(conversations[0]);
-					}
-				}}
+				onClick={handleOpenChat}
 				className={cn(
 					'fixed right-4 bottom-16 z-50 flex items-center justify-center',
 					'w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg',
@@ -205,18 +260,24 @@ export function ChatBubble() {
 											onClick={() => setActiveConversation(conv)}
 											className='w-full p-4 flex items-center gap-3 hover:bg-accent transition-colors text-left cursor-pointer'
 										>
-											<div className='w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center'>
-												<MessageCircle className='w-5 h-5 text-primary' />
-											</div>
+											{conv.pharmacistAvatar ? (
+												<Image
+													src={conv.pharmacistAvatar}
+													alt={conv.pharmacistName}
+													className='w-10 h-10 rounded-full object-cover'
+												/>
+											) : (
+												<div className='w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center'>
+													<MessageCircle className='w-5 h-5 text-primary' />
+												</div>
+											)}
 											<div className='flex-1 min-w-0'>
-												<p className='font-medium truncate'>
+												<p className='font-medium text-sm truncate'>
 													{conv.pharmacistName}
 												</p>
-												{conv.lastMessage && (
-													<p className='text-sm text-muted-foreground truncate'>
-														{conv.lastMessage}
-													</p>
-												)}
+												<p className='text-xs text-muted-foreground truncate'>
+													{conv.lastMessage || 'Dược sĩ tư vấn'}
+												</p>
 											</div>
 											{conv.unreadCount && conv.unreadCount > 0 && (
 												<span className='bg-primary text-primary-foreground text-xs rounded-full px-2 py-0.5'>
@@ -245,6 +306,7 @@ export function ChatBubble() {
 									<>
 										{allMessages.map(msg => {
 											const isOwn = msg.customerId === userId;
+
 											return (
 												<div
 													key={msg.id}
@@ -272,10 +334,12 @@ export function ChatBubble() {
 																	: 'text-muted-foreground',
 															)}
 														>
-															{formatDistanceToNow(new Date(msg.sentAt), {
-																addSuffix: true,
-																locale: vi,
-															})}
+															{msg.sentAt
+																? formatDistanceToNow(new Date(msg.sentAt), {
+																		addSuffix: true,
+																		locale: vi,
+																	})
+																: ''}
 														</p>
 													</div>
 												</div>

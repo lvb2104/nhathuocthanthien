@@ -7,7 +7,12 @@ import { Product } from '@/types';
 import { Button } from '../../../../../components/ui/button';
 import Lightbox from 'yet-another-react-lightbox';
 import { Zoom, Thumbnails } from 'yet-another-react-lightbox/plugins';
-import { useProduct, useProducts, useUnifiedCart } from '@/hooks';
+import {
+	useProduct,
+	useMostSoldProducts,
+	useUnifiedCart,
+	useOnlinePharmacists,
+} from '@/hooks';
 import { toast } from 'react-toastify';
 import Loading from '@/app/loading';
 import { app } from '@/configs/app';
@@ -80,10 +85,15 @@ function ProductDetail({
 	}, []);
 
 	// Fetch most-sold products for sidebar widget
-	const { data: mostSoldResponse, isPending: isMostSoldPending } = useProducts({
-		limit: 3,
-	});
+	const { data: mostSoldResponse, isPending: isMostSoldPending } =
+		useMostSoldProducts({
+			limit: 3,
+		});
 	const mostSoldProducts = mostSoldResponse?.data || [];
+
+	// Fetch online pharmacists for consultation sidebar
+	const { data: onlinePharmacists, isPending: isPharmacistsPending } =
+		useOnlinePharmacists();
 
 	if (isProductPending) return <Loading />;
 
@@ -776,98 +786,116 @@ function ProductDetail({
 											Tư vấn chuyên môn
 										</h3>
 										<p className='text-xs text-neutral-500'>
-											Dược sĩ: Cao Thị Hương
+											{isPharmacistsPending
+												? 'Đang tải...'
+												: onlinePharmacists && onlinePharmacists.length > 0
+													? `${onlinePharmacists.length} dược sĩ đang trực tuyến`
+													: 'Không có dược sĩ trực tuyến'}
 										</p>
 									</div>
 								</div>
 
-								<div className='mb-4 flex items-center gap-2 text-sm'>
-									<span className='inline-flex items-center rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700'>
-										Đang Online
-									</span>
-								</div>
-
-								<div className='mb-4 space-y-2 text-sm text-neutral-600'>
-									<div className='flex items-center gap-2'>
-										<svg
-											className='h-4 w-4 text-green-600'
-											fill='currentColor'
-											viewBox='0 0 20 20'
-										>
-											<path d='M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z' />
-										</svg>
-										<span className='font-semibold text-green-600'>
-											0918893886
-										</span>
+								{isPharmacistsPending ? (
+									<div className='flex items-center justify-center py-8 text-sm text-neutral-500'>
+										Đang tải dược sĩ...
 									</div>
-									<div className='flex items-start gap-2'>
-										<svg
-											className='mt-0.5 h-4 w-4 flex-shrink-0 text-neutral-400'
-											fill='currentColor'
-											viewBox='0 0 20 20'
+								) : onlinePharmacists && onlinePharmacists.length > 0 ? (
+									<div className='space-y-3'>
+										{onlinePharmacists.slice(0, 3).map(pharmacist => (
+											<div
+												key={pharmacist.id}
+												className='flex items-center gap-3 rounded-lg border border-neutral-100 p-3 transition-colors hover:bg-neutral-50'
+											>
+												{pharmacist.avatarUrl ? (
+													<Image
+														src={pharmacist.avatarUrl}
+														alt={pharmacist.fullName}
+														className='h-10 w-10 rounded-full object-cover'
+													/>
+												) : (
+													<div className='flex h-10 w-10 items-center justify-center rounded-full bg-green-100'>
+														<svg
+															className='h-5 w-5 text-green-600'
+															fill='none'
+															viewBox='0 0 24 24'
+															stroke='currentColor'
+														>
+															<path
+																strokeLinecap='round'
+																strokeLinejoin='round'
+																strokeWidth={2}
+																d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
+															/>
+														</svg>
+													</div>
+												)}
+												<div className='flex-1 min-w-0'>
+													<p className='font-medium text-sm text-neutral-900 truncate'>
+														{pharmacist.fullName}
+													</p>
+													{pharmacist.licenseNumber && (
+														<p className='text-xs text-neutral-500 truncate'>
+															{pharmacist.licenseNumber}
+														</p>
+													)}
+												</div>
+												<span className='inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700'>
+													Online
+												</span>
+											</div>
+										))}
+										<Button
+											onClick={() => {
+												const firstPharmacist = onlinePharmacists[0];
+												if (firstPharmacist && typeof window !== 'undefined') {
+													const addChatFn = (
+														window as Window & {
+															addChatConversation?: (
+																id: number,
+																name: string,
+															) => void;
+														}
+													).addChatConversation;
+													if (addChatFn) {
+														addChatFn(
+															firstPharmacist.id,
+															firstPharmacist.fullName,
+														);
+													}
+												}
+											}}
+											className='w-full rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-green-700'
 										>
-											<path
-												fillRule='evenodd'
-												d='M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z'
-												clipRule='evenodd'
-											/>
-										</svg>
-										<span className='text-xs'>Cam kết hàng chính hãng</span>
+											Nhắn tin với dược sĩ
+										</Button>
 									</div>
-									<div className='flex items-start gap-2'>
-										<svg
-											className='mt-0.5 h-4 w-4 flex-shrink-0 text-neutral-400'
-											fill='currentColor'
-											viewBox='0 0 20 20'
+								) : (
+									<div className='py-6 text-center'>
+										<p className='text-sm text-neutral-500 mb-3'>
+											Nhắn tin với dược sĩ tư vấn
+										</p>
+										<Button
+											onClick={() => {
+												if (typeof window !== 'undefined') {
+													const addChatFn = (
+														window as Window & {
+															addChatConversation?: (
+																id: number,
+																name: string,
+															) => void;
+														}
+													).addChatConversation;
+													if (addChatFn) {
+														addChatFn(3, 'Dược sĩ tư vấn');
+													}
+												}
+											}}
+											className='w-full rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-green-700'
 										>
-											<path
-												fillRule='evenodd'
-												d='M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z'
-												clipRule='evenodd'
-											/>
-										</svg>
-										<span className='text-xs'>Đổi trả trong 30 ngày</span>
+											Bắt đầu trò chuyện
+										</Button>
 									</div>
-									<div className='flex items-start gap-2'>
-										<svg
-											className='mt-0.5 h-4 w-4 flex-shrink-0 text-neutral-400'
-											fill='currentColor'
-											viewBox='0 0 20 20'
-										>
-											<path
-												fillRule='evenodd'
-												d='M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z'
-												clipRule='evenodd'
-											/>
-										</svg>
-										<span className='text-xs'>
-											Xem hàng tại nhà, thanh toán
-										</span>
-									</div>
-									<div className='flex items-start gap-2'>
-										<svg
-											className='mt-0.5 h-4 w-4 flex-shrink-0 text-neutral-400'
-											fill='currentColor'
-											viewBox='0 0 20 20'
-										>
-											<path
-												fillRule='evenodd'
-												d='M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z'
-												clipRule='evenodd'
-											/>
-										</svg>
-										<span className='text-xs'>TP.HCM ship ngay sau 2 giờ</span>
-									</div>
-								</div>
-
-								<div className='flex gap-2'>
-									<Button className='flex-1 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-green-700'>
-										Nhắn tin
-									</Button>
-									<Button className='rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-700 shadow-sm transition-all hover:bg-neutral-50'>
-										Hồ sơ
-									</Button>
-								</div>
+								)}
 							</div>
 
 							{/* Most Sold Products Widget */}

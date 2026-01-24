@@ -1,6 +1,18 @@
 import { PaginatedResponse } from '.';
 
 // ============================================================================
+// GET MOST SOLD PRODUCTS
+// ============================================================================
+export type GetMostSoldProductsResponse = PaginatedResponse<
+	ProductWithoutDetail & { totalSold: number }
+>;
+
+export type MostSoldProductsFilterParams = {
+	page?: number;
+	limit?: number;
+};
+
+// ============================================================================
 // GET PRODUCTS
 // ============================================================================
 export type GetProductsResponse = PaginatedResponse<ProductWithoutDetail>;
