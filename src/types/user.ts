@@ -123,6 +123,8 @@ export type OnlinePharmacist = {
 	fullName: string;
 	avatarUrl: string | null;
 	licenseNumber: string | null;
+	phone: string;
+	isOnline: boolean;
 };
 
 // ============================================================================

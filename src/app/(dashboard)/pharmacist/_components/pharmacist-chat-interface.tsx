@@ -120,7 +120,7 @@ export function PharmacistChatInterface() {
 	);
 
 	return (
-		<div className='flex flex-1 rounded-lg border shadow-sm overflow-hidden'>
+		<div className='flex h-full rounded-lg border shadow-sm overflow-hidden'>
 			{/* Left Panel: Conversation List */}
 			<div className='w-80 border-r flex flex-col bg-muted/30'>
 				<div className='p-4 border-b bg-background'>
