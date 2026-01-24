@@ -7,6 +7,7 @@ import {
 	serverGetProducts,
 	serverGetCategories,
 	serverGetMostSoldProducts,
+	serverSmartSearch,
 } from '@/services';
 import { Suspense } from 'react';
 import Image from 'next/image';
@@ -23,7 +24,7 @@ async function StorePageContent({
 
 		// If searching, show search results
 		if (searchQuery) {
-			const searchResponse = await serverGetProducts({ keyword: searchQuery });
+			const searchResponse = await serverSmartSearch({ query: searchQuery });
 			const products = searchResponse.data;
 
 			return (
@@ -34,7 +35,7 @@ async function StorePageContent({
 								Kết quả tìm kiếm cho: &quot;{searchQuery}&quot;
 							</h1>
 							<p className='text-gray-600 mb-6'>
-								Tìm thấy {searchResponse.pagination.totalItems} sản phẩm
+								Tìm thấy {searchResponse.totalMatches} sản phẩm
 							</p>
 							{products.length > 0 ? (
 								<div className='grid gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6'>

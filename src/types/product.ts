@@ -1,6 +1,18 @@
 import { PaginatedResponse } from '.';
 
 // ============================================================================
+// SMART SEARCH
+// ============================================================================
+export type SmartSearchResponse = PaginatedResponse<ProductWithoutDetail> & {
+	totalMatches: number;
+};
+
+export type SmartSearchParams = {
+	query: string;
+	limit?: number;
+};
+
+// ============================================================================
 // GET MOST SOLD PRODUCTS
 // ============================================================================
 export type GetMostSoldProductsResponse = PaginatedResponse<

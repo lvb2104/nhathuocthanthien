@@ -12,7 +12,27 @@ import {
 	ProductFilterParams,
 	MostSoldProductsFilterParams,
 	GetMostSoldProductsResponse,
+	SmartSearchParams,
+	SmartSearchResponse,
 } from '@/types';
+
+export async function serverSmartSearch(
+	params?: SmartSearchParams,
+): Promise<SmartSearchResponse> {
+	const res = await serverAxios.get(apiEndpoints.products.smartSearch, {
+		params,
+	});
+	return res.data;
+}
+
+export async function smartSearch(
+	params?: SmartSearchParams,
+): Promise<SmartSearchResponse> {
+	const res = await axiosInstance.get(apiEndpoints.products.smartSearch, {
+		params,
+	});
+	return res.data;
+}
 
 export async function serverGetMostSoldProducts(
 	params?: MostSoldProductsFilterParams,
