@@ -4,7 +4,7 @@ import Hero from '@/components/layouts/hero';
 import ProductsWidget from '@/components/widgets/products-widget';
 import MostSoldProductsWidget from '@/components/widgets/most-sold-products-widget';
 import {
-	serverGetProducts,
+	serverGetCustomerProducts,
 	serverGetCategories,
 	serverGetMostSoldProducts,
 	serverSmartSearch,
@@ -105,7 +105,7 @@ async function StorePageContent({
 
 		// Fetch products for each category
 		const categoryProductsPromises = categories.map(category =>
-			serverGetProducts({
+			serverGetCustomerProducts({
 				categoryId: category.id,
 				limit: 6,
 			}),

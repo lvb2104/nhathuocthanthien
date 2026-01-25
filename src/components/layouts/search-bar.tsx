@@ -1,6 +1,6 @@
 'use client';
 import { useDebounce } from '@/hooks';
-import { useProducts } from '@/hooks';
+import { useCustomerProducts } from '@/hooks';
 import { Search, X } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -18,7 +18,7 @@ function SearchBar() {
 	const inputRef = useRef<HTMLInputElement>(null);
 
 	// Fetch products based on debounced search term
-	const { data: response, isFetching } = useProducts(
+	const { data: response, isFetching } = useCustomerProducts(
 		debouncedSearchTerm.trim()
 			? { keyword: debouncedSearchTerm, limit: 10 }
 			: undefined,

@@ -32,6 +32,7 @@ export function ChatBubble() {
 	const [conversations, setConversations] = useState<Conversation[]>([]);
 
 	// Fetch online pharmacists
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { data: onlinePharmacists, isLoading: _isLoadingPharmacists } =
 		useOnlinePharmacists();
 

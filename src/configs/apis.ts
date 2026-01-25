@@ -14,6 +14,7 @@ export const apiEndpoints = {
 		smartSearch: '/products/smart-search',
 		getMostSold: '/products/best-selling',
 		getAll: '/products',
+		getCustomer: '/products/customer',
 		getById: (id: number) => `/products/${id}`,
 		create: '/products',
 		update: (id: number) => `/products/${id}`, // TODO: update partial

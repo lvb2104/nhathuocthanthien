@@ -1,6 +1,6 @@
 import 'yet-another-react-lightbox/styles.css';
 import 'yet-another-react-lightbox/plugins/thumbnails.css';
-import { serverGetProductById, serverGetProducts } from '@/services';
+import { serverGetProductById, serverGetCustomerProducts } from '@/services';
 import { GetProductsResponse } from '@/types';
 import ProductDetail from './_components/product-detail';
 import ProductsWidget from '@/components/widgets/products-widget';
@@ -21,7 +21,7 @@ async function ProductDetailPage({
 		};
 		if (product?.category?.id) {
 			try {
-				similarProducts = await serverGetProducts({
+				similarProducts = await serverGetCustomerProducts({
 					categoryId: product.category.id,
 					limit: 6,
 				});

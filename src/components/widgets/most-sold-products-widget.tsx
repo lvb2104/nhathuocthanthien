@@ -32,6 +32,11 @@ function MostSoldProductsWidget({
 		}
 	}, [isError]);
 
+	// Don't show the widget at all if there are no products
+	if (!products || products.length === 0) {
+		return null;
+	}
+
 	return (
 		<div className='w-full bg-neutral-50 py-6'>
 			<div className='mx-auto max-w-6xl px-4 lg:px-0'>
