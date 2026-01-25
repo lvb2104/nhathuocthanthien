@@ -84,6 +84,18 @@ import { format, isPast } from 'date-fns';
 import CreateBatchForm from './create-batch-form';
 import EditBatchForm from './edit-batch-form';
 
+// Helper function to get Vietnamese status label
+function getBatchStatusLabel(status: string | undefined): string {
+	switch (status) {
+		case 'active':
+			return 'Đang hoạt động';
+		case 'disposed':
+			return 'Đã hủy';
+		default:
+			return 'Đang hoạt động';
+	}
+}
+
 // Main DataTable component
 export function BatchesTable({
 	initialBatches,
@@ -295,7 +307,7 @@ export function BatchesTable({
 						variant={status === 'disposed' ? 'destructive' : 'secondary'}
 						className='w-fit'
 					>
-						{status || 'active'}
+						{getBatchStatusLabel(status)}
 					</Badge>
 				);
 			},

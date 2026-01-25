@@ -223,6 +223,56 @@ export function OrdersTable({
 		}).format(Number(amount));
 	};
 
+	// Get status label in Vietnamese
+	const getStatusLabel = (status: OrderStatus) => {
+		switch (status) {
+			case OrderStatus.PENDING:
+				return 'Chờ xử lý';
+			case OrderStatus.CONFIRMED:
+				return 'Đã xác nhận';
+			case OrderStatus.SHIPPED:
+				return 'Đang giao';
+			case OrderStatus.DELIVERED:
+				return 'Đã giao';
+			case OrderStatus.CANCELLED:
+				return 'Đã hủy';
+			default:
+				return status;
+		}
+	};
+
+	// Get payment status label in Vietnamese
+	const getPaymentStatusLabel = (status: PaymentStatus) => {
+		switch (status) {
+			case PaymentStatus.PENDING:
+				return 'Chờ thanh toán';
+			case PaymentStatus.PAID:
+				return 'Đã thanh toán';
+			case PaymentStatus.FAILED:
+				return 'Thất bại';
+			case PaymentStatus.REFUNDED:
+				return 'Đã hoàn tiền';
+			default:
+				return status;
+		}
+	};
+
+	// Get delivery status label in Vietnamese
+	const getDeliveryStatusLabel = (status: DeliveryStatus) => {
+		switch (status) {
+			case DeliveryStatus.ASSIGNED:
+				return 'Đã gán';
+			case DeliveryStatus.SHIPPING:
+				return 'Đang giao';
+			case DeliveryStatus.DELIVERED:
+				return 'Đã giao';
+			case DeliveryStatus.CANCELLED:
+				return 'Đã hủy';
+			default:
+				return status;
+		}
+	};
+
 	// Get status badge variant
 	const getStatusBadgeVariant = (status: OrderStatus) => {
 		switch (status) {
@@ -324,11 +374,8 @@ export function OrdersTable({
 			cell: ({ row }) => {
 				const status = row.getValue('status') as OrderStatus;
 				return (
-					<Badge
-						variant={getStatusBadgeVariant(status)}
-						className='w-fit capitalize'
-					>
-						{status}
+					<Badge variant={getStatusBadgeVariant(status)} className='w-fit'>
+						{getStatusLabel(status)}
 					</Badge>
 				);
 			},
@@ -336,15 +383,18 @@ export function OrdersTable({
 		{
 			accessorKey: 'payment.status',
 			header: 'Thanh toán',
+			// Add filter function for payment status
+			filterFn: (row, columnId, filterValue) => {
+				const payment = row.original.payment;
+				const status = payment?.status || PaymentStatus.PENDING;
+				return status === filterValue;
+			},
 			cell: ({ row }) => {
 				const payment = row.original.payment;
 				const status = payment?.status || PaymentStatus.PENDING;
 				return (
-					<Badge
-						variant={getPaymentBadgeVariant(status)}
-						className='w-fit capitalize'
-					>
-						{status}
+					<Badge variant={getPaymentBadgeVariant(status)} className='w-fit'>
+						{getPaymentStatusLabel(status)}
 					</Badge>
 				);
 			},
@@ -381,9 +431,9 @@ export function OrdersTable({
 										? 'destructive'
 										: 'secondary'
 							}
-							className='w-fit capitalize'
+							className='w-fit'
 						>
-							{delivery.status}
+							{getDeliveryStatusLabel(delivery.status)}
 						</Badge>
 						{delivery.employee && (
 							<div className='text-xs text-muted-foreground'>
@@ -509,18 +559,19 @@ export function OrdersTable({
 		<div className='w-full flex-col justify-start gap-6 flex'>
 			{/* Filter Bar */}
 			<div className='space-y-4 px-4 lg:px-6'>
-				<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
-					{/* Search */}
-					<div className='relative'>
-						<Search className='absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
-						<Input
-							placeholder='Tìm kiếm đơn hàng...'
-							value={searchInput}
-							onChange={e => setSearchInput(e.target.value)}
-							className='pl-9'
-						/>
-					</div>
+				{/* Search - Full width */}
+				<div className='relative'>
+					<Search className='absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
+					<Input
+						placeholder='Tìm kiếm đơn hàng...'
+						value={searchInput}
+						onChange={e => setSearchInput(e.target.value)}
+						className='pl-9'
+					/>
+				</div>
 
+				{/* Filters - All in one row */}
+				<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
 					{/* Status Filter */}
 					<Select
 						value={apiParams.status || 'all'}
@@ -580,27 +631,14 @@ export function OrdersTable({
 						value={fromDateInput}
 						onChange={e => setFromDateInput(e.target.value)}
 					/>
-				</div>
 
-				{/* Second row - To Date and clear button */}
-				<div className='flex items-center gap-4'>
+					{/* Date Range - To */}
 					<Input
 						type='date'
 						placeholder='Đến ngày'
 						value={toDateInput}
 						onChange={e => setToDateInput(e.target.value)}
-						className='max-w-xs'
 					/>
-
-					<Button
-						variant='outline'
-						size='sm'
-						onClick={clearFilters}
-						className='ml-auto'
-					>
-						<X className='size-4' />
-						Xóa bộ lọc
-					</Button>
 				</div>
 			</div>
 
@@ -666,6 +704,10 @@ export function OrdersTable({
 					)}
 				</div>
 				<div className='flex items-center gap-2'>
+					<Button variant='outline' size='sm' onClick={clearFilters}>
+						<X className='size-4' />
+						<span className='hidden lg:inline'>Xóa bộ lọc</span>
+					</Button>
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button variant='outline' size='sm'>

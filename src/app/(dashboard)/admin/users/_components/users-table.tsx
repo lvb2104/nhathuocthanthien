@@ -208,7 +208,7 @@ export function UsersTable({
 			header: 'Số điện thoại',
 			cell: ({ row }) => {
 				const phone = row.getValue('phone') as string;
-				return <div className='text-sm'>{phone || 'N/A'}</div>;
+				return <div className='text-sm'>{phone || '-'}</div>;
 			},
 		},
 		{
@@ -216,9 +216,15 @@ export function UsersTable({
 			header: 'Vai trò',
 			cell: ({ row }) => {
 				const role = (row.original as any).roles?.name;
+				const roleMap: Record<string, string> = {
+					customer: 'Khách hàng',
+					pharmacist: 'Dược sĩ',
+					employee: 'Nhân viên giao hàng',
+					admin: 'Quản trị viên',
+				};
 				return (
-					<Badge variant='secondary' className='w-fit capitalize'>
-						{role || 'N/A'}
+					<Badge variant='secondary' className='w-fit'>
+						{role ? roleMap[role] || role : '-'}
 					</Badge>
 				);
 			},
@@ -482,7 +488,7 @@ export function UsersTable({
 							htmlFor='include-deleted'
 							className='text-sm font-medium cursor-pointer'
 						>
-							Bao gồm người dùng đã bị xóa
+							Bao gồm người dùng đã bị khóa
 						</Label>
 					</div>
 				</div>

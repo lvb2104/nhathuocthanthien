@@ -45,7 +45,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			<SidebarContent>
 				<NavMain items={navConfig.admin.navMain} currentPath={pathName} />
 				<NavDocuments
-					items={navConfig.admin.documents}
+					items={navConfig.admin.navManagement}
 					currentPath={pathName}
 				/>
 				<NavSecondary

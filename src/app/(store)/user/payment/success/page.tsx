@@ -4,8 +4,8 @@ import { useSearchParams } from 'next/navigation';
 import { CheckCircle, Loader2, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { routes } from '@/configs/routes';
-import { PaymentStatus, OrderStatus } from '@/types';
-import { useUnifiedCart, useOrder } from '@/hooks';
+import { PaymentStatus, OrderStatus, Order } from '@/types';
+import { useUnifiedCart, useOrders } from '@/hooks';
 
 enum PageStatus {
 	LOADING = 'loading',
@@ -19,76 +19,122 @@ function PaymentSuccessPage() {
 	const searchParams = useSearchParams();
 	const [status, setStatus] = useState<PageStatus>(PageStatus.LOADING);
 	const [errorMessage, setErrorMessage] = useState('');
+	const [order, setOrder] = useState<Order | null>(null);
 	const { clearCart, removePromotion } = useUnifiedCart();
 
 	// Extract query parameters
 	const orderCode = searchParams.get('orderCode');
+	const paymentCode = searchParams.get('code');
+	const paymentStatus = searchParams.get('status');
 
-	// Extract orderId from orderCode
-	const orderId = orderCode ? parseInt(orderCode.slice(13), 10) : 0;
+	// Debug logging
+	useEffect(() => {
+		console.log('[Payment Success] Query params:', {
+			orderCode,
+			paymentCode,
+			paymentStatus,
+		});
+	}, [orderCode, paymentCode, paymentStatus]);
 
-	// Use React Query hook to fetch order
-	const { data: order, isLoading, error } = useOrder(orderId);
+	// Fetch all orders for the current user to find the matching one
+	const { data: ordersData, isLoading, error } = useOrders();
 
 	useEffect(() => {
 		const verifyPayment = async () => {
 			// Validate orderCode
 			if (!orderCode) {
+				console.error('[Payment Success] Missing orderCode');
 				setStatus(PageStatus.ERROR);
-				setErrorMessage('Thiếu thông tin đơn hàng');
+				setErrorMessage(
+					'Thiếu thông tin đơn hàng. Vui lòng kiểm tra lại đơn hàng trong mục "Đơn hàng của tôi".',
+				);
 				return;
 			}
 
-			if (isNaN(orderId) || orderId <= 0) {
-				setStatus(PageStatus.ERROR);
-				setErrorMessage('Mã đơn hàng không hợp lệ');
-				return;
-			}
-
-			// Wait for order data to load
+			// Wait for orders data to load
 			if (isLoading) {
+				console.log('[Payment Success] Loading orders...');
 				setStatus(PageStatus.LOADING);
 				return;
 			}
 
 			// Handle error from React Query
 			if (error) {
+				console.error('[Payment Success] Error fetching orders:', error);
+				const errorMsg =
+					(error as any)?.response?.data?.message ||
+					'Không thể tải thông tin đơn hàng';
 				setStatus(PageStatus.ERROR);
 				setErrorMessage(
-					(error as any)?.response?.data?.message ||
-						'Không thể xác minh trạng thái thanh toán',
+					`${errorMsg}. Đơn hàng của bạn có thể đã được tạo thành công. Vui lòng kiểm tra trong mục "Đơn hàng của tôi".`,
 				);
 				return;
 			}
 
-			// Verify payment status
-			if (order) {
-				// Check payment status
-				if (order.payment) {
-					if (order.payment.status === PaymentStatus.PAID) {
+			// Find the order matching the payosOrderCode
+			if (ordersData?.data) {
+				console.log(
+					'[Payment Success] Searching for order with payosOrderCode:',
+					orderCode,
+				);
+				const matchingOrder = ordersData.data.find(
+					o => o.payment?.payosOrderCode === orderCode,
+				);
+
+				if (!matchingOrder) {
+					console.error(
+						'[Payment Success] No order found with payosOrderCode:',
+						orderCode,
+					);
+					setStatus(PageStatus.ERROR);
+					setErrorMessage(
+						'Không tìm thấy đơn hàng tương ứng. Vui lòng kiểm tra lại trong mục "Đơn hàng của tôi".',
+					);
+					return;
+				}
+
+				console.log('[Payment Success] Found order:', {
+					orderId: matchingOrder.id,
+					orderStatus: matchingOrder.status,
+					paymentStatus: matchingOrder.payment?.status,
+					paymentMethod: matchingOrder.payment?.method,
+				});
+
+				setOrder(matchingOrder);
+
+				// Verify payment status
+				if (matchingOrder.payment) {
+					if (matchingOrder.payment.status === PaymentStatus.PAID) {
+						console.log('[Payment Success] Payment successful, clearing cart');
 						setStatus(PageStatus.SUCCESS);
 						// Clear cart after successful PayOS payment
 						await clearCart();
 						removePromotion();
-					} else if (order.payment.status === PaymentStatus.PENDING) {
+					} else if (matchingOrder.payment.status === PaymentStatus.PENDING) {
+						console.log('[Payment Success] Payment still pending');
 						setStatus(PageStatus.PENDING);
 					} else {
+						console.log('[Payment Success] Payment failed');
 						setStatus(PageStatus.FAILED);
 					}
 				} else {
 					// Cash payment - check order status
-					if (order.status === OrderStatus.CONFIRMED) {
+					if (matchingOrder.status === OrderStatus.CONFIRMED) {
+						console.log('[Payment Success] Cash order confirmed');
 						setStatus(PageStatus.SUCCESS);
 						// Cart already cleared for cash payments
 					} else {
+						console.log('[Payment Success] Cash order pending');
 						setStatus(PageStatus.PENDING);
 					}
 				}
+			} else {
+				console.warn('[Payment Success] No order data available yet');
 			}
 		};
 
 		verifyPayment();
-	}, [orderCode, orderId, isLoading, error, order, clearCart, removePromotion]);
+	}, [orderCode, isLoading, error, ordersData, clearCart, removePromotion]);
 
 	if (status === PageStatus.LOADING) {
 		return (
