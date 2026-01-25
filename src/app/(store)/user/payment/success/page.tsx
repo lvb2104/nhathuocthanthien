@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle, Loader2, XCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -21,6 +21,7 @@ function PaymentSuccessPage() {
 	const [errorMessage, setErrorMessage] = useState('');
 	const [order, setOrder] = useState<Order | null>(null);
 	const { clearCart, removePromotion } = useUnifiedCart();
+	const hasProcessedRef = useRef(false);
 
 	// Extract query parameters
 	const orderCode = searchParams.get('orderCode');
@@ -41,6 +42,12 @@ function PaymentSuccessPage() {
 
 	useEffect(() => {
 		const verifyPayment = async () => {
+			// Prevent infinite loop - only process once
+			if (hasProcessedRef.current) {
+				console.log('[Payment Success] Already processed, skipping');
+				return;
+			}
+
 			// Validate orderCode
 			if (!orderCode) {
 				console.error('[Payment Success] Missing orderCode');
@@ -107,6 +114,8 @@ function PaymentSuccessPage() {
 					if (matchingOrder.payment.status === PaymentStatus.PAID) {
 						console.log('[Payment Success] Payment successful, clearing cart');
 						setStatus(PageStatus.SUCCESS);
+						// Mark as processed BEFORE clearing cart to prevent re-run
+						hasProcessedRef.current = true;
 						// Clear cart after successful PayOS payment
 						await clearCart();
 						removePromotion();
