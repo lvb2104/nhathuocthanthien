@@ -123,6 +123,21 @@ export function EmployeeDeliveriesTable({
 		}
 	};
 
+	const getDeliveryStatusLabel = (status: DeliveryStatus) => {
+		switch (status) {
+			case DeliveryStatus.ASSIGNED:
+				return 'Đã phân công';
+			case DeliveryStatus.SHIPPING:
+				return 'Đang giao hàng';
+			case DeliveryStatus.DELIVERED:
+				return 'Đã giao hàng';
+			case DeliveryStatus.CANCELLED:
+				return 'Đã hủy';
+			default:
+				return status;
+		}
+	};
+
 	const handleUpdateStatus = (delivery: Delivery) => {
 		setSelectedDelivery(delivery);
 		setIsUpdateDialogOpen(true);
@@ -155,7 +170,7 @@ export function EmployeeDeliveriesTable({
 						variant={getDeliveryStatusBadgeVariant(status)}
 						className='w-fit capitalize'
 					>
-						{status}
+						{getDeliveryStatusLabel(status)}
 					</Badge>
 				);
 			},

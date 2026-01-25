@@ -32,7 +32,6 @@ import {
 	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
@@ -51,11 +50,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover';
+
 import { toast } from 'react-toastify';
 import {
 	GetAllOrdersResponse,
@@ -66,7 +61,7 @@ import {
 	DeliveryStatus,
 } from '@/types';
 import { useEffect } from 'react';
-import { useOrders, useCancelOrder, useDeliveries } from '@/hooks';
+import { useOrders, useDeliveries } from '@/hooks';
 import { RefreshCcw, Search, X, Eye } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { OrderDetailWrapper } from './order-detail-wrapper';
@@ -102,7 +97,6 @@ export function OrdersTable({
 		refetch: refreshOrders,
 		isPending: isOrdersPending,
 	} = useOrders(apiParams, initialOrders);
-	const { mutateAsync: cancelMutate } = useCancelOrder();
 
 	// Fetch deliveries to show delivery status in orders
 	const { data: deliveriesResponse } = useDeliveries({ limit: 1000 }); // Get all deliveries
@@ -187,7 +181,6 @@ export function OrdersTable({
 		[],
 	);
 	const [sorting, setSorting] = React.useState<SortingState>([]);
-	const [cancelPopoverOpen, setCancelPopoverOpen] = React.useState(false);
 
 	const clearFilters = () => {
 		setSearchInput('');
@@ -474,14 +467,6 @@ export function OrdersTable({
 									Gán giao hàng
 								</DropdownMenuItem>
 							)}
-						<DropdownMenuSeparator />
-						<DropdownMenuItem
-							variant='destructive'
-							onClick={() => handleCancel(row.original.id)}
-							disabled={row.original.status === OrderStatus.CANCELLED}
-						>
-							Hủy đơn hàng
-						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
 			),
@@ -511,41 +496,6 @@ export function OrdersTable({
 		manualPagination: true, // Server-side pagination
 		pageCount: response?.pagination?.totalPages ?? 0,
 	});
-
-	function handleCancel(id: number) {
-		toast.promise(
-			cancelMutate(id).then(() => {
-				setData(prevData => prevData.filter(item => item.id !== id));
-			}),
-			{
-				pending: 'Đang hủy đơn hàng...',
-				success: 'Đã hủy đơn hàng thành công',
-				error: 'Lỗi khi hủy đơn hàng. Vui lòng thử lại.',
-			},
-		);
-	}
-
-	function handleCancelMultiple() {
-		const selectedRows = table.getFilteredSelectedRowModel().rows;
-		if (selectedRows.length === 0) return;
-
-		const selectedIds = selectedRows.map(row => row.original.id);
-
-		toast.promise(
-			Promise.all(selectedIds.map(id => cancelMutate(id))).then(() => {
-				setData(prevData =>
-					prevData.filter(item => !selectedIds.includes(item.id)),
-				);
-				setRowSelection({});
-				setCancelPopoverOpen(false);
-			}),
-			{
-				pending: `Đang hủy ${selectedIds.length} đơn hàng...`,
-				success: `Đã hủy ${selectedIds.length} đơn hàng thành công`,
-				error: 'Lỗi khi hủy đơn hàng. Vui lòng thử lại.',
-			},
-		);
-	}
 
 	if (isOrdersPending) {
 		return (
@@ -644,65 +594,7 @@ export function OrdersTable({
 
 			{/* Toolbar */}
 			<div className='flex items-center justify-between px-4 lg:px-6'>
-				<div className='flex items-center gap-2'>
-					{table.getFilteredSelectedRowModel().rows.length > 0 && (
-						<>
-							<Popover
-								open={cancelPopoverOpen}
-								onOpenChange={setCancelPopoverOpen}
-							>
-								<PopoverTrigger asChild>
-									<Button
-										variant='destructive'
-										size='sm'
-										className='cursor-pointer'
-									>
-										<span>
-											Hủy ({table.getFilteredSelectedRowModel().rows.length})
-										</span>
-									</Button>
-								</PopoverTrigger>
-								<PopoverContent className='w-80'>
-									<div className='space-y-4'>
-										<div className='space-y-2'>
-											<h4 className='font-medium leading-none'>
-												Hủy đơn hàng?
-											</h4>
-											<p className='text-sm text-muted-foreground'>
-												You are about to cancel{' '}
-												{table.getFilteredSelectedRowModel().rows.length}{' '}
-												order(s). This action cannot be undone.
-											</p>
-											<div className='max-h-32 overflow-y-auto rounded-md bg-muted p-2 text-xs'>
-												{table.getFilteredSelectedRowModel().rows.map(row => (
-													<div key={row.original.id} className='truncate py-1'>
-														• Đơn #{row.original.id}
-													</div>
-												))}
-											</div>
-										</div>
-										<div className='flex gap-2 justify-end'>
-											<Button
-												variant='outline'
-												size='sm'
-												onClick={() => setCancelPopoverOpen(false)}
-											>
-												Hủy
-											</Button>
-											<Button
-												variant='destructive'
-												size='sm'
-												onClick={handleCancelMultiple}
-											>
-												Xác nhận
-											</Button>
-										</div>
-									</div>
-								</PopoverContent>
-							</Popover>
-						</>
-					)}
-				</div>
+				<div className='flex items-center gap-2'></div>
 				<div className='flex items-center gap-2'>
 					<Button variant='outline' size='sm' onClick={clearFilters}>
 						<X className='size-4' />

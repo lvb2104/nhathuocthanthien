@@ -753,9 +753,6 @@ export function ReviewsTable({
 					reviewId={detailReviewId}
 					open={isDetailOpen}
 					onOpenChange={setIsDetailOpen}
-					onSuccess={() => {
-						refreshReviews();
-					}}
 				/>
 			)}
 		</div>
