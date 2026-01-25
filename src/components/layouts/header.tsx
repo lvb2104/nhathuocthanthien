@@ -182,29 +182,32 @@ function Header() {
 								</div>
 							)}
 						</Link>
-						<Link
-							className='flex items-center cursor-pointer'
-							href={routes.user.cart}
-							onClick={handleCartClick}
-						>
-							<div className='p-2 rounded'>
-								<Image
-									src='/icons/cart.svg'
-									alt='Cart'
-									width={30}
-									height={30}
-								/>
-							</div>
-							<div>
-								<div className='text-xs mb-[-2px]'>Giỏ hàng</div>
-								<div className='font-semibold'>
-									<span className='rounded-[2px] px-[3px] bg-white text-[#ff5722] font-[500] text-sm text-center'>
-										{cartCount}
-									</span>{' '}
-									sản phẩm
+						{/* Cart button - Only for customers and guests */}
+						{(!user || isCustomer) && (
+							<Link
+								className='flex items-center cursor-pointer'
+								href={routes.user.cart}
+								onClick={handleCartClick}
+							>
+								<div className='p-2 rounded'>
+									<Image
+										src='/icons/cart.svg'
+										alt='Cart'
+										width={30}
+										height={30}
+									/>
 								</div>
-							</div>
-						</Link>
+								<div>
+									<div className='text-xs mb-[-2px]'>Giỏ hàng</div>
+									<div className='font-semibold'>
+										<span className='rounded-[2px] px-[3px] bg-white text-[#ff5722] font-[500] text-sm text-center'>
+											{cartCount}
+										</span>{' '}
+										sản phẩm
+									</div>
+								</div>
+							</Link>
+						)}
 					</div>
 				</div>
 				{/* Navigation */}

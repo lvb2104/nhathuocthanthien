@@ -1,6 +1,6 @@
 'use client';
 
-import { useReview, useUpdateReview } from '@/hooks';
+import { useReview } from '@/hooks';
 import {
 	Sheet,
 	SheetContent,
@@ -9,10 +9,8 @@ import {
 	SheetTitle,
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+
 import { Star, Package, User, MessageSquare, Calendar } from 'lucide-react';
-import { useState } from 'react';
-import { toast } from 'react-toastify';
 import Link from 'next/link';
 import { routes } from '@/configs/routes';
 
@@ -20,47 +18,14 @@ interface ReviewDetailSheetProps {
 	reviewId: number;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	onSuccess?: () => void;
 }
 
 export function ReviewDetailSheet({
 	reviewId,
 	open,
 	onOpenChange,
-	onSuccess,
 }: ReviewDetailSheetProps) {
 	const { data: review, isLoading } = useReview(reviewId);
-	const { mutateAsync: updateReview, isPending: isUpdating } =
-		useUpdateReview();
-
-	const [comment, setComment] = useState('');
-	const [isEditing, setIsEditing] = useState(false);
-
-	// Update local state when review data loads
-	useState(() => {
-		if (review) {
-			setComment(review.comment || '');
-		}
-	});
-
-	const handleSave = async () => {
-		if (!review) return;
-
-		try {
-			await updateReview({
-				id: reviewId,
-				request: {
-					comment: comment || undefined,
-				},
-			});
-			toast.success('Đã cập nhật đánh giá thành công');
-			setIsEditing(false);
-			onSuccess?.();
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		} catch (error) {
-			toast.error('Cập nhật đánh giá thất bại');
-		}
-	};
 
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString('vi-VN', {
@@ -95,9 +60,7 @@ export function ReviewDetailSheet({
 			<SheetContent className='w-full overflow-y-auto sm:max-w-2xl p-6'>
 				<SheetHeader className='mb-6'>
 					<SheetTitle>Chi tiết đánh giá</SheetTitle>
-					<SheetDescription>
-						Xem và chỉnh sửa thông tin đánh giá
-					</SheetDescription>
+					<SheetDescription>Xem thông tin đánh giá</SheetDescription>
 				</SheetHeader>
 
 				{isLoading ? (
@@ -169,27 +132,17 @@ export function ReviewDetailSheet({
 								<MessageSquare size={16} className='text-green-600' />
 								Nhận xét
 							</h3>
-							{isEditing ? (
-								<Textarea
-									value={comment}
-									onChange={e => setComment(e.target.value)}
-									placeholder='Không có nhận xét'
-									rows={6}
-									className='resize-none'
-								/>
-							) : (
-								<div className='rounded-md bg-gray-50 p-4 min-h-[100px]'>
-									{review.comment ? (
-										<p className='text-sm whitespace-pre-wrap text-gray-900'>
-											{review.comment}
-										</p>
-									) : (
-										<p className='text-sm text-muted-foreground italic'>
-											Không có nhận xét
-										</p>
-									)}
-								</div>
-							)}
+							<div className='rounded-md bg-gray-50 p-4 min-h-[100px]'>
+								{review.comment ? (
+									<p className='text-sm whitespace-pre-wrap text-gray-900'>
+										{review.comment}
+									</p>
+								) : (
+									<p className='text-sm text-muted-foreground italic'>
+										Không có nhận xét
+									</p>
+								)}
+							</div>
 						</div>
 
 						{/* Dates */}
@@ -220,44 +173,13 @@ export function ReviewDetailSheet({
 
 						{/* Actions */}
 						<div className='pt-3'>
-							{isEditing ? (
-								<div className='flex gap-2'>
-									<Button
-										onClick={handleSave}
-										disabled={isUpdating}
-										className='flex-1 h-10 text-sm bg-green-600 hover:bg-green-700'
-									>
-										{isUpdating ? 'Đang lưu...' : 'Lưu thay đổi'}
-									</Button>
-									<Button
-										variant='outline'
-										onClick={() => {
-											setComment(review.comment || '');
-											setIsEditing(false);
-										}}
-										disabled={isUpdating}
-										className='h-10 text-sm'
-									>
-										Hủy
-									</Button>
-								</div>
-							) : (
-								<div className='flex gap-2'>
-									<Button
-										onClick={() => setIsEditing(true)}
-										className='flex-1 h-10 text-sm bg-green-600 hover:bg-green-700'
-									>
-										Chỉnh sửa nhận xét
-									</Button>
-									<Button
-										variant='outline'
-										onClick={() => onOpenChange(false)}
-										className='h-10 text-sm'
-									>
-										Đóng
-									</Button>
-								</div>
-							)}
+							<Button
+								variant='outline'
+								onClick={() => onOpenChange(false)}
+								className='w-full h-10 text-sm'
+							>
+								Đóng
+							</Button>
 						</div>
 					</div>
 				) : (
