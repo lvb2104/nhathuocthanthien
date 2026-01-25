@@ -1,6 +1,6 @@
 import Loading from '@/app/loading';
 import ContentWrapper from '@/components/layouts/content-wrapper';
-import { serverGetProducts, serverGetCategories } from '@/services';
+import { serverGetCustomerProducts, serverGetCategories } from '@/services';
 import { Suspense } from 'react';
 import Image from 'next/image';
 import { app } from '@/configs/app';
@@ -38,7 +38,7 @@ async function CategoryPageContent({
 		}
 
 		// Fetch products for this category
-		const response = await serverGetProducts({
+		const response = await serverGetCustomerProducts({
 			categoryId: Number(id),
 			limit: 12,
 		});

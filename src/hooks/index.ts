@@ -12,6 +12,7 @@ export * from './categories/use-create-category';
 export * from './categories/use-update-category';
 export * from './categories/use-delete-category';
 export * from './products/use-products';
+export * from './products/use-customer-products';
 export * from './products/use-most-sold-products';
 export * from './products/use-create-product';
 export * from './products/use-delete-product';

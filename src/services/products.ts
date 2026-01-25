@@ -73,6 +73,24 @@ export async function serverGetProducts(
 	return res.data;
 }
 
+export async function getCustomerProducts(
+	params?: ProductFilterParams,
+): Promise<GetProductsResponse> {
+	const res = await axiosInstance.get(apiEndpoints.products.getCustomer, {
+		params,
+	});
+	return res.data;
+}
+
+export async function serverGetCustomerProducts(
+	params?: ProductFilterParams,
+): Promise<GetProductsResponse> {
+	const res = await serverAxios.get(apiEndpoints.products.getCustomer, {
+		params,
+	});
+	return res.data;
+}
+
 export async function getProductById(
 	id: number,
 ): Promise<GetProductByIdResponse> {

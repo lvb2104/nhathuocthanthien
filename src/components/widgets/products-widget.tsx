@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useProducts } from '@/hooks';
+import { useCustomerProducts } from '@/hooks';
 import { toast } from 'react-toastify';
 import { GetProductsResponse, ProductFilterParams } from '@/types';
 import { app } from '@/configs/app';
@@ -16,7 +16,7 @@ function ProductsWidget({
 	title: string;
 	params?: ProductFilterParams;
 }) {
-	const { data: response, isError: isProductsError } = useProducts(
+	const { data: response, isError: isProductsError } = useCustomerProducts(
 		params,
 		initialProducts,
 	);
@@ -28,6 +28,11 @@ function ProductsWidget({
 			toast.error('Lỗi khi tải sản phẩm.');
 		}
 	}, [isProductsError]);
+
+	// Don't show the widget at all if there are no products
+	if (!products || products.length === 0) {
+		return null;
+	}
 
 	return (
 		<div className='w-full bg-neutral-50 py-6'>
