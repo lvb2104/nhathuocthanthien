@@ -4,8 +4,8 @@ import { useSearchParams } from 'next/navigation';
 import { XCircle, Loader2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { routes } from '@/configs/routes';
-import { PaymentStatus } from '@/types';
-import { useOrder } from '@/hooks';
+import { PaymentStatus, Order } from '@/types';
+import { useOrders } from '@/hooks';
 
 enum PageStatus {
 	LOADING = 'loading',
@@ -18,64 +18,110 @@ function PaymentCancelPage() {
 	const searchParams = useSearchParams();
 	const [status, setStatus] = useState<PageStatus>(PageStatus.LOADING);
 	const [errorMessage, setErrorMessage] = useState('');
+	const [order, setOrder] = useState<Order | null>(null);
 
 	// Extract query parameters
 	const orderCode = searchParams.get('orderCode');
+	const paymentCode = searchParams.get('code');
+	const cancelFlag = searchParams.get('cancel');
 
-	// Extract orderId from orderCode
-	const orderId = orderCode ? parseInt(orderCode.slice(13), 10) : 0;
+	// Debug logging
+	useEffect(() => {
+		console.log('[Payment Cancel] Query params:', {
+			orderCode,
+			paymentCode,
+			cancelFlag,
+		});
+	}, [orderCode, paymentCode, cancelFlag]);
 
-	// Use React Query hook to fetch order
-	const { data: order, isLoading, error } = useOrder(orderId);
+	// Fetch all orders for the current user to find the matching one
+	const { data: ordersData, isLoading, error } = useOrders();
 
 	useEffect(() => {
 		const verifyCancel = () => {
 			// Validate orderCode
 			if (!orderCode) {
+				console.error('[Payment Cancel] Missing orderCode');
 				setStatus(PageStatus.ERROR);
-				setErrorMessage('Thiếu thông tin đơn hàng');
+				setErrorMessage(
+					'Thiếu thông tin đơn hàng. Vui lòng kiểm tra lại đơn hàng trong mục "Đơn hàng của tôi".',
+				);
 				return;
 			}
 
-			if (isNaN(orderId) || orderId <= 0) {
-				setStatus(PageStatus.ERROR);
-				setErrorMessage('Mã đơn hàng không hợp lệ');
-				return;
-			}
-
-			// Wait for order data to load
+			// Wait for orders data to load
 			if (isLoading) {
+				console.log('[Payment Cancel] Loading orders...');
 				setStatus(PageStatus.LOADING);
 				return;
 			}
 
 			// Handle error from React Query
 			if (error) {
+				console.error('[Payment Cancel] Error fetching orders:', error);
+				const errorMsg =
+					(error as any)?.response?.data?.message ||
+					'Không thể tải thông tin đơn hàng';
 				setStatus(PageStatus.ERROR);
 				setErrorMessage(
-					(error as any)?.response?.data?.message ||
-						'Không thể xác minh trạng thái đơn hàng',
+					`${errorMsg}. Đơn hàng của bạn có thể đã được tạo thành công. Vui lòng kiểm tra trong mục "Đơn hàng của tôi".`,
 				);
 				return;
 			}
 
-			// Verify cancellation status
-			if (order) {
-				// Check if payment was cancelled or is still pending
-				if (order.payment) {
-					if (order.payment.status === PaymentStatus.FAILED) {
+			// Find the order matching the payosOrderCode
+			if (ordersData?.data) {
+				console.log(
+					'[Payment Cancel] Searching for order with payosOrderCode:',
+					orderCode,
+				);
+				const matchingOrder = ordersData.data.find(
+					o => o.payment?.payosOrderCode === orderCode,
+				);
+
+				if (!matchingOrder) {
+					console.error(
+						'[Payment Cancel] No order found with payosOrderCode:',
+						orderCode,
+					);
+					setStatus(PageStatus.ERROR);
+					setErrorMessage(
+						'Không tìm thấy đơn hàng tương ứng. Vui lòng kiểm tra lại trong mục "Đơn hàng của tôi".',
+					);
+					return;
+				}
+
+				console.log('[Payment Cancel] Found order:', {
+					orderId: matchingOrder.id,
+					orderStatus: matchingOrder.status,
+					paymentStatus: matchingOrder.payment?.status,
+					paymentMethod: matchingOrder.payment?.method,
+				});
+
+				setOrder(matchingOrder);
+
+				// Verify cancellation status
+				//Check if payment was cancelled or is still pending
+				if (matchingOrder.payment) {
+					if (matchingOrder.payment.status === PaymentStatus.FAILED) {
+						console.log('[Payment Cancel] Payment cancelled/failed');
 						setStatus(PageStatus.CANCELLED);
 					} else {
+						console.log(
+							'[Payment Cancel] Payment still in other status:',
+							matchingOrder.payment.status,
+						);
 						setStatus(PageStatus.PENDING);
 					}
 				} else {
+					console.log('[Payment Cancel] No payment info');
 					setStatus(PageStatus.PENDING);
 				}
 			}
 		};
 
 		verifyCancel();
-	}, [orderCode, orderId, isLoading, error, order]);
+	}, [orderCode, isLoading, error, ordersData]);
 
 	if (status === PageStatus.LOADING) {
 		return (

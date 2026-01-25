@@ -6,6 +6,7 @@ import {
 	useCreateShippingAddress,
 	useCreateOrder,
 } from '@/hooks';
+import { useQueryClient } from '@tanstack/react-query';
 import { PaymentMethod } from '@/types';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
@@ -84,6 +85,9 @@ function CartCard({
 
 	const router = useRouter();
 
+	// Query client for manual refetching
+	const queryClient = useQueryClient();
+
 	// Order creation mutation
 	const createOrderMutation = useCreateOrder();
 
@@ -98,10 +102,9 @@ function CartCard({
 	// Create shipping address mutation
 	const createAddressMutation = useCreateShippingAddress();
 
-	// React Hook Form for new address creation
-	const form = useForm<z.infer<typeof ShippingAddressSchema>>({
-		resolver: zodResolver(ShippingAddressSchema),
-		defaultValues: {
+	// Memoize default values to prevent form reset on re-renders
+	const addressFormDefaultValues = useMemo(
+		() => ({
 			fullName: '',
 			phone: '',
 			addressLine: '',
@@ -110,7 +113,15 @@ function CartCard({
 			province: '',
 			note: '',
 			isDefault: false,
-		},
+		}),
+		[],
+	);
+
+	// React Hook Form for new address creation
+	const form = useForm<z.infer<typeof ShippingAddressSchema>>({
+		resolver: zodResolver(ShippingAddressSchema),
+		defaultValues: addressFormDefaultValues,
+		mode: 'onBlur',
 	});
 
 	// Fetch all promotions with initial data from server
@@ -264,23 +275,28 @@ function CartCard({
 			// Reset form after success
 			form.reset();
 
-			// Get the newly created address ID from the response
-			// The backend should return the created address with its ID
-			// For now, we'll refetch addresses and use the first one (assuming it's the default)
-			// In a production app, the backend should return the created address ID
+			// Manually refetch addresses to get the newly created one
+			// The mutation's onSuccess already invalidates, but we need fresh data here
+			await queryClient.refetchQueries({
+				queryKey: ['user', 'shipping-addresses'],
+			});
 
-			// Wait a bit for the mutation to invalidate and refetch
-			await new Promise(resolve => setTimeout(resolve, 500));
+			// Get the fresh data from the query cache
+			const refetchedAddresses =
+				queryClient.getQueryData<GetShippingAddressesResponse>([
+					'user',
+					'shipping-addresses',
+				]);
 
-			// Use the newly created address - get the latest from the list
-			// This assumes the backend returns addresses in reverse chronological order
-			// or that the new address is set as default
-			const latestAddresses = shippingAddressesResponse || [];
-			if (latestAddresses.length > 0) {
-				// Find the default address or use the first one
-				const addressToUse =
-					latestAddresses.find(a => a.isDefault) || latestAddresses[0];
-				await createOrderWithAddress(addressToUse.id);
+			if (refetchedAddresses && refetchedAddresses.length > 0) {
+				// Find the most recently created address (should be the new one)
+				// Sort by createdAt descending and take the first one
+				const sortedAddresses = [...refetchedAddresses].sort(
+					(a, b) =>
+						new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+				);
+				const newAddress = sortedAddresses[0];
+				await createOrderWithAddress(newAddress.id);
 			} else {
 				toast.error('Không thể lấy địa chỉ vừa tạo. Vui lòng thử lại.');
 			}

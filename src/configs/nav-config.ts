@@ -5,7 +5,6 @@ import {
 	IconFileWord,
 	IconHelp,
 	IconListDetails,
-	IconReport,
 	IconSearch,
 	IconSettings,
 	IconShoppingBag,
@@ -25,61 +24,46 @@ export const navConfig = {
 				icon: IconDashboard,
 			},
 			{
+				title: 'Đơn hàng',
+				url: routes.admin.orders.main,
+				icon: IconShoppingBag,
+			},
+			{
 				title: 'Sản phẩm',
 				url: routes.admin.products.main,
 				icon: IconListDetails,
-			},
-			{
-				title: 'Danh mục',
-				url: routes.admin.categories.main,
-				icon: IconCategory,
-			},
-			{
-				title: 'Khuyến mãi',
-				url: routes.admin.promotions.main,
-				icon: IconTag,
-			},
-			{
-				title: 'Lô hàng',
-				url: routes.admin.batches.main,
-				icon: IconDatabase,
 			},
 			{
 				title: 'Người dùng',
 				url: routes.admin.users.main,
 				icon: IconUsers,
 			},
-			{
-				title: 'Đơn hàng',
-				url: routes.admin.orders.main,
-				icon: IconShoppingBag,
-			},
-			{
-				title: 'Đánh giá',
-				url: routes.admin.reviews.main,
-				icon: IconStar,
-			},
-			{
-				title: 'Giao hàng',
-				url: routes.admin.deliveries.main,
-				icon: IconTruck,
-			},
 		],
-		documents: [
+		navManagement: [
 			{
-				name: 'Thư viện dữ liệu',
-				url: '/admin/data-library',
+				name: 'Danh mục',
+				url: routes.admin.categories.main,
+				icon: IconCategory,
+			},
+			{
+				name: 'Lô hàng',
+				url: routes.admin.batches.main,
 				icon: IconDatabase,
 			},
 			{
-				name: 'Báo cáo',
-				url: '/admin/reports',
-				icon: IconReport,
+				name: 'Khuyến mãi',
+				url: routes.admin.promotions.main,
+				icon: IconTag,
 			},
 			{
-				name: 'Trợ lý văn bản',
-				url: '/admin/word-assistant',
-				icon: IconFileWord,
+				name: 'Giao hàng',
+				url: routes.admin.deliveries.main,
+				icon: IconTruck,
+			},
+			{
+				name: 'Đánh giá',
+				url: routes.admin.reviews.main,
+				icon: IconStar,
 			},
 		],
 		navSecondary: [

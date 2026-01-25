@@ -129,6 +129,21 @@ export function DeliveriesTable({
 		});
 	};
 
+	const getDeliveryStatusLabel = (status: DeliveryStatus) => {
+		switch (status) {
+			case DeliveryStatus.ASSIGNED:
+				return 'Đã phân công';
+			case DeliveryStatus.SHIPPING:
+				return 'Đang giao';
+			case DeliveryStatus.DELIVERED:
+				return 'Hoàn tất';
+			case DeliveryStatus.CANCELLED:
+				return 'Đã hủy';
+			default:
+				return status;
+		}
+	};
+
 	const getDeliveryStatusBadgeVariant = (status: DeliveryStatus) => {
 		switch (status) {
 			case DeliveryStatus.ASSIGNED:
@@ -195,9 +210,9 @@ export function DeliveriesTable({
 				return (
 					<Badge
 						variant={getDeliveryStatusBadgeVariant(status)}
-						className='w-fit capitalize'
+						className='w-fit'
 					>
-						{status}
+						{getDeliveryStatusLabel(status)}
 					</Badge>
 				);
 			},
@@ -296,7 +311,9 @@ export function DeliveriesTable({
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value='all'>Tất cả trạng thái</SelectItem>
-							<SelectItem value={DeliveryStatus.ASSIGNED}>Đã giao</SelectItem>
+							<SelectItem value={DeliveryStatus.ASSIGNED}>
+								Đã phân công
+							</SelectItem>
 							<SelectItem value={DeliveryStatus.SHIPPING}>Đang giao</SelectItem>
 							<SelectItem value={DeliveryStatus.DELIVERED}>Hoàn tất</SelectItem>
 							<SelectItem value={DeliveryStatus.CANCELLED}>Đã hủy</SelectItem>
