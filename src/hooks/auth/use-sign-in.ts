@@ -1,5 +1,4 @@
 import { app } from '@/configs/app';
-import { handleAxiosError } from '@/lib/utils';
 import { clientSignIn } from '@/services';
 import { SignInRequest } from '@/types';
 import { useMutation } from '@tanstack/react-query';
@@ -20,6 +19,12 @@ export function useSignIn() {
 			}
 
 			if (result.error) {
+				// Check for credentials error (wrong email/password)
+				if (result.error === 'CredentialsSignin') {
+					throw new Error(
+						'Email hoặc mật khẩu không chính xác. Vui lòng thử lại.',
+					);
+				}
 				throw new Error(result.error);
 			}
 
@@ -42,6 +47,5 @@ export function useSignIn() {
 
 			return session;
 		},
-		onError: (error: any) => handleAxiosError(error),
 	});
 }
