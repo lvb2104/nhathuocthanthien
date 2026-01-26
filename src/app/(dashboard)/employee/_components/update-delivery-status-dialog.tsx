@@ -70,7 +70,7 @@ export function UpdateDeliveryStatusDialog({
 	const getAvailableStatuses = () => {
 		switch (delivery.status) {
 			case DeliveryStatus.ASSIGNED:
-				return [DeliveryStatus.ASSIGNED, DeliveryStatus.SHIPPING];
+				return [DeliveryStatus.SHIPPING];
 			case DeliveryStatus.SHIPPING:
 				return [
 					DeliveryStatus.SHIPPING,
