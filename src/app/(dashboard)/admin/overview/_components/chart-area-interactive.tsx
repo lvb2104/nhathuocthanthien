@@ -3,8 +3,9 @@
 import * as React from 'react';
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
 
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile, useExportRevenue } from '@/hooks';
 import { useRevenueStatistics } from '@/hooks';
+import { toast } from 'react-toastify';
 import {
 	Card,
 	CardAction,
@@ -27,6 +28,14 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Button } from '@/components/ui/button';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { IconFileTypePdf, IconFileTypeXls } from '@tabler/icons-react';
 
 const chartConfig = {
 	revenue: {
@@ -42,6 +51,7 @@ const chartConfig = {
 export function ChartAreaInteractive() {
 	const isMobile = useIsMobile();
 	const [timeRange, setTimeRange] = React.useState(30);
+	const exportRevenue = useExportRevenue();
 
 	React.useEffect(() => {
 		if (isMobile) {
@@ -69,6 +79,23 @@ export function ChartAreaInteractive() {
 	const totalRevenue = chartData.reduce((sum, item) => sum + item.revenue, 0);
 	const totalOrders = chartData.reduce((sum, item) => sum + item.orders, 0);
 
+	const handleExport = (format: 'excel' | 'pdf') => {
+		exportRevenue.mutate(
+			{
+				format,
+				startDate: startDate.toISOString().split('T')[0],
+				endDate: endDate.toISOString().split('T')[0],
+			},
+			{
+				onSuccess: () => {
+					toast.success(
+						`Xuất báo cáo ${format === 'excel' ? 'Excel' : 'PDF'} thành công!`,
+					);
+				},
+			},
+		);
+	};
+
 	return (
 		<Card className='@container/card'>
 			<CardHeader>
@@ -93,6 +120,28 @@ export function ChartAreaInteractive() {
 					)}
 				</CardDescription>
 				<CardAction>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button
+								size='sm'
+								variant='outline'
+								disabled={exportRevenue.isPending}
+								className='h-8 gap-1.5'
+							>
+								{exportRevenue.isPending ? 'Đang xuất...' : 'Xuất báo cáo'}
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align='end'>
+							<DropdownMenuItem onClick={() => handleExport('excel')}>
+								<IconFileTypeXls className='mr-2 size-4' />
+								Xuất Excel
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={() => handleExport('pdf')}>
+								<IconFileTypePdf className='mr-2 size-4' />
+								Xuất PDF
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
 					<ToggleGroup
 						type='single'
 						value={timeRange.toString()}

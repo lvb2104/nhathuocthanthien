@@ -1,22 +1,50 @@
 'use client';
 
-import { IconAlertTriangle, IconClock } from '@tabler/icons-react';
-import { useInventoryStatistics } from '@/hooks';
+import {
+	IconAlertTriangle,
+	IconClock,
+	IconFileTypePdf,
+	IconFileTypeXls,
+} from '@tabler/icons-react';
+import { useInventoryStatistics, useExportInventory } from '@/hooks';
+import { toast } from 'react-toastify';
 import {
 	Card,
+	CardAction,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export function InventoryAlerts() {
 	const { data, isLoading } = useInventoryStatistics();
+	const exportInventory = useExportInventory();
 
 	const lowStockCount = data?.data.lowStockProducts.length ?? 0;
 	const nearExpiryCount = data?.data.nearExpiryBatches.length ?? 0;
 	const totalAlerts = lowStockCount + nearExpiryCount;
+
+	const handleExport = (format: 'excel' | 'pdf') => {
+		exportInventory.mutate(
+			{ format },
+			{
+				onSuccess: () => {
+					toast.success(
+						`Xuất báo cáo ${format === 'excel' ? 'Excel' : 'PDF'} thành công!`,
+					);
+				},
+			},
+		);
+	};
 
 	return (
 		<Card className='@container/card'>
@@ -30,6 +58,30 @@ export function InventoryAlerts() {
 					)}
 				</CardTitle>
 				<CardDescription>Sản phẩm cần chú ý</CardDescription>
+				<CardAction>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button
+								size='sm'
+								variant='outline'
+								disabled={exportInventory.isPending}
+								className='h-8'
+							>
+								{exportInventory.isPending ? 'Đang xuất...' : 'Xuất báo cáo'}
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align='end'>
+							<DropdownMenuItem onClick={() => handleExport('excel')}>
+								<IconFileTypeXls className='mr-2 size-4' />
+								Xuất Excel
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={() => handleExport('pdf')}>
+								<IconFileTypePdf className='mr-2 size-4' />
+								Xuất PDF
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</CardAction>
 			</CardHeader>
 			<CardContent>
 				{isLoading ? (

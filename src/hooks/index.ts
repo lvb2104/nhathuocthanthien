@@ -81,3 +81,8 @@ export * from './statistics/use-overview-statistics';
 export * from './statistics/use-revenue-statistics';
 export * from './statistics/use-top-selling-products';
 export * from './statistics/use-inventory-statistics';
+export * from './statistics/use-export-revenue';
+export * from './statistics/use-export-products';
+export * from './statistics/use-export-inventory';
+export * from './stock-movements/use-stock-movements';
+export * from './stock-movements/use-stock-movements-by-product';

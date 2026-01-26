@@ -5,13 +5,12 @@ import {
 	IconFileWord,
 	IconHelp,
 	IconListDetails,
-	IconSearch,
-	IconSettings,
 	IconShoppingBag,
 	IconStar,
 	IconTag,
 	IconTruck,
 	IconUsers,
+	IconArrowsLeftRight,
 } from '@tabler/icons-react';
 import { routes } from './routes';
 
@@ -65,22 +64,17 @@ export const navConfig = {
 				url: routes.admin.reviews.main,
 				icon: IconStar,
 			},
+			{
+				name: 'Lịch sử kho',
+				url: routes.admin.stockMovements.main,
+				icon: IconArrowsLeftRight,
+			},
 		],
 		navSecondary: [
-			{
-				title: 'Cài đặt',
-				url: '/admin/settings',
-				icon: IconSettings,
-			},
 			{
 				title: 'Trợ giúp',
 				url: '/admin/get-help',
 				icon: IconHelp,
-			},
-			{
-				title: 'Tìm kiếm',
-				url: '/admin/search',
-				icon: IconSearch,
 			},
 		],
 	},

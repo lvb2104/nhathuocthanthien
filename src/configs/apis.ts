@@ -117,4 +117,9 @@ export const apiEndpoints = {
 		exportProducts: '/statistics/export/products',
 		exportInventory: '/statistics/export/inventory',
 	},
+	stockMovements: {
+		getAll: '/stock-movements',
+		getByProduct: (productId: number) =>
+			`/stock-movements/product/${productId}`,
+	},
 };

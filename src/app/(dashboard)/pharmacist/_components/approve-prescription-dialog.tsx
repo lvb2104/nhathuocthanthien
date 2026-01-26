@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Prescription, ApprovePrescriptionRequest } from '@/types';
-import { useApprovePrescription } from '@/hooks/prescriptions/use-approve-prescription';
-import { useProducts } from '@/hooks/products/use-products';
+import { useApprovePrescription } from '@/hooks';
+import { useProducts } from '@/hooks';
 import {
 	Dialog,
 	DialogContent,

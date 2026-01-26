@@ -186,7 +186,10 @@ export function ChatBubble() {
 		};
 	}, [addConversation]);
 
-	// Show chat bubble for all users, but only customers can actually use it
+	// Only show chat bubble for customers
+	if (!isAuthenticated || !isCustomer) {
+		return null;
+	}
 
 	return (
 		<>

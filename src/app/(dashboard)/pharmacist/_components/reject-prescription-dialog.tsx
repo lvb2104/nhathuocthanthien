@@ -1,7 +1,7 @@
 'use client';
 
 import { Prescription } from '@/types';
-import { useRejectPrescription } from '@/hooks/prescriptions/use-reject-prescription';
+import { useRejectPrescription } from '@/hooks';
 import {
 	Dialog,
 	DialogContent,
