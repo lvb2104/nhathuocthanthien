@@ -45,6 +45,9 @@ export const routes = {
 		reviews: {
 			main: '/admin/reviews',
 		},
+		stockMovements: {
+			main: '/admin/stock-movements',
+		},
 	},
 	pharmacist: {
 		overview: '/pharmacist',

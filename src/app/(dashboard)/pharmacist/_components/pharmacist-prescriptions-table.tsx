@@ -50,7 +50,7 @@ import {
 	GetAllPrescriptionsForPharmacistResponse,
 } from '@/types';
 import { useEffect, useState } from 'react';
-import { usePharmacistPrescriptions } from '@/hooks/prescriptions/use-pharmacist-prescriptions';
+import { usePharmacistPrescriptions } from '@/hooks';
 import { RefreshCcw, Search, X, Eye, CheckCircle, XCircle } from 'lucide-react';
 import { PrescriptionDetailsSheet } from './prescription-details-sheet';
 import { ApprovePrescriptionDialog } from './approve-prescription-dialog';

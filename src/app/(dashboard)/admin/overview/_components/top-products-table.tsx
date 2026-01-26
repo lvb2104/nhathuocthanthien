@@ -1,9 +1,15 @@
 'use client';
 
-import { IconTrendingUp } from '@tabler/icons-react';
-import { useTopSellingProducts } from '@/hooks';
+import {
+	IconTrendingUp,
+	IconFileTypePdf,
+	IconFileTypeXls,
+} from '@tabler/icons-react';
+import { useTopSellingProducts, useExportProducts } from '@/hooks';
+import { toast } from 'react-toastify';
 import {
 	Card,
+	CardAction,
 	CardContent,
 	CardDescription,
 	CardHeader,
@@ -17,15 +23,60 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export function TopProductsTable() {
 	const { data, isLoading } = useTopSellingProducts({ limit: 10 });
+	const exportProducts = useExportProducts();
+
+	const handleExport = (format: 'excel' | 'pdf') => {
+		exportProducts.mutate(
+			{ format, limit: 10 },
+			{
+				onSuccess: () => {
+					toast.success(
+						`Xuất báo cáo ${format === 'excel' ? 'Excel' : 'PDF'} thành công!`,
+					);
+				},
+			},
+		);
+	};
 
 	return (
 		<Card className='@container/card'>
 			<CardHeader>
 				<CardTitle>Sản phẩm bán chạy</CardTitle>
 				<CardDescription>Top 10 sản phẩm có doanh số cao nhất</CardDescription>
+				<CardAction>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button
+								size='sm'
+								variant='outline'
+								disabled={exportProducts.isPending}
+								className='h-8'
+							>
+								{exportProducts.isPending ? 'Đang xuất...' : 'Xuất báo cáo'}
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align='end'>
+							<DropdownMenuItem onClick={() => handleExport('excel')}>
+								<IconFileTypeXls className='mr-2 size-4' />
+								Xuất Excel
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={() => handleExport('pdf')}>
+								<IconFileTypePdf className='mr-2 size-4' />
+								Xuất PDF
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</CardAction>
 			</CardHeader>
 			<CardContent>
 				{isLoading ? (

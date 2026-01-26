@@ -12,3 +12,4 @@ export * from './prescriptions';
 export * from './notifications';
 export * from './chats';
 export * from './statistics';
+export * from './stock-movements';
