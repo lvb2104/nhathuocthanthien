@@ -72,11 +72,7 @@ export function UpdateDeliveryStatusDialog({
 			case DeliveryStatus.ASSIGNED:
 				return [DeliveryStatus.SHIPPING];
 			case DeliveryStatus.SHIPPING:
-				return [
-					DeliveryStatus.SHIPPING,
-					DeliveryStatus.DELIVERED,
-					DeliveryStatus.CANCELLED,
-				];
+				return [DeliveryStatus.SHIPPING, DeliveryStatus.DELIVERED];
 			case DeliveryStatus.DELIVERED:
 			case DeliveryStatus.CANCELLED:
 				return [delivery.status]; // Cannot change from these states
