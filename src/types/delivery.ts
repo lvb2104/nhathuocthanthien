@@ -1,4 +1,5 @@
 import { PaginatedResponse } from '.';
+import { OrderShipping } from './order';
 
 // ============================================================================
 // GET ALL DELIVERIES
@@ -71,6 +72,7 @@ export type Delivery = {
 		totalAmount: string;
 		discountAmount?: string;
 		finalAmount: string;
+		shipping?: OrderShipping;
 	};
 };
 

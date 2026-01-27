@@ -52,6 +52,7 @@ import { useEffect, useState } from 'react';
 import { useEmployeeDeliveries } from '@/hooks';
 import { RefreshCcw } from 'lucide-react';
 import { UpdateDeliveryStatusDialog } from './update-delivery-status-dialog';
+import { ViewDeliveryDetailsDialog } from './view-delivery-details-dialog';
 
 export function EmployeeDeliveriesTable({
 	initialDeliveries,
@@ -66,6 +67,7 @@ export function EmployeeDeliveriesTable({
 		null,
 	);
 	const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+	const [isViewDetailsOpen, setIsViewDetailsOpen] = useState(false);
 
 	const {
 		data: response,
@@ -143,6 +145,11 @@ export function EmployeeDeliveriesTable({
 		setIsUpdateDialogOpen(true);
 	};
 
+	const handleViewDetails = (delivery: Delivery) => {
+		setSelectedDelivery(delivery);
+		setIsViewDetailsOpen(true);
+	};
+
 	const columns: ColumnDef<Delivery>[] = [
 		{
 			accessorKey: 'id',
@@ -211,6 +218,9 @@ export function EmployeeDeliveriesTable({
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align='end' className='w-40'>
+						<DropdownMenuItem onClick={() => handleViewDetails(row.original)}>
+							Xem chi tiết
+						</DropdownMenuItem>
 						<DropdownMenuItem
 							onClick={() => handleUpdateStatus(row.original)}
 							disabled={
@@ -399,11 +409,18 @@ export function EmployeeDeliveriesTable({
 			</div>
 
 			{selectedDelivery && (
-				<UpdateDeliveryStatusDialog
-					delivery={selectedDelivery}
-					open={isUpdateDialogOpen}
-					onOpenChange={setIsUpdateDialogOpen}
-				/>
+				<>
+					<UpdateDeliveryStatusDialog
+						delivery={selectedDelivery}
+						open={isUpdateDialogOpen}
+						onOpenChange={setIsUpdateDialogOpen}
+					/>
+					<ViewDeliveryDetailsDialog
+						delivery={selectedDelivery}
+						open={isViewDetailsOpen}
+						onOpenChange={setIsViewDetailsOpen}
+					/>
+				</>
 			)}
 		</>
 	);
