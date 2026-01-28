@@ -196,6 +196,31 @@ export function EmployeeDeliveriesTable({
 			},
 		},
 		{
+			id: 'shippingAddress',
+			header: 'Địa chỉ giao hàng',
+			cell: ({ row }) => {
+				const shipping = row.original.order?.shipping;
+				if (!shipping) return <div className='text-sm text-muted-foreground'>N/A</div>;
+				
+				const addressParts = [
+					shipping.addressLine,
+					shipping.ward,
+					shipping.district,
+					shipping.province,
+				].filter(Boolean);
+				
+				return (
+					<div className='text-sm max-w-xs'>
+						<div className='font-medium'>{shipping.fullName}</div>
+						<div className='text-muted-foreground'>{shipping.phone}</div>
+						<div className='text-muted-foreground text-xs mt-1'>
+							{addressParts.join(', ')}
+						</div>
+					</div>
+				);
+			},
+		},
+		{
 			accessorKey: 'updatedAt',
 			header: 'Cập nhật cuối',
 			cell: ({ row }) => {
